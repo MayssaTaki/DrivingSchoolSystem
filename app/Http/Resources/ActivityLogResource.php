@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ActivityLogResource extends JsonResource
+{
+    public function toArray($request)
+    {
+        $causer = $this->causer;
+
+        return [
+            
+            'log_name'    => $this->log_name,
+            'event'       => $this->event,
+            'created_at'  => $this->created_at,
+            'user'        => $causer ? [
+                
+                'name'  => $causer->name,
+                
+                'role'  => $causer->role,
+            ] : null,
+            'properties'  => $this->properties ?? [],
+
+        ];
+    }
+}
