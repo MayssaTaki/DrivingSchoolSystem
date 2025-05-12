@@ -12,7 +12,7 @@ class CreateLogEntriesTable extends Migration
             $table->string('level'); 
             $table->string('message');
             $table->text('context')->nullable(); 
-            $table->string('channel')->nullable(); 
+            $table->string('channel')->nullable()->index(); 
             $table->timestamps();
         });
     }

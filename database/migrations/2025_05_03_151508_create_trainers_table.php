@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
             $table->string('license_number')->unique(); 
-            $table->string('first_name');
+            $table->string('first_name')->index();
             $table->string('last_name');
             $table->enum('specialization', ['regular', 'special_needs']); 
             $table->text('experience'); 

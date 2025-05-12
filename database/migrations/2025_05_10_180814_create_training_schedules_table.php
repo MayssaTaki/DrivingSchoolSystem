@@ -22,12 +22,12 @@ return new class extends Migration
                 'sunday', 
                 'saturday', 
                 
-            ]);
-            $table->time('start_time');
+            ])->index();
+            $table->time('start_time')->index();
             $table->time('end_time');
             $table->boolean('is_recurring')->default(true);
-            $table->date('valid_from')->nullable();
-            $table->date('valid_to')->nullable();
+            $table->date('valid_from')->nullable()->index();
+            $table->date('valid_to')->nullable()->index();
             $table->enum('status', ['active', 'inactive'])->default('active');            
             $table->unique(['trainer_id', 'day_of_week', 'start_time'], 'trainer_time_slot_unique');
             $table->timestamps();
