@@ -16,7 +16,7 @@ class CarAddedRequest extends FormRequest
         return [
             'make' => 'required|string|max:255',
             'model' => 'required|string|max:255',
-            'year' => 'required|string',
+            'year' => 'required|string|digits:4',
             'color' => 'required|string|max:20',
             'license_plate' => 'required|string|max:255|unique:cars,license_plate',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -30,7 +30,7 @@ class CarAddedRequest extends FormRequest
         return [
             'make.required' => 'نوع السيارة مطلوب.',
             'model.required' => 'موديل السيارة مطلوب.',
-            'year.required' => 'سنة الصنع مطلوبة.',
+           'year.digits' => 'يجب أن يتكون رقم الهاتف من 4 أرقام فقط.',
             'color.required' => 'لون السيارة مطلوب.',
             'license_plate.required' => 'رقم اللوحة مطلوب.',
             'license_plate.unique' => 'رقم اللوحة مسجل مسبقًا.',
@@ -50,4 +50,5 @@ class CarAddedRequest extends FormRequest
             'is_for_special_needs' => filter_var($this->is_for_special_needs, FILTER_VALIDATE_BOOLEAN),
         ]);
     }
+    
 }
