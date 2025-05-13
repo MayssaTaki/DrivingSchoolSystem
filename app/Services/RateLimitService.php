@@ -1,78 +1,58 @@
 <?php
-
 namespace App\Services;
 
-use Illuminate\Support\Facades\RateLimiter;
+use App\Repositories\Contracts\RateLimiterInterface;
 use Illuminate\Support\Str;
-use App\Repositories\RateLimitRepository;
-use App\Exceptions\RateLimitExceededException;
 
 class RateLimitService
 {
-    protected RateLimitRepository $rateLimitRepository;
+    protected RateLimiterInterface $limiter;
 
-    public function __construct(RateLimitRepository $rateLimitRepository)
+    public function __construct(RateLimiterInterface $limiter)
     {
-        $this->rateLimitRepository = $rateLimitRepository;
+        $this->limiter = $limiter;
     }
 
-    public function checkLoginRateLimit(string $email): void
+    public function throttleKey(string $identifier, string $context): string
     {
-        $key = $this->generateKey('login', $email);
-        $maxAttempts = config('ratelimit.login.max_attempts');
-        $decaySeconds = config('ratelimit.login.decay_seconds');
+        $ip = request()?->ip() ?? '127.0.0.1';
+        $agent = request()?->header('User-Agent') ?? 'unknown';
+        return "{$context}|" . Str::lower($identifier) . "|{$ip}|" . md5($agent);
+    }
 
-        if ($this->rateLimitRepository->tooManyAttempts($key, $maxAttempts)) {
-            $seconds = $this->rateLimitRepository->availableIn($key);
-            throw new RateLimitExceededException('login', $seconds);
+    public function check(string $identifier, string $context): void
+    {
+        $key = $this->throttleKey($identifier, $context);
+        $max = $this->getMaxAttempts($context);
+        $decay = $this->getDecaySeconds($context);
+
+        if ($this->limiter->tooManyAttempts($key, $max)) {
+            $seconds = $this->limiter->availableIn($key);
+            abort(429, "محاولات كثيرة جدًا، حاول بعد {$seconds} ثانية.");
         }
 
-        $this->rateLimitRepository->hit($key, $decaySeconds);
+        $this->limiter->attempt($key, $max, $decay);
     }
 
-    
-    public function checkRegistrationRateLimit(string $ipAddress): void
+    public function clear(string $identifier, string $context): void
     {
-        $key = $this->generateKey('register', $ipAddress);
-        $maxAttempts = config('ratelimit.register.max_attempts');
-        $decaySeconds = config('ratelimit.register.decay_seconds');
-
-        if ($this->rateLimitRepository->tooManyAttempts($key, $maxAttempts)) {
-            $seconds = $this->rateLimitRepository->availableIn($key);
-            throw new RateLimitExceededException('registration', $seconds);
-        }
-
-        $this->rateLimitRepository->hit($key, $decaySeconds);
+        $key = $this->throttleKey($identifier, $context);
+        $this->limiter->clear($key);
     }
 
-    
-    public function checkEmployeeCreationRateLimit(string $adminId): void
+    protected function getMaxAttempts(string $context): int
     {
-        $key = $this->generateKey('employee_create', $adminId);
-        $maxAttempts = config('ratelimit.employee_creation.max_attempts');
-        $decaySeconds = config('ratelimit.employee_creation.decay_seconds');
-
-        if ($this->rateLimitRepository->tooManyAttempts($key, $maxAttempts)) {
-            $seconds = $this->rateLimitRepository->availableIn($key);
-            throw new RateLimitExceededException('employee_creation', $seconds);
-        }
-
-        $this->rateLimitRepository->hit($key, $decaySeconds);
+        return config("auth.throttle.{$context}.max_attempts", 5);
     }
 
-    
-    public function clearRateLimit(string $type, string $identifier): void
+    protected function getDecaySeconds(string $context): int
     {
-        $key = $this->generateKey($type, $identifier);
-        $this->rateLimitRepository->clear($key);
+        return config("auth.throttle.{$context}.decay_minutes", 5) * 60;
     }
 
-   
-    private function generateKey(string $type, string $identifier): string
+    public function availableIn(string $identifier, string $context): int
     {
-        $ip = request()->ip() ?? '127.0.0.1';
-        $agent = request()->header('User-Agent') ?? 'unknown';
-        
-        return "{$type}|" . Str::lower($identifier) . "|{$ip}|" . md5($agent);
+        $key = $this->throttleKey($identifier, $context);
+        return $this->limiter->availableIn($key);
     }
 }

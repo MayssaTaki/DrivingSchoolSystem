@@ -93,14 +93,41 @@ return [
     | quickly generating a very large amount of password reset tokens.
     |
     */
+'throttle' => [
 
+    
+    'login' => [
+        'max_attempts' => 5,
+        'decay_minutes' => 1,
+    ],
+
+ 
+    'password_reset_request' => [
+        'max_attempts' => 5,
+        'decay_minutes' => 5,
+    ],
+
+ 
+    'password_reset_attempt' => [
+        'max_attempts' => 5,
+        'decay_minutes' => 5,
+    ],
+
+   
+    'email_verification' => [
+        'max_attempts' => 5,
+        'decay_minutes' => 5,
+    ],
+
+],
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'table' => env( 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
         ],
+    
     ],
 
     /*

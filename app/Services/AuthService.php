@@ -4,52 +4,47 @@ namespace App\Services;
 
 use App\Traits\LogsActivity;
 use App\Repositories\Contracts\RefreshTokenRepositoryInterface;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Auth\AuthenticationException;
+use App\Services\RateLimitService;
 
 class AuthService
 {
     use LogsActivity;
 
     protected RefreshTokenRepositoryInterface $refreshRepo;
-    protected $logService;
+    protected LogService $logService;
+    protected RateLimitService $rateLimiter;
 
-    public function __construct(RefreshTokenRepositoryInterface $refreshRepo)
-    {
+    public function __construct(
+        RefreshTokenRepositoryInterface $refreshRepo,
+        RateLimitService $rateLimiter
+    ) {
+        $this->rateLimiter = $rateLimiter;
         $this->refreshRepo = $refreshRepo;
-        $this->logService = app()->make('App\Services\LogService');
+        $this->logService = app()->make(LogService::class);
     }
 
     public function login(array $credentials): array
     {
         $email = $credentials['email'];
         $remember = $credentials['remember_me'] ?? false;
-        $key = $this->throttleKey($email, 'login');
 
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            $seconds = RateLimiter::availableIn($key);
-            $this->logService->log('warning', 'محاولات دخول كثيرة جدًا', [
-                'email' => $email,
-                'ip' => request()->ip(),
-                'agent' => request()->userAgent(),
-                'available_in_seconds' => $seconds,
-            ], 'auth');
-            abort(429, "محاولات كثيرة جدًا، حاول بعد {$seconds} ثانية.");
-        }
+        
+        $this->rateLimiter->check($email, 'login');
 
         auth()->factory()->setTTL($remember ? 60 * 24 * 15 : 60);
 
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
-                RateLimiter::hit($key, 60);
                 $this->logService->log('error', 'فشل تسجيل الدخول - بيانات غير صحيحة', [
                     'email' => $email,
                     'ip' => request()->ip(),
                     'agent' => request()->userAgent(),
                 ], 'auth');
+
                 throw new AuthenticationException("بيانات الدخول غير صحيحة");
             }
         } catch (\Throwable $e) {
@@ -61,7 +56,8 @@ class AuthService
             throw $e;
         }
 
-        RateLimiter::clear($key);
+       
+        $this->rateLimiter->clear($email, 'login');
 
         $user = auth()->user();
         $refreshToken = Str::random(64);
@@ -75,7 +71,7 @@ class AuthService
         $this->logActivity('تم تسجيل الدخول', ['remember_me' => $remember], 'auth', $user, $user, 'login');
 
         $this->logService->log('info', 'تم تسجيل الدخول بنجاح', [
-            'user_id' => $user->id,
+          
             'email' => $user->email,
             'ip' => request()->ip(),
             'remember_me' => $remember,
@@ -92,32 +88,26 @@ class AuthService
 
     public function refreshToken(): array
     {
+        $email = auth()->user()?->email ?? 'guest';
+        $context = 'refresh';
+
+        $this->rateLimiter->check($email, $context);
+
         $incomingToken = request()->input('refresh_token');
-        $key = $this->throttleKey(auth()->user()?->email ?? 'guest', 'refresh');
-
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            $seconds = RateLimiter::availableIn($key);
-            $this->logService->log('warning', 'طلب تجديد متكرر جداً', [
-                'ip' => request()->ip(),
-                'agent' => request()->userAgent(),
-                'available_in_seconds' => $seconds,
-            ], 'auth');
-            abort(429, "طلب متكرر جداً، حاول بعد {$seconds} ثانية.");
-        }
-
         $hashed = hash('sha256', $incomingToken);
+
         $record = $this->refreshRepo->findValidToken($hashed);
 
         if (!$record) {
-            RateLimiter::hit($key, 60);
             $this->logService->log('error', 'توكن تجديد غير صالح أو منتهي', [
                 'token_hash' => $hashed,
                 'ip' => request()->ip(),
             ], 'auth');
+
             throw new AuthenticationException('توكن غير صالح أو منتهي.');
         }
 
-        RateLimiter::clear($key);
+        $this->rateLimiter->clear($email, $context);
 
         $this->logActivity('تم تجديد التوكن', [], 'auth', $record->user, $record->user, 'refresh');
 
@@ -155,12 +145,5 @@ class AuthService
             ], 'auth');
             throw $e;
         }
-    }
-
-    private function throttleKey(string $email, string $context): string
-    {
-        $ip = request()?->ip() ?? '127.0.0.1';
-        $agent = request()?->header('User-Agent') ?? 'unknown';
-        return "{$context}|" . Str::lower($email) . "|{$ip}|" . md5($agent);
     }
 }

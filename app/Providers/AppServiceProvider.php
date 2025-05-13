@@ -10,8 +10,13 @@ use App\Repositories\RefreshTokenRepository;
 use App\Repositories\LogRepository;
 use App\Repositories\CarRepository;
 use App\Repositories\TrainingSchedulesRepository;
+use App\Repositories\PasswordResetRepository;
+use App\Repositories\RateLimitRepository;
+use App\Repositories\EmailVerificationRepository;
 
 
+
+use App\Services\RateLimitService;
 
 use App\Repositories\Contracts\ActivityLogRepositoryInterface;
 use App\Repositories\Contracts\EmployeeRepositoryInterface;
@@ -21,6 +26,12 @@ use App\Repositories\Contracts\StudentRepositoryInterface;
 use App\Repositories\Contracts\RefreshTokenRepositoryInterface;
 use App\Repositories\Contracts\LogRepositoryInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
+use App\Repositories\Contracts\RateLimiterInterface;
+use App\Repositories\Contracts\PasswordResetRepositoryInterface;
+use App\Repositories\Contracts\EmailVerificationRepositoryInterface;
+
+
+
 use App\Repositories\Contracts\TrainingSchedulesRepositoryInterface;
 
 
@@ -47,7 +58,13 @@ class AppServiceProvider extends ServiceProvider
          $this->app->bind(\App\Services\TransactionService::class);
         $this->app->bind(CarRepositoryInterface::class, CarRepository::class);
      $this->app->bind(TrainingSchedulesRepositoryInterface::class, TrainingSchedulesRepository::class);
-
+     $this->app->bind(RateLimiterInterface::class, RateLimitRepository::class);
+$this->app->bind(
+   PasswordResetRepositoryInterface::class,PasswordResetRepository::class
+);
+$this->app->bind(
+  EmailVerificationRepositoryInterface::class,EmailVerificationRepository ::class
+);
 
 
       
