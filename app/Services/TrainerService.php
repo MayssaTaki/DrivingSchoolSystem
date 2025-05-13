@@ -8,6 +8,8 @@ use App\Traits\LogsActivity;
 use App\Repositories\UserRepository;
 use App\Repositories\TrainerRepository;
 use App\Services\TransactionService;
+use App\Services\EmailVreificationService;
+
 use App\Services\UserService;
 use App\Exceptions\TrainerRegistrationException;
 use App\Exceptions\TrainerNotFoundException;
@@ -31,7 +33,7 @@ class TrainerService
 
     protected ActivityLoggerService $activityLogger;
     protected LogService $logService;
-
+protected EmailVreificationService $emailservice;
 
     public function __construct(
         TrainerRepositoryInterface $trainerRepository,
@@ -39,7 +41,8 @@ class TrainerService
         UserService $userService,
         UserRepositoryInterface $userRepository,
         ActivityLoggerService $activityLogger,
-        LogService $logService
+        LogService $logService,
+        EmailVerificationService $emailService,
 
 
         
@@ -50,6 +53,7 @@ class TrainerService
         $this->userRepository = $userRepository;
         $this->activityLogger = $activityLogger;
         $this->logService = $logService;
+        $this->emailService=$emailService;
 
 
     }
@@ -83,6 +87,7 @@ class TrainerService
                 ];
 
                 $trainer = $this->trainerRepository->create($trainerData);
+                $this->emailService->sendVerificationCode($user);
 
                 $this->activityLogger->log(
                     'تم تسجيل موظف جديد',

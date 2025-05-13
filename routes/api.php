@@ -9,6 +9,10 @@ use App\Http\Controllers\TrainingSchedulesController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\CarController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\EmailVerificationController;
+
+
 
 use Illuminate\Support\Facades\Http;
 
@@ -28,7 +32,7 @@ Route::get('/test-email', function () {
             'email' => 'qyadaschool@gmail.com' // بريد مُفعّل في Brevo
         ],
         'to' => [
-            ['email' => 'hamzaasaad80@gmail.com']
+            ['email' => 'maessataki@gmail.com']
         ],
         'subject' => '📨 حظا سعيد في الحياة معلم حمزة',
         'htmlContent' => '<p>✅</p>',
@@ -41,9 +45,13 @@ Route::get('/test-email', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
 Route::post('/refresh', [AuthController::class, 'refreshToken'])->middleware('auth:api');
+Route::post('/password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
+Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
+Route::post('/resend-email-code', [EmailVerificationController::class, 'resend']);
+    Route::post('/email/verify', [EmailVerificationController::class, 'verify']);
 
 
-Route::middleware('adminOnly')->group(function () {
+Route::middleware('auth:api','adminOnly')->group(function () {
     Route::get('/admin/logs', [LogController::class, 'index']);
     Route::get('/activity-log', [ActivityLogController::class, 'getAllActivityLogs']);
     Route::post('/employee/register', [EmployeeController::class, 'register']);
@@ -60,35 +68,35 @@ Route::get('/employees/count', [EmployeeController::class, 'countEmployees']);
 
 
 Route::post('/trainer/register', [TrainerController::class, 'register']);
-Route::get('/trainers', [TrainerController::class, 'getAllTrainers']);
-Route::delete('/trainers/{id}', [TrainerController::class, 'destroy']);
-Route::put('/trainers/{trainer}', [TrainerController::class, 'update']);
-Route::get('/trainers/count', [TrainerController::class, 'countTrainers']);
-Route::get('/trainersApprove', [TrainerController::class, 'getAllTrainersApprove']);
-Route::post('/trainers/{id}/approve', [TrainerController::class, 'approve']);
-Route::post('/trainers/{id}/reject', [TrainerController::class, 'reject']);
-Route::get('/count/approved', [TrainerController::class, 'approved']);
-Route::get('/count/rejected', [TrainerController::class, 'rejected']);
-Route::get('/count/pened', [TrainerController::class, 'pened']);
-Route::get('/trainer/{id}/schedules', [TrainingSchedulesController::class, 'showByTrainer']);
+Route::get('/trainers', [TrainerController::class, 'getAllTrainers'])->middleware('auth:api');
+Route::delete('/trainers/{id}', [TrainerController::class, 'destroy'])->middleware('auth:api');
+Route::put('/trainers/{trainer}', [TrainerController::class, 'update'])->middleware('auth:api');
+Route::get('/trainers/count', [TrainerController::class, 'countTrainers'])->middleware('auth:api');
+Route::get('/trainersApprove', [TrainerController::class, 'getAllTrainersApprove'])->middleware('auth:api');
+Route::post('/trainers/{id}/approve', [TrainerController::class, 'approve'])->middleware('auth:api');
+Route::post('/trainers/{id}/reject', [TrainerController::class, 'reject'])->middleware('auth:api');
+Route::get('/count/approved', [TrainerController::class, 'approved'])->middleware('auth:api');
+Route::get('/count/rejected', [TrainerController::class, 'rejected'])->middleware('auth:api');
+Route::get('/count/pened', [TrainerController::class, 'pened'])->middleware('auth:api');
+Route::get('/trainer/{id}/schedules', [TrainingSchedulesController::class, 'showByTrainer'])->middleware('auth:api');
 
 
 
 
 
 Route::post('/student/register', [StudentController::class, 'register']);
-Route::get('/students', [StudentController::class, 'getAllStudents']);
-Route::delete('/students/{id}', [StudentController::class, 'destroy']);
-Route::put('/students/{student}', [StudentController::class, 'update']);
-Route::get('/students/count', [StudentController::class, 'countStudents']);
+Route::get('/students', [StudentController::class, 'getAllStudents'])->middleware('auth:api');
+Route::delete('/students/{id}', [StudentController::class, 'destroy'])->middleware('auth:api');
+Route::put('/students/{student}', [StudentController::class, 'update'])->middleware('auth:api');
+Route::get('/students/count', [StudentController::class, 'countStudents'])->middleware('auth:api');
 
 
 
-Route::get('/cars', [CarController::class, 'getAllCars']);
-Route::get('/cars/count', [CarController::class, 'countCars']);
-Route::post('/car/add', [CarController::class, 'add']);
-Route::delete('/cars/{id}', [CarController::class, 'destroy']);
-Route::put('/cars/{car}', [CarController::class, 'update']);
+Route::get('/cars', [CarController::class, 'getAllCars'])->middleware('auth:api');
+Route::get('/cars/count', [CarController::class, 'countCars'])->middleware('auth:api');
+Route::post('/car/add', [CarController::class, 'add'])->middleware('auth:api');
+Route::delete('/cars/{id}', [CarController::class, 'destroy'])->middleware('auth:api');
+Route::put('/cars/{car}', [CarController::class, 'update'])->middleware('auth:api');
 
 
 

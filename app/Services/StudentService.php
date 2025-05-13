@@ -31,6 +31,7 @@ class StudentService
 
     protected ActivityLoggerService $activityLogger;
     protected LogService $logService;
+protected EmailVreificationService $emailservice;
 
 
     public function __construct(
@@ -39,7 +40,10 @@ class StudentService
         UserService $userService,
         UserRepositoryInterface $userRepository,
         ActivityLoggerService $activityLogger,
-        LogService $logService
+        LogService $logService,
+                EmailVerificationService $emailService,
+
+        
 
 
     ) {
@@ -49,6 +53,8 @@ class StudentService
         $this->userRepository = $userRepository;
         $this->activityLogger = $activityLogger;
         $this->logService = $logService;
+                $this->emailService=$emailService;
+
 
 
     }
@@ -79,6 +85,7 @@ class StudentService
                 ];
 
                 $student = $this->studentRepository->create($studentData);
+                $this->emailService->sendVerificationCode($user);
 
                 $this->logActivity(
                     'تم تسجيل طالب جديد',
