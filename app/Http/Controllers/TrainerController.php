@@ -35,11 +35,12 @@ class TrainerController extends Controller
         $data = $request->validated();
         $trainer = $this->trainerService->register($data);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'تم تسجيل المدرب والمستخدم بنجاح.',
-            'data' => new TrainerResource($trainer)
-        ], 201);
+       return response()->json([
+    'status' => 'success',
+    'message' => 'تم تسجيل المدرب. تم إرسال رمز التحقق إلى بريدك الإلكتروني.',
+    'data' => new TrainerResource($trainer)
+], 201);
+
     } catch (TrainerRegistrationException | UserRegistrationException $e) {
         return response()->json([
             'status' => 'error',

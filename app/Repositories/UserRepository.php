@@ -2,9 +2,10 @@
 
 namespace App\Repositories;
 use Exception;
+use DB;
 use Illuminate\Support\Facades\Hash;
 use App\Repositories\Contracts\UserRepositoryInterface;
-
+use Log;
 use App\Models\User;
 
 class UserRepository implements UserRepositoryInterface
@@ -19,6 +20,14 @@ class UserRepository implements UserRepositoryInterface
   {
       return User::destroy($id) > 0;
   }
+public function findOrFail(int $id): User
+{
+    return User::findOrFail($id);
+}
+
+
+
+
 
   public function findByEmail(string $email): ?User
   {
