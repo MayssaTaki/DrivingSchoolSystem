@@ -16,14 +16,15 @@ class TrainingSchedulesResource extends JsonResource
     }
  protected function commonAttributes(): array
     {
-        return [
-          //  'day' => $this->getTranslatedDay($this->day_of_week),
-            'day_key' => $this->day_of_week,
-            
-            'time_range' => substr($this->start_time, 0, 5).' - '.substr($this->end_time, 0, 5),
-            
-          
-        ];
+       $user = auth()->user();
+        if (!in_array($user?->role, ['admin', 'employee']) && $this->status !== 'active') {
+        return [];
+    }
+
+    return [
+        'day_key' => $this->day_of_week,
+        'time_range' => substr($this->start_time, 0, 5) . ' - ' . substr($this->end_time, 0, 5),
+    ];
     }
     
     protected function getTranslatedDay($day)
