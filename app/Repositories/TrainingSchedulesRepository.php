@@ -15,7 +15,7 @@ class TrainingSchedulesRepository  implements TrainingSchedulesRepositoryInterfa
 
     return Cache::tags(['training_schedules', 'trainer_'.$trainerId])->remember($cacheKey, now()->addHours(1), function () use ($trainerId) {
         return TrainingSchedule::where('trainer_id', $trainerId)
-            ->where('status', 'active')
+            
             ->where(function($query) {
                 $query->whereNull('valid_from')
                       ->orWhere('valid_from', '<=', now());
@@ -33,5 +33,25 @@ public function clearCache($trainerId)
 {
     Cache::tags(['training_schedules'])->flush();
 }
+public function create(array $data)
+{
+    return TrainingSchedule::create($data);
+}
+
+public function update(int $id, array $data)
+{
+    $schedule = TrainingSchedule::findOrFail($id);
+    $schedule->update($data);
+    return $schedule;
+}
+
+public function changeStatus(int $id, string $status)
+{
+    $schedule = TrainingSchedule::findOrFail($id);
+    $schedule->update(['status' => $status]);
+    return $schedule;
+}
+
+
 
 }
