@@ -7,6 +7,9 @@ use App\Models\Trainer;
 use Illuminate\Http\Request;
 use App\Services\TrainingSchedulesService;
 use App\Http\Resources\TrainingSchedulesResource;
+use App\Http\Requests\StoreTrainingScheduleRequest;
+use App\Http\Requests\UpdateTrainingScheduleRequest;
+
 
 use Illuminate\Auth\Access\AuthorizationException;
 
@@ -38,4 +41,43 @@ class TrainingSchedulesController extends Controller
         ], $statusCode);
     }
 }
+public function store(StoreTrainingScheduleRequest $request)
+{
+    $schedules = $this->trainingService->createMany($request->validated()['schedules']);
+
+    return response()->json([
+        'message' => 'تم إنشاء الجداول بنجاح.',
+        'data' => $schedules
+    ]);
+}
+
+public function update(UpdateTrainingScheduleRequest $request)
+{
+    $schedules = $this->trainingService->updateMany($request->validated()['schedules']);
+
+    return response()->json([
+        'message' => 'تم تعديل الجداول بنجاح.',
+        'data' => $schedules
+    ]);
+}
+
+public function activate($id)
+{
+    $schedule = $this->trainingService->activate($id);
+    return response()->json([
+        'message' => 'تم تفعيل الجدول بنجاح.',
+        
+    ]);
+}
+
+public function deactivate($id)
+{
+    $schedule = $this->trainingService->deactivate($id);
+    return response()->json([
+        'message' => 'تم تعطيل الجدول بنجاح.',
+       
+    ]);
+}
+
+
 }

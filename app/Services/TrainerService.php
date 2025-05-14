@@ -237,36 +237,62 @@ public function clearTrainerCache(): void
         return $this->trainerRepository->countTrainers(); 
     }
 
-    public function approveTrainer($id): Trainer
-    {
+  public function approveTrainer($id): Trainer
+{
+    $trainer = $this->trainerRepository->find($id);
+    
+    try {
+        if (Gate::denies('approve', $trainer)) {
+            throw new AuthorizationException('ليس لديك صلاحية الموافقة على المدرب.');
+        }
 
-        $trainer = $this->trainerRepository->find($id);
-        
-        try {
-            if (Gate::denies('approve', $trainer)) {
-                throw new AuthorizationException('ليس لديك صلاحية الموافقة على المدرب.');
-            }
-            return $this->trainerRepository->approve($trainer);
-        } catch (\Exception $e) {
-            throw new \Exception('Failed to approve trainer: ' . $e->getMessage());
-        }
+        $approvedTrainer = $this->trainerRepository->approve($trainer);
+
+        $this->activityLogger->log(
+            'تمت الموافقة على المدرب',
+            ['trainer_id' => $trainer->id],
+            'trainers',
+            $trainer,
+            auth()->user(),
+            'approved'
+        );
+
+        $this->clearTrainerCache();
+
+        return $approvedTrainer;
+    } catch (\Exception $e) {
+        throw new \Exception('فشل في الموافقة على المدرب: ' . $e->getMessage());
     }
-   
-    public function rejectTrainer($id)
-    {
-        $trainer = $this->trainerRepository->find($id);
-        
-        try {
-            if (Gate::denies('reject', $trainer)) {
-                throw new AuthorizationException('ليس لديك صلاحية رفض   المدرب.');
-            }
-            return $this->trainerRepository->reject($trainer);
-        } catch (\Exception $e) {
-            throw new \Exception('Failed to reject trainer: ' . $e->getMessage());
+}
+
+public function rejectTrainer($id)
+{
+    $trainer = $this->trainerRepository->find($id);
+    
+    try {
+        if (Gate::denies('reject', $trainer)) {
+            throw new AuthorizationException('ليس لديك صلاحية رفض المدرب.');
         }
-   
+
+        $rejectedTrainer = $this->trainerRepository->reject($trainer);
+
+        $this->activityLogger->log(
+            'تم رفض المدرب',
+            ['trainer_id' => $trainer->id],
+            'trainers',
+            $trainer,
+            auth()->user(),
+            'rejected'
+        );
+
+        $this->clearTrainerCache();
+
+        return $rejectedTrainer;
+    } catch (\Exception $e) {
+        throw new \Exception('فشل في رفض المدرب: ' . $e->getMessage());
     }
-   
+}
+
     public function getApprovedTrainers()
     {
         return $this->trainerRepository->getApprovedTrainers();
