@@ -34,7 +34,7 @@ class TrainingSchedulesSeeder extends Seeder
                     'is_recurring' => true,
                     'valid_from' => Carbon::now()->subMonths(2),
                     'valid_to' => Carbon::now()->addMonths(6),
-                    'status' => 'active'
+                    'status' => 'inactive'
                 ]);
             }
             
