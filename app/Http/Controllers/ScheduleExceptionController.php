@@ -14,14 +14,24 @@ class ScheduleExceptionController extends Controller
     }
 
     public function index(int $trainerId): JsonResponse
-    {
+{
+    try {
         $exceptions = $this->service->getTrainerExceptions($trainerId);
+
         return response()->json([
             'success' => true,
             'message' => 'تم جلب استثناءات الجدولة بنجاح.',
             'data' => ScheduleExceptionResource::collection($exceptions)
         ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'حدث خطأ أثناء جلب استثناءات الجدولة.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     public function show(int $id): JsonResponse
     {

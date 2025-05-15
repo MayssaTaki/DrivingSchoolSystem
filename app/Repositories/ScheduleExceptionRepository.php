@@ -1,19 +1,29 @@
 <?php
 namespace App\Repositories;
 
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\ScheduleException;
-use App\Repositories\Interfaces\ScheduleExceptionRepositoryInterface;
+use App\Repositories\Contracts\ScheduleExceptionRepositoryInterface;
 use Illuminate\Support\Collection;
 
 class ScheduleExceptionRepository implements ScheduleExceptionRepositoryInterface
 {
-    public function getAllForTrainer(int $trainerId): Collection
-    {
-        return ScheduleException::where('trainer_id', $trainerId)
-            ->orderBy('exception_date', 'desc')
-            ->get();
-    }
+   public function getAllForTrainerPaginated(int $trainerId): LengthAwarePaginator
+{
+    $cacheKey = "schedule_exceptions_trainer_{$trainerId}_page_" . request('page', 1);
 
+    return Cache::tags(['schedule_exceptions', 'trainer_'.$trainerId])
+        ->remember($cacheKey, now()->addHours(1), function () use ($trainerId) {
+            return ScheduleException::where('trainer_id', $trainerId)
+                ->orderBy('exception_date', 'desc')
+                ->paginate(10); 
+        });
+}
+public function clearCache($trainerId)
+{
+    Cache::tags(['schedule_exceptions'])->flush();
+}
     public function getById(int $id): ?ScheduleException
     {
         return ScheduleException::find($id);
