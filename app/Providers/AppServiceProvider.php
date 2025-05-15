@@ -65,6 +65,10 @@ $this->app->bind(
 $this->app->bind(
   EmailVerificationRepositoryInterface::class,EmailVerificationRepository ::class
 );
+   $this->app->bind(
+        \App\Repositories\Interfaces\ScheduleExceptionRepositoryInterface::class,
+        \App\Repositories\ScheduleExceptionRepository::class
+    );
 
 
       

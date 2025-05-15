@@ -11,6 +11,7 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\ScheduleExceptionController;
 
 
 
@@ -45,10 +46,13 @@ Route::get('/test-email', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
 Route::post('/refresh', [AuthController::class, 'refreshToken'])->middleware('auth:api');
-Route::post('/password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
-Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
+Route::post('/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
+Route::post('/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+Route::post('/resend-reset-code', [PasswordResetController::class, 'resendResetCode']);
+
 Route::post('/resend-email-code', [EmailVerificationController::class, 'resend']);
-    Route::post('/email/verify', [EmailVerificationController::class, 'verify']);
+Route::post('/email/verify', [EmailVerificationController::class, 'verify']);
 
 
 Route::middleware('auth:api','adminOnly')->group(function () {
@@ -83,7 +87,12 @@ Route::post('/training-schedules', [TrainingSchedulesController::class, 'store']
 Route::put('/training-schedules/update', [TrainingSchedulesController::class, 'update'])->middleware('auth:api');
 Route::put('/training-schedules/{id}/activate', [TrainingSchedulesController::class, 'activate'])->middleware('auth:api');
 Route::put('/training-schedules/{id}/deactivate', [TrainingSchedulesController::class, 'deactivate'])->middleware('auth:api');
+Route::prefix('trainers/{trainerId}/schedule-exceptions')->group(function () {
+    Route::get('/', [ScheduleExceptionController::class, 'index']);
+    Route::post('/', [ScheduleExceptionController::class, 'store']);
+    Route::get('/{id}', [ScheduleExceptionController::class, 'show']);
 
+});
 
 
 
