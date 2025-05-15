@@ -86,77 +86,110 @@ class PasswordResetService
         }
     }
 
-    public function resetPassword(array $data): void
-    {
-        $context = 'password_reset_attempt';
+  public function resetPassword(array $data): void
+{
+    $context = 'password_reset_attempt';
 
-        $this->rateLimiter->check($data['email'], $context);
+    $this->rateLimiter->check($data['email'], $context);
 
-        $record = $this->repository->getByEmail($data['email']);
 
-        if (!$record || !Hash::check($data['code'], $record->token)) {
-            $this->logService->log('warning', 'رمز تحقق غير صحيح', [
-                'email' => $data['email'],
-                'ip' => request()->ip()
-            ], 'auth');
+    try {
+        $user = User::where('email', $data['email'])->firstOrFail();
+        $user->update(['password' => Hash::make($data['password'])]);
+        $this->repository->delete($data['email']);
 
-            $this->logActivity('رمز تحقق غير صحيح', [
-                'email' => $data['email']
-            ], 'auth', null, null, 'password_reset');
+        $this->rateLimiter->clear($data['email'], $context);
 
-            throw new InvalidResetTokenException('رمز التحقق غير صحيح.');
-        }
+        $this->logService->log('info', 'تمت إعادة تعيين كلمة المرور بنجاح', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'ip' => request()->ip()
+        ], 'auth');
 
-        if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
-            $this->repository->delete($data['email']);
+        $this->logActivity('تمت إعادة تعيين كلمة المرور', [
+            'user_id' => $user->id,
+            'email' => $user->email
+        ], 'auth', $user, $user, 'password_reset');
 
-            $this->logService->log('warning', 'رمز إعادة تعيين منتهي الصلاحية', [
-                'email' => $data['email'],
-                'ip' => request()->ip()
-            ], 'auth');
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل إعادة تعيين كلمة المرور', [
+            'email' => $data['email'],
+            'error' => $e->getMessage()
+        ], 'auth');
 
-            $this->logActivity('رمز منتهي الصلاحية', [
-                'email' => $data['email']
-            ], 'auth', null, null, 'password_reset');
+        $this->logActivity('فشل إعادة تعيين كلمة المرور', [
+            'email' => $data['email'],
+            'error' => $e->getMessage()
+        ], 'auth', null, null, 'password_reset');
 
-            throw new InvalidResetTokenException('انتهت صلاحية رمز التحقق.');
-        }
-
-        try {
-            $user = User::where('email', $data['email'])->firstOrFail();
-            $user->update(['password' => Hash::make($data['password'])]);
-            $this->repository->delete($data['email']);
-
-            $this->rateLimiter->clear($data['email'], $context);
-
-            $this->logService->log('info', 'تمت إعادة تعيين كلمة المرور بنجاح', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'ip' => request()->ip()
-            ], 'auth');
-
-            $this->logActivity('تمت إعادة تعيين كلمة المرور', [
-                'user_id' => $user->id,
-                'email' => $user->email
-            ], 'auth', $user, $user, 'password_reset');
-
-        } catch (\Exception $e) {
-            $this->logService->log('error', 'فشل إعادة تعيين كلمة المرور', [
-                'email' => $data['email'],
-                'error' => $e->getMessage()
-            ], 'auth');
-
-            $this->logActivity('فشل إعادة تعيين كلمة المرور', [
-                'email' => $data['email'],
-                'error' => $e->getMessage()
-            ], 'auth', null, null, 'password_reset');
-
-            throw $e;
-        }
+        throw $e;
     }
+}
 
     protected function generateResetCode(): string
     {
         return collect(range(1, 6))->map(fn () => random_int(0, 9))->implode('');
     }
+    public function verifyCode(string $email, string $code): bool
+{
+    $context = 'password_reset_verify';
+
+    $this->rateLimiter->check($email, $context);
+
+    $record = $this->repository->getByEmail($email);
+
+    if (!$record || !Hash::check($code, $record->token)) {
+        $this->logService->log('warning', 'رمز تحقق غير صحيح', [
+            'email' => $email,
+            'ip' => request()->ip()
+        ], 'auth');
+
+        $this->logActivity('رمز تحقق غير صحيح', [
+            'email' => $email
+        ], 'auth', null, null, 'password_reset');
+
+        throw new InvalidResetTokenException('رمز التحقق غير صحيح.');
+    }
+
+    if (Carbon::parse($record->created_at)->addMinutes(5)->isPast()) {
+        $this->repository->delete($email);
+
+        $this->logService->log('warning', 'رمز إعادة تعيين منتهي الصلاحية', [
+            'email' => $email,
+            'ip' => request()->ip()
+        ], 'auth');
+
+        $this->logActivity('رمز منتهي الصلاحية', [
+            'email' => $email
+        ], 'auth', null, null, 'password_reset');
+
+        throw new InvalidResetTokenException('انتهت صلاحية رمز التحقق.');
+    }
+
+    $this->logService->log('info', 'تم التحقق من رمز إعادة تعيين كلمة المرور', [
+        'email' => $email,
+        'ip' => request()->ip()
+    ], 'auth');
+
+    $this->logActivity('تم التحقق من رمز التحقق بنجاح', [
+        'email' => $email
+    ], 'auth', null, null, 'password_reset');
+
+    return true;
+}
+public function resendCode(string $email): void
+{
+    $context = 'password_reset_resend';
+
+    $this->rateLimiter->check($email, $context);
+
+    $record = $this->repository->getByEmail($email);
+    if ($record && Carbon::parse($record->created_at)->addMinutes(5)->isPast()) {
+        
+
+   
+    $this->sendResetLink($email);
+}
+
+}
 }

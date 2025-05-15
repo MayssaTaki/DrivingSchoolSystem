@@ -47,8 +47,8 @@ class EmailVerificationService
         $this->rateLimiter->check($user->email, $context);
 
         $code = $this->generateCode();
-          $expiresAt = now()->addMinutes(10);
-        $this->repository->create($user->email, $code);
+       $expiresAt = now()->addMinutes(5); 
+$this->repository->create($user->email, $code, $expiresAt);
 
         try {
             $response = Http::withHeaders([
