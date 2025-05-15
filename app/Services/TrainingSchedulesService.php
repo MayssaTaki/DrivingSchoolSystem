@@ -3,13 +3,11 @@
 namespace App\Services;
 
 use App\Models\TrainingSchedule;
-use Illuminate\Support\Facades\Cache;
 use App\Repositories\Contracts\TrainingSchedulesRepositoryInterface;
 use App\Services\TransactionService;
 use App\Exceptions\TrainingScheduleException;
 use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Auth\Access\AuthorizationException;
 
 class TrainingSchedulesService
 {
@@ -17,6 +15,8 @@ class TrainingSchedulesService
 
     protected ActivityLoggerService $activityLogger;
     protected LogService $logService;
+    protected TrainingSchedulesRepositoryInterface $trainingRepository;
+    protected TransactionService $transactionService;
 
     public function __construct(
         TrainingSchedulesRepositoryInterface $trainingRepository,
@@ -40,17 +40,24 @@ class TrainingSchedulesService
                 'trainer_id' => $trainerId,
                 'trace' => $e->getTraceAsString()
             ], 'training_schedule');
+
             throw new \Exception('حدث خطأ أثناء استرجاع جدول المدرب', 500);
         }
     }
 
-    public function clearTrainingCache(): void
+    public function clearTrainingCache($trainerId): void
     {
-        $this->trainingRepository->clearCache();
+        $this->trainingRepository->clearCache($trainerId);
     }
 
     public function createMany(array $schedules)
     {
+        $trainer = auth()->user()->trainer;
+
+        if ($trainer->status !== 'approved') {
+            throw new TrainingScheduleException("لا يمكن إنشاء جدول لأن حالة حسابك غير معتمدة.", 403);
+        }
+
         $created = [];
 
         foreach ($schedules as $data) {
@@ -76,17 +83,17 @@ class TrainingSchedulesService
             );
         }
 
-        $this->clearTrainingCache();
+        $this->clearTrainingCache($trainer->id);
         return $created;
     }
 
     public function updateMany(array $schedules)
     {
+        $trainerId = auth()->user()->trainer->id;
         $updated = [];
 
         foreach ($schedules as $data) {
             $schedule = TrainingSchedule::findOrFail($data['id']);
-            $trainerId = auth()->user()->trainer->id;
 
             if ($schedule->trainer_id !== $trainerId) {
                 throw new TrainingScheduleException("غير مسموح لك بالتعديل ", 403);
@@ -115,7 +122,7 @@ class TrainingSchedulesService
             );
         }
 
-        $this->clearTrainingCache();
+        $this->clearTrainingCache($trainerId);
         return $updated;
     }
 
@@ -148,7 +155,8 @@ class TrainingSchedulesService
             'status_changed'
         );
 
-        $this->clearTrainingCache();
+        $trainerId = $schedule->trainer_id;
+        $this->clearTrainingCache($trainerId);
 
         return $updatedSchedule;
     }
