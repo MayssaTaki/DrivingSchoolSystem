@@ -45,20 +45,14 @@ public function store(StoreTrainingScheduleRequest $request)
 {
     $schedules = $this->trainingService->createMany($request->validated()['schedules']);
 
-    return response()->json([
-        'message' => 'تم إنشاء الجداول بنجاح.',
-        'data' => $schedules
-    ]);
+    return TrainingSchedulesResource::collection($schedules->items());
 }
 
 public function update(UpdateTrainingScheduleRequest $request)
 {
     $schedules = $this->trainingService->updateMany($request->validated()['schedules']);
 
-    return response()->json([
-        'message' => 'تم تعديل الجداول بنجاح.',
-        'data' => $schedules
-    ]);
+    return rTrainingSchedulesResource::collection($schedules->items());
 }
 
 public function activate($id)

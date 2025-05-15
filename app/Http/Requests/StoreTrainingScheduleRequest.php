@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -20,12 +21,49 @@ class StoreTrainingScheduleRequest extends FormRequest
                 'required',
                 Rule::in(['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
             ],
-            'schedules.*.start_time' => 'required|date_format:H:i',
-            'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
+            'schedules.*.start_time' => [
+                'required',
+                'date_format:H:i',
+                'after_or_equal:09:00',
+                'before_or_equal:20:00',
+            ],
+            'schedules.*.end_time' => [
+                'required',
+                'date_format:H:i',
+                'after:schedules.*.start_time',
+                'after_or_equal:09:00',
+                'before_or_equal:20:00',
+            ],
             'schedules.*.is_recurring' => 'boolean',
             'schedules.*.valid_from' => 'nullable|date',
             'schedules.*.valid_to' => 'nullable|date|after_or_equal:schedules.*.valid_from',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $schedules = $this->input('schedules', []);
+            foreach ($schedules as $index => $schedule) {
+                $start = $schedule['start_time'] ?? null;
+                $end = $schedule['end_time'] ?? null;
+
+                if ($start && $end) {
+                    $startMinutes = $this->convertToMinutes($start);
+                    $endMinutes = $this->convertToMinutes($end);
+
+                    if (($endMinutes - $startMinutes) < 60) {
+                        $validator->errors()->add("schedules.$index.end_time", 'مدة الحصة يجب أن تكون ساعة واحدة على الأقل.');
+                    }
+                }
+            }
+        });
+    }
+
+    private function convertToMinutes($time): int
+    {
+        [$hours, $minutes] = explode(':', $time);
+        return ((int)$hours * 60) + (int)$minutes;
     }
 
     public function messages()
@@ -37,8 +75,15 @@ class StoreTrainingScheduleRequest extends FormRequest
             'schedules.*.day_of_week.required' => 'اليوم مطلوب.',
             'schedules.*.day_of_week.in' => 'اليوم غير صالح.',
             'schedules.*.start_time.required' => 'وقت البداية مطلوب.',
+            'schedules.*.start_time.date_format' => 'صيغة وقت البداية غير صحيحة (مثال: 09:00).',
+            'schedules.*.start_time.after_or_equal' => 'وقت البداية يجب ألا يقل عن 09:00 صباحاً.',
+            'schedules.*.start_time.before_or_equal' => 'وقت البداية يجب ألا يتجاوز 20:00 مساءً.',
             'schedules.*.end_time.required' => 'وقت النهاية مطلوب.',
+            'schedules.*.end_time.date_format' => 'صيغة وقت النهاية غير صحيحة (مثال: 10:00).',
             'schedules.*.end_time.after' => 'وقت النهاية يجب أن يكون بعد وقت البداية.',
+            'schedules.*.end_time.after_or_equal' => 'وقت النهاية يجب ألا يقل عن 09:00 صباحاً.',
+            'schedules.*.end_time.before_or_equal' => 'وقت النهاية يجب ألا يتجاوز 20:00 مساءً.',
+            'schedules.*.valid_to.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد أو يساوي تاريخ البداية.',
         ];
     }
 }
