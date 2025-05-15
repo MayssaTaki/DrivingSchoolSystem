@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordResetRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\VerifyResetCodeRequest;
 use App\Services\PasswordResetService;
 use App\Exceptions\InvalidResetTokenException;
+use Illuminate\Http\JsonResponse;
 
 class PasswordResetController extends Controller
 {
@@ -17,7 +19,8 @@ class PasswordResetController extends Controller
         $this->passwordResetService = $passwordResetService;
     }
 
-    public function sendResetCode(PasswordResetRequest $request)
+  
+    public function sendResetCode(PasswordResetRequest $request): JsonResponse
     {
         try {
             $this->passwordResetService->sendResetLink($request->email);
@@ -34,7 +37,27 @@ class PasswordResetController extends Controller
         }
     }
 
-    public function resetPassword(ResetPasswordRequest $request)
+   
+    public function verifyResetCode(VerifyResetCodeRequest $request): JsonResponse
+    {
+        try {
+            $this->passwordResetService->verifyCode($request->email, $request->code);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'تم التحقق من رمز التحقق بنجاح'
+            ]);
+        } catch (InvalidResetTokenException $e) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => $e->getMessage()
+            ], 422);
+        
+        }
+    }
+
+   
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
         try {
             $this->passwordResetService->resetPassword($request->validated());
@@ -48,11 +71,24 @@ class PasswordResetController extends Controller
                 'status' => 'fail',
                 'message' => $e->getMessage()
             ], 422);
-        } catch (\Exception $e) {
+        } 
+    }
+
+   
+    public function resendResetCode(PasswordResetRequest $request): JsonResponse
+    {
+        try {
+            $this->passwordResetService->resendCode($request->email);
+
             return response()->json([
-                'status' => 'error',
-                'message' => 'حدث خطأ أثناء إعادة تعيين كلمة المرور'
-            ], 500);
+                'status' => 'success',
+                'message' => 'تم إعادة إرسال رمز التحقق.'
+            ]);
+        } catch (\Exception $e) {
+          return response()->json([
+                'status' => 'fail',
+                'message' => $e->getMessage()
+            ], 422);
         }
     }
 }

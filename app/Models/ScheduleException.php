@@ -16,6 +16,12 @@ class ScheduleException extends Model
         'reason'
     ];
 
+       protected $casts = [
+        'exception_date' => 'date',
+        'is_available' => 'boolean',
+        'available_start_time' => 'datetime:H:i',
+        'available_end_time' => 'datetime:H:i',
+    ];
     public function trainer()
     {
         return $this->belongsTo(Trainer::class);
