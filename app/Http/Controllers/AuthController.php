@@ -49,7 +49,6 @@ class AuthController extends Controller
         $credentials = $request->validated();
         $result = $this->authService->login($credentials);
 
-        // تحسين التحقق من البيانات
         $requiredKeys = ['user', 'token', 'role', 'refresh_token', 'expires_in'];
         foreach ($requiredKeys as $key) {
             if (!array_key_exists($key, $result)) {
@@ -57,16 +56,14 @@ class AuthController extends Controller
             }
         }
 
-        // استخدام match expression مع الأدوار الجديدة
         $userResource = match($result['role']) {
             'trainer' => new TrainerLoginResource($result['user']->trainer ?? $result['user']),
             'employee' => new EmployeeResource($result['user']->employee ?? $result['user']),
-            'admin' => ($result['user']), // افترضنا وجود AdminResource
+            'admin' => ($result['user']), 
             'student' => new StudentResource($result['user']->student ?? $result['user']),
             default => throw new Exception("نوع المستخدم غير مدعوم: {$result['role']}")
         };
 
-        // هيكل الرد الموحد
         return response()->json([
             'status' => 'success',
             'message' => 'تم تسجيل الدخول بنجاح',

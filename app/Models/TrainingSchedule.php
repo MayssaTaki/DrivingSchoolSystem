@@ -22,4 +22,8 @@ class TrainingSchedule extends Model
     {
         return $this->belongsTo(Trainer::class);
     }
+    public function trainingSession()
+{
+    return $this->hasMany(TrainingSession::class);
+}
 }
