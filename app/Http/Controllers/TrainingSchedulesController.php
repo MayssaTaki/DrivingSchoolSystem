@@ -52,7 +52,7 @@ public function update(UpdateTrainingScheduleRequest $request)
 {
     $schedules = $this->trainingService->updateMany($request->validated()['schedules']);
 
-    return rTrainingSchedulesResource::collection($schedules->items());
+    return TrainingSchedulesResource::collection($schedules->items());
 }
 
 public function activate($id)
