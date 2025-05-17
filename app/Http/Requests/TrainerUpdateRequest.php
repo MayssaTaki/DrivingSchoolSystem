@@ -67,7 +67,7 @@ class TrainerUpdateRequest extends FormRequest
             'address.max' => 'يجب ألا يتجاوز العنوان 100 حرفاً.',
  'date_of_Birth.date' => 'يجب إدخال تاريخ صحيح.',
             'date_of_Birth.before_or_equal' => 'يجب أن يكون تاريخ الولادة في الماضي أو اليوم.',
-           
+           /////
             'image.image' => 'يجب أن يكون الملف المرفوع صورة.',
             'image.mimes' => 'يجب أن تكون الصورة من نوع: jpeg, png, jpg, gif, svg.',
             'image.max' => 'يجب ألا تتجاوز حجم الصورة 2 ميجابايت.',
