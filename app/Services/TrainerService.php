@@ -195,10 +195,8 @@ public function update(Trainer $trainer, array $data): Trainer
                 'address' => $data['address'] ?? $trainer->address,
                 'gender' => $data['gender'] ?? $trainer->gender,
                 'image' => $data['image'] ?? $trainer->image,
-                'experience' => $data['experience'] ?? $trainer->experience,
-                'license_number' => $data['license_number'] ?? $trainer->license_number,
-                'specialization' => $data['specialization'] ?? $trainer->specialization,
-                'license_expiry_date' => $data['license_expiry_date'] ?? $trainer->license_expiry_date
+                 'date_of_Birth' => $data['date_of_Birth'] ?? $student->date_of_Birth,
+
             ];
 
             $this->trainerRepository->update($trainer, $trainerData);
