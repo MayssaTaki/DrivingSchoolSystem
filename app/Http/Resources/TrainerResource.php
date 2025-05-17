@@ -22,11 +22,11 @@ class TrainerResource extends JsonResource
             'first_name' => $this->first_name,
             'last_name'  => $this->last_name,
             'gender'     => $this->gender,
-            'specialization' => $this->specialization,
-            'experience'     => $this->experience,
             'image' => $this->image,
             'email' => $this->user?->email,
             'name'  => $this->user?->name,
+          'date_of_Birth' => $this->date_of_Birth,
+
 
         ];
     }
@@ -37,8 +37,7 @@ class TrainerResource extends JsonResource
             
             'phone_number' => $this->phone_number,
             'address' => $this->address,
-            'license_number' => $this->license_number,
-            'license_expiry_date' => $this->license_expiry_date,
+            
             'status' => $this->status,
         ];
     }

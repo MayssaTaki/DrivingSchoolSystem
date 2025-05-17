@@ -14,16 +14,14 @@ return new class extends Migration
         Schema::create('trainers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
-            $table->string('license_number')->unique(); 
             $table->string('first_name')->index();
             $table->string('last_name');
-            $table->enum('specialization', ['regular', 'special_needs']); 
-            $table->text('experience'); 
             $table->string('phone_number');
+              $table->date('date_of_Birth');
+
             $table->string('address'); 
             $table->enum('gender', ['female', 'male']);
             $table->string('image')->nullable();
-            $table->date('license_expiry_date'); 
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
 
 

@@ -22,11 +22,9 @@ class TrainerSeeder extends Seeder
                 'last_name' => $faker->lastName,
                 'phone_number' => $faker->phoneNumber,
                 'address' => $faker->address,
-                'experience' => '2 years in Qyada School',
                 'gender' => 'male', 
-                'license_number' => $faker->numerify('#########'),
-                'specialization' => 'regular', 
-                'license_expiry_date'=>now(),
+                              'date_of_birth'=>'1995-11-05',
+
                 'status'=>'pending',
             ]);
         }
