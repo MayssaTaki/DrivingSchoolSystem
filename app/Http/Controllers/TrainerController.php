@@ -57,7 +57,7 @@ class TrainerController extends Controller
 
 public function getAllTrainers(Request $request)
     {
-        $name = $request->get('name');
+        $name = $request->get('first_name');
         $trainers = $this->trainerService->getAllTrainers($name);
 
         if ($trainers->total() === 0) {
@@ -76,7 +76,7 @@ public function getAllTrainers(Request $request)
     }
     public function getAllTrainersApprove(Request $request)
     {
-        $name = $request->get('name');
+        $name = $request->get('first_name');
         $trainers = $this->trainerService->getAllTrainersApprove($name);
 
         if ($trainers->total() === 0) {
