@@ -60,12 +60,17 @@ class AuthService
         $this->rateLimiter->clear($email, 'login');
 
         $user = auth()->user();
+        $role = $user->role;
+ if (in_array($role, ['trainer', 'employee', 'student'])) {
+        $user->load($role);
+    }
         $refreshToken = Str::random(64);
 
         $this->refreshRepo->create([
             'user_id' => $user->id,
             'token' => hash('sha256', $refreshToken),
             'expires_at' => now()->addDays($remember ? 15 : 1),
+            'role' => $role
         ]);
 
         $this->logActivity('تم تسجيل الدخول', ['remember_me' => $remember], 'auth', $user, $user, 'login');
@@ -82,7 +87,8 @@ class AuthService
             'token' => $token,
             'token_type' => 'bearer',
             'refresh_token' => $refreshToken,
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
+            'role' => $role
         ];
     }
 
