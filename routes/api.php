@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\TrainingSessionController;
+
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\PasswordResetController;
@@ -93,6 +95,7 @@ Route::prefix('trainers/{trainerId}/schedule-exceptions')->group(function () {
     Route::get('/{id}', [ScheduleExceptionController::class, 'show']);
 
 });
+Route::get('/trainer-sessions', [TrainingSessionController::class, 'getTrainerSessions'])->middleware('auth:api');
 
 
 

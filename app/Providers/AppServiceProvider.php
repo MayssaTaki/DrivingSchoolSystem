@@ -14,7 +14,7 @@ use App\Repositories\PasswordResetRepository;
 use App\Repositories\RateLimitRepository;
 use App\Repositories\EmailVerificationRepository;
 use App\Repositories\ScheduleExceptionRepository;
-
+use  App\Repositories\TrainingSessionRepository;
 
 
 
@@ -32,7 +32,7 @@ use App\Repositories\Contracts\RateLimiterInterface;
 use App\Repositories\Contracts\PasswordResetRepositoryInterface;
 use App\Repositories\Contracts\EmailVerificationRepositoryInterface;
 use App\Repositories\Contracts\ScheduleExceptionRepositoryInterface;
-
+use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 
 
 
@@ -72,7 +72,9 @@ $this->app->bind(
    $this->app->bind(ScheduleExceptionRepositoryInterface::class,ScheduleExceptionRepository::class
     );
 
-
+$this->app->bind(
+   TrainingSessionRepositoryInterface::class,TrainingSessionRepository::class
+);
       
        
     }

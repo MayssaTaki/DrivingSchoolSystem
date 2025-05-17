@@ -46,6 +46,10 @@ public function trainingSchedules()
 {
     return $this->hasMany(TrainingSchedule::class);
 }
+public function trainingSession()
+{
+    return $this->hasMany(TrainingSession::class);
+}
 
 public function scheduleExceptions()
 {
