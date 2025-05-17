@@ -84,8 +84,7 @@ class TrainingSchedulesService
         }
 
         $this->clearTrainingCache($trainer->id);
-        return $created;
-    }
+  return collect($created);    }
 
     public function updateMany(array $schedules)
     {

@@ -38,13 +38,13 @@ class StoreTrainingScheduleRequest extends FormRequest
             'schedules.*.valid_from' => [
                 'nullable',
                 'date',
-                'after_or_equal:' . now()->startOfYear()->toDateString(),
-            ],
+                'after_or_equal:' . now()->startOfYear()->toDateString(), 
+                    'after_or_equal:' . now()->toDateString(), ],
             'schedules.*.valid_to' => [
                 'nullable',
                 'date',
-                'after_or_equal:schedules.*.valid_from',
-                'before_or_equal:' . now()->endOfYear()->toDateString(),
+                'after_or_equal:schedules.*.valid_from', 
+                'before_or_equal:' . now()->endOfYear()->toDateString(), 
             ],
         ];
     }
@@ -92,7 +92,7 @@ class StoreTrainingScheduleRequest extends FormRequest
             'schedules.*.end_time.after' => 'وقت النهاية يجب أن يكون بعد وقت البداية.',
             'schedules.*.end_time.after_or_equal' => 'وقت النهاية يجب ألا يقل عن 09:00 صباحاً.',
             'schedules.*.end_time.before_or_equal' => 'وقت النهاية يجب ألا يتجاوز 20:00 مساءً.',
-            'schedules.*.valid_from.after_or_equal' => 'تاريخ البداية يجب أن يكون ضمن السنة الحالية.',
+            'schedules.*.valid_from.after_or_equal' => 'تاريخ البداية يجب أن يكون ضمن السنة الحالية وبعد تاريخ إنشاء الجدول.',
             'schedules.*.valid_to.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد أو يساوي تاريخ البداية.',
             'schedules.*.valid_to.before_or_equal' => 'تاريخ الانتهاء يجب أن يكون ضمن السنة الحالية.',
         ];

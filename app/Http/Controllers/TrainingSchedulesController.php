@@ -44,16 +44,21 @@ class TrainingSchedulesController extends Controller
 public function store(StoreTrainingScheduleRequest $request)
 {
     $schedules = $this->trainingService->createMany($request->validated()['schedules']);
-
-    return TrainingSchedulesResource::collection($schedules->items());
+ return response()->json([
+        'message' => ' تم انشاء جدول التدريب الخاص بك  بنجاح.',
+        
+    ]);
 }
+
 
 public function update(UpdateTrainingScheduleRequest $request)
 {
     $schedules = $this->trainingService->updateMany($request->validated()['schedules']);
 
-    return TrainingSchedulesResource::collection($schedules->items());
-}
+return response()->json([
+        'message' => ' تم تعديل جدول التدريب الخاص بك  بنجاح.',
+        
+    ]);}
 
 public function activate($id)
 {
