@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Services;
-
+use App\Events\TrainingScheduleCreated;
 use App\Models\TrainingSchedule;
 use App\Repositories\Contracts\TrainingSchedulesRepositoryInterface;
 use App\Services\TransactionService;
@@ -72,6 +72,7 @@ class TrainingSchedulesService
 
             $createdSchedule = $this->trainingRepository->create($data);
             $created[] = $createdSchedule;
+    event(new TrainingScheduleCreated($createdSchedule));
 
             $this->activityLogger->log(
                 'إضافة جدول تدريب',
