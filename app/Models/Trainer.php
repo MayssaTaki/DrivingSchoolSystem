@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Trainer extends Model
 {
     protected $fillable = [
-        'license_number',
-        'specialization',
+        
         'address',
         'user_id',
         'first_name',
         'last_name',
          'phone_number',
-          'experience',
+         'date_of_Birth',
            'gender',
            'image',
-           'license_expiry_date'
+           'status'
+          
         
     ];
 

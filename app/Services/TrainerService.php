@@ -80,10 +80,9 @@ protected EmailVreificationService $emailservice;
                     'address' => $data['address'],
                     'gender' => $data['gender'],
                     'image' => $data['image'] ?? null,
-                    'experience'=>$data['experience'],
-                    'license_number'=>$data['license_number'],
-                    'specialization'=>$data['specialization'],
-                    'license_expiry_date'=>$data['license_expiry_date']
+                    'date_of_Birth'=>$data['date_of_Birth'],
+
+                   
                 ];
 
                 $trainer = $this->trainerRepository->create($trainerData);
