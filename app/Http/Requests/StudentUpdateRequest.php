@@ -43,8 +43,14 @@ public function rules(): array
         'first_name' => 'sometimes|string|max:255',
         'last_name' => 'sometimes|string|max:255',
         'email' => 'sometimes|email|unique:users,email,' . $student->user->id,
-        'password' => 'sometimes|min:6|confirmed',
-        'phone_number' => 'sometimes|string|digits:10|unique:students,phone_number',
+  'password' => [
+                'sometimes',
+                'confirmed',
+                'string',
+                'min:8',
+                'max:30',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/'
+            ],        'phone_number' => 'sometimes|string|digits:10|unique:students,phone_number',
         'date_of_Birth' =>'sometimes|date|before_or_equal:today',
         'gender' => 'sometimes|in:female,male',
         'address' => 'sometimes|string|max:100',
@@ -58,7 +64,9 @@ public function rules(): array
         return [
             'first_name.string' => 'يجب أن يكون الاسم الأول نصياً.',
             'first_name.max' => 'يجب ألا يتجاوز الاسم الأول 255 حرفاً.',
-
+'password.min' => 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
+            'password.max' => 'يجب ألا تتجاوز كلمة المرور 30 حرفاً.',
+            'password.regex' => 'يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم واحد على الأقل.',
             'last_name.string' => 'يجب أن يكون اسم العائلة نصياً.',
             'last_name.max' => 'يجب ألا يتجاوز اسم العائلة 255 حرفاً.',
 
