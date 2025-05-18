@@ -71,7 +71,6 @@ class StoreTrainingScheduleRequest extends FormRequest
         $validator->after(function ($validator) {
             $schedules = $this->input('schedules', []);
             foreach ($schedules as $index => $schedule) {
-                // التحقق من مدة الجلسة
                 $start = $schedule['start_time'] ?? null;
                 $end = $schedule['end_time'] ?? null;
 
@@ -84,7 +83,6 @@ class StoreTrainingScheduleRequest extends FormRequest
                     }
                 }
 
-                // التحقق من صحة الفترة الزمنية للجلسات المتكررة
                 if (($schedule['is_recurring'] ?? false) === true) {
                     $validFrom = $schedule['valid_from'] ?? null;
                     $validTo = $schedule['valid_to'] ?? null;
