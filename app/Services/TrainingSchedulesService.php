@@ -5,6 +5,8 @@ use App\Events\TrainingScheduleCreated;
 use App\Models\TrainingSchedule;
 use App\Repositories\Contracts\TrainingSchedulesRepositoryInterface;
 use App\Services\TransactionService;
+use App\Events\TrainingScheduleUpdated;
+
 use App\Exceptions\TrainingScheduleException;
 use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\Log;
@@ -85,7 +87,8 @@ class TrainingSchedulesService
         }
 
         $this->clearTrainingCache($trainer->id);
-  return collect($created);    }
+    return TrainingSchedule::whereIn('id', collect($created)->pluck('id'))->get();
+    }
 
     public function updateMany(array $schedules)
     {
@@ -110,6 +113,8 @@ class TrainingSchedulesService
             }
 
             $updatedSchedule = $this->trainingRepository->update($data['id'], $data);
+            event(new TrainingScheduleUpdated($updatedSchedule));
+
             $updated[] = $updatedSchedule;
 
             $this->activityLogger->log(
@@ -123,7 +128,7 @@ class TrainingSchedulesService
         }
 
         $this->clearTrainingCache($trainerId);
-        return $updated;
+          return collect($updated);
     }
 
     public function activate(int $id)
