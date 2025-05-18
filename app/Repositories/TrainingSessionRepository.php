@@ -1,6 +1,6 @@
 <?php
 namespace App\Repositories;
-
+use DB;
 use App\Models\TrainingSession;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 
@@ -18,5 +18,16 @@ class TrainingSessionRepository implements TrainingSessionRepositoryInterface
             ->orderBy('end_time')
             ->get();
     }
+public function existsForDateAndTime(int $trainerId, string $date, string $startTime): bool
+{
+    return \DB::table('training_sessions')
+        ->where('trainer_id', $trainerId)
+        ->where('session_date', $date)
+        ->where('start_time', $startTime)
+        ->exists();
+}
+
+
+
 
 }

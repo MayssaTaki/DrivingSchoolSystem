@@ -50,6 +50,10 @@ public function trainingSession()
 {
     return $this->hasMany(TrainingSession::class);
 }
+public function reviews()
+{
+    return $this->hasMany(TrainerReview::class);
+}
 
 public function scheduleExceptions()
 {
