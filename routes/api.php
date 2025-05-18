@@ -5,6 +5,7 @@ use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
+use App\Http\Controllers\TrainerReviewController;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
@@ -97,6 +98,10 @@ Route::prefix('trainers/{trainerId}/schedule-exceptions')->group(function () {
 });
 Route::get('/trainer-sessions', [TrainingSessionController::class, 'getTrainerSessions'])->middleware('auth:api');
 
+    Route::post('trainer-reviews', [TrainerReviewController::class, 'store']);
+  Route::get('trainer-reviews/pending', [TrainerReviewController::class, 'pending']);
+        Route::post('trainer-reviews/{id}/approve', [TrainerReviewController::class, 'approve']);
+        Route::post('trainer-reviews/{id}/reject', [TrainerReviewController::class, 'reject']);
 
 
 
