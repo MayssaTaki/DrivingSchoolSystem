@@ -31,8 +31,14 @@ class TrainerUpdateRequest extends FormRequest
             'last_name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $trainer->user_id,
             'password' => 'sometimes|min:6|confirmed',
-            'phone_number' => 'sometimes|string|digits:10|unique:trainers,phone_number,' . $trainer->id,
-            'gender' => 'sometimes|in:female,male',
+'password' => [
+                'sometimes',
+                'confirmed',
+                'string',
+                'min:8',
+                'max:30',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/'
+            ],              'gender' => 'sometimes|in:female,male',
             'address' => 'sometimes|string|max:100',
                     'date_of_Birth' =>'sometimes|date|before_or_equal:today',
 
@@ -52,8 +58,9 @@ class TrainerUpdateRequest extends FormRequest
             'email.email' => 'يجب إدخال بريد إلكتروني صالح.',
             'email.unique' => 'البريد الإلكتروني مستخدم من قبل مدرب آخر.',
 
-            'password.min' => 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.',
-            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+'password.min' => 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
+            'password.max' => 'يجب ألا تتجاوز كلمة المرور 30 حرفاً.',
+            'password.regex' => 'يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم واحد على الأقل.',            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
 
             'phone_number.string' => 'يجب أن يكون رقم الهاتف نصياً.',
             'phone_number.digits' => 'يجب أن يتكون رقم الهاتف من 10 أرقام بالضبط.',

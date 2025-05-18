@@ -6,6 +6,7 @@ use App\Models\TrainingSchedule;
 use App\Repositories\Contracts\TrainingSchedulesRepositoryInterface;
 use App\Services\TransactionService;
 use App\Events\TrainingScheduleUpdated;
+use App\Events\ScheduleNeedsSessionGeneration;
 
 use App\Exceptions\TrainingScheduleException;
 use App\Traits\LogsActivity;

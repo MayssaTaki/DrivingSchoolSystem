@@ -31,4 +31,9 @@ class Student extends Model
     return asset('images/default-user-image.webp');
 }
 
+public function reviews()
+{
+    return $this->hasMany(TrainerReview::class);
+}
+
 }

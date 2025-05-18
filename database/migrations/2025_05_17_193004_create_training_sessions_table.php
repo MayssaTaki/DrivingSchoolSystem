@@ -18,6 +18,8 @@ return new class extends Migration
     $table->date('session_date')->index();
     $table->time('start_time');
     $table->time('end_time');
+        $table->unique(['trainer_id', 'session_date', 'start_time'], 'unique_trainer_session');
+
     $table->enum('status', ['scheduled', 'completed', 'cancelled'])->default('scheduled');
     $table->timestamps();
 });
