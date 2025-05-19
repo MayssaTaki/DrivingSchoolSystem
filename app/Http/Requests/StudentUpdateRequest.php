@@ -42,7 +42,6 @@ public function rules(): array
     $rules = [
         'first_name' => 'sometimes|string|max:255',
         'last_name' => 'sometimes|string|max:255',
-        'email' => 'sometimes|email|unique:users,email,' . $student->user->id,
   'password' => [
                 'sometimes',
                 'confirmed',
@@ -70,8 +69,6 @@ public function rules(): array
             'last_name.string' => 'يجب أن يكون اسم العائلة نصياً.',
             'last_name.max' => 'يجب ألا يتجاوز اسم العائلة 255 حرفاً.',
 
-            'email.email' => 'يجب إدخال بريد إلكتروني صالح.',
-            'email.unique' => 'البريد الإلكتروني مستخدم من قبل مدرب آخر.',
 
             'password.min' => 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.',
             'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
