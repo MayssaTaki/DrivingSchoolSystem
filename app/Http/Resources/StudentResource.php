@@ -22,19 +22,23 @@ class StudentResource extends JsonResource
           'phone_number' => $this->student->phone_number,
             'date_of_Birth' => $this->student->date_of_Birth,
             'gender' => $this->student->gender,
+            'address' => $this->student->address,
+
             'email' => $this->email,
             'name' => $this->name,
+
             'image' => $this->student->image,
         ];
     }
 
-    // إذا كان Student مباشرة
     return [
         'user_id' => $this->id,
         'first_name' => $this->first_name,
         'last_name' => $this->last_name,
         'date_of_Birth' => $this->date_of_Birth,
         'gender' => $this->gender,
+                'address' => $this->address,
+
     'phone_number' => $this->phone_number,
 
         'email' => $this->user?->email,

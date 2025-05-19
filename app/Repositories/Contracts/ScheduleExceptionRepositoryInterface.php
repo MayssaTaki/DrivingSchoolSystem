@@ -7,10 +7,9 @@ use Illuminate\Support\Collection;
 
 interface ScheduleExceptionRepositoryInterface
 {
-    public function clearCache($trainerId);
-
-   public function getAllForTrainerPaginated(int $trainerId): LengthAwarePaginator;
-    public function getById(int $id): ?ScheduleException;
-    public function create(array $data): ScheduleException;
-    public function checkDateConflict(int $trainerId, string $date, ?int $ignoreId = null): bool;
+    public function find(int $id): ?ScheduleException;
+  public function create(array $data): ScheduleException;
+    public function findByTrainerAndDate(int $trainerId, string $date): ?ScheduleException;
+    public function update(ScheduleException $exception, array $data): bool;
+        public function delete(ScheduleException $exception): bool;
 }

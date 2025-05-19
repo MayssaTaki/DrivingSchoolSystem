@@ -32,7 +32,7 @@ class TrainerUpdateRequest extends FormRequest
             'password' => 'sometimes|min:6|confirmed',
 'password' => [
                 'sometimes',
-                'confirmed',
+                
                 'string',
                 'min:8',
                 'max:30',

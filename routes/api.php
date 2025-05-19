@@ -90,12 +90,15 @@ Route::post('/training-schedules', [TrainingSchedulesController::class, 'store']
 Route::put('/training-schedules/update', [TrainingSchedulesController::class, 'update'])->middleware('auth:api');
 Route::put('/training-schedules/{id}/activate', [TrainingSchedulesController::class, 'activate'])->middleware('auth:api');
 Route::put('/training-schedules/{id}/deactivate', [TrainingSchedulesController::class, 'deactivate'])->middleware('auth:api');
-Route::prefix('trainers/{trainerId}/schedule-exceptions')->group(function () {
-    Route::get('/', [ScheduleExceptionController::class, 'index']);
-    Route::post('/', [ScheduleExceptionController::class, 'store']);
-    Route::get('/{id}', [ScheduleExceptionController::class, 'show']);
 
-});
+
+Route::post('/schedule-exceptions', [ScheduleExceptionController::class, 'store'])->middleware('auth:api');
+Route::put('/schedule-exceptions/{exception}', [ScheduleExceptionController::class, 'update']);
+Route::delete('/schedule-exceptions/{exception}', [ScheduleExceptionController::class, 'destroy']);
+Route::post('/schedule-exceptions/{id}/approve', [ScheduleExceptionController::class, 'approve'])->middleware('auth:api');
+Route::post('/schedule-exceptions/{id}/reject', [ScheduleExceptionController::class, 'reject'])->middleware('auth:api');
+
+
 Route::get('/trainer-sessions', [TrainingSessionController::class, 'getTrainerSessions'])->middleware('auth:api');
 
     Route::post('trainer-reviews', [TrainerReviewController::class, 'store']);
