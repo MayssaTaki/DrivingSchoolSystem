@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreTrainingScheduleRequest extends FormRequest
 {
@@ -16,17 +15,21 @@ class StoreTrainingScheduleRequest extends FormRequest
     {
         return [
             'schedules' => 'required|array|min:1',
+
             'schedules.*.trainer_id' => 'required|exists:trainers,id',
+
             'schedules.*.day_of_week' => [
                 'required',
-                Rule::in(['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday']),
+                'in:saturday,sunday,monday,tuesday,wednesday,thursday',
             ],
+
             'schedules.*.start_time' => [
                 'required',
                 'date_format:H:i',
                 'after_or_equal:09:00',
                 'before_or_equal:20:00',
             ],
+
             'schedules.*.end_time' => [
                 'required',
                 'date_format:H:i',
@@ -34,31 +37,17 @@ class StoreTrainingScheduleRequest extends FormRequest
                 'after_or_equal:09:00',
                 'before_or_equal:20:00',
             ],
+
             'schedules.*.is_recurring' => 'boolean',
+
             'schedules.*.valid_from' => [
-                Rule::requiredIf(function () {
-                    $schedules = $this->input('schedules', []);
-                    foreach ($schedules as $schedule) {
-                        if (($schedule['is_recurring'] ?? false) === true) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }),
+                'required',
                 'date',
-                'after_or_equal:' . now()->startOfYear()->toDateString(),
                 'after_or_equal:' . now()->toDateString(),
             ],
+
             'schedules.*.valid_to' => [
-                Rule::requiredIf(function () {
-                    $schedules = $this->input('schedules', []);
-                    foreach ($schedules as $schedule) {
-                        if (($schedule['is_recurring'] ?? false) === true) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }),
+                'required',
                 'date',
                 'after_or_equal:schedules.*.valid_from',
                 'before_or_equal:' . now()->endOfYear()->toDateString(),
@@ -70,31 +59,33 @@ class StoreTrainingScheduleRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $schedules = $this->input('schedules', []);
+
             foreach ($schedules as $index => $schedule) {
                 $start = $schedule['start_time'] ?? null;
                 $end = $schedule['end_time'] ?? null;
+                $validFrom = $schedule['valid_from'] ?? null;
+                $validTo = $schedule['valid_to'] ?? null;
 
                 if ($start && $end) {
                     $startMinutes = $this->convertToMinutes($start);
                     $endMinutes = $this->convertToMinutes($end);
+                    $duration = $endMinutes - $startMinutes;
 
-                    if (($endMinutes - $startMinutes) < 60) {
+                    if ($duration < 60) {
                         $validator->errors()->add("schedules.$index.end_time", 'مدة الحصة يجب أن تكون ساعة واحدة على الأقل.');
+                    }
+
+                    if ($duration % 60 !== 0) {
+                        $validator->errors()->add("schedules.$index.end_time", 'مدة الحصة يجب أن تكون من مضاعفات الساعة (60 دقيقة، 120، 180...).');
                     }
                 }
 
-                if (($schedule['is_recurring'] ?? false) === true) {
-                    $validFrom = $schedule['valid_from'] ?? null;
-                    $validTo = $schedule['valid_to'] ?? null;
-
-                    if (!$validFrom || !$validTo) {
-                        $validator->errors()->add("schedules.$index.valid_from", 'يجب تحديد تاريخي البداية والنهاية للجلسات المتكررة.');
-                        continue;
-                    }
-
+                if ($validFrom && $validTo) {
                     if (strtotime($validTo) <= strtotime($validFrom)) {
                         $validator->errors()->add("schedules.$index.valid_to", 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية.');
                     }
+                } else {
+                    $validator->errors()->add("schedules.$index.valid_from", 'يجب تحديد تاريخي البداية والانتهاء.');
                 }
             }
         });
@@ -123,13 +114,13 @@ class StoreTrainingScheduleRequest extends FormRequest
             'schedules.*.end_time.after' => 'وقت النهاية يجب أن يكون بعد وقت البداية.',
             'schedules.*.end_time.after_or_equal' => 'وقت النهاية يجب ألا يقل عن 09:00 صباحاً.',
             'schedules.*.end_time.before_or_equal' => 'وقت النهاية يجب ألا يتجاوز 20:00 مساءً.',
-            'schedules.*.valid_from.required' => 'تاريخ البداية مطلوب للجلسات المتكررة.',
+            'schedules.*.valid_from.required' => 'تاريخ البداية مطلوب.',
             'schedules.*.valid_from.date' => 'صيغة تاريخ البداية غير صحيحة.',
-            'schedules.*.valid_from.after_or_equal' => 'تاريخ البداية يجب أن يكون ضمن السنة الحالية وبعد تاريخ إنشاء الجدول.',
-            'schedules.*.valid_to.required' => 'تاريخ الانتهاء مطلوب للجلسات المتكررة.',
+            'schedules.*.valid_from.after_or_equal' => 'تاريخ البداية يجب أن يكون اليوم أو بعده.',
+            'schedules.*.valid_to.required' => 'تاريخ الانتهاء مطلوب.',
             'schedules.*.valid_to.date' => 'صيغة تاريخ الانتهاء غير صحيحة.',
             'schedules.*.valid_to.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد أو يساوي تاريخ البداية.',
-            'schedules.*.valid_to.before_or_equal' => 'تاريخ الانتهاء يجب أن يكون ضمن السنة الحالية.',
+            'schedules.*.valid_to.before_or_equal' => 'تاريخ الانتهاء يجب أن يكون ضمن هذه السنة.',
         ];
     }
 }

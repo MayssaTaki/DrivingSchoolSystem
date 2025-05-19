@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\TrainerResource;
+use App\Http\Resources\TrainerLoginResource;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\TrainerUpdateRequest;
 use App\Models\Trainer;
@@ -131,7 +132,7 @@ public function getAllTrainers(Request $request)
                 return response()->json([
                     'status' => 'success',
                     'message' => 'تم تحديث بيانات المدرب بنجاح.',
-                    'data' => new TrainerResource($updatedTrainer)
+                    'data' => new TrainerLoginResource($updatedTrainer)
                 ]);
             } catch (\Exception $e) {
                 return response()->json([

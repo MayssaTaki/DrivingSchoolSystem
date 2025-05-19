@@ -195,7 +195,7 @@ public function update(Trainer $trainer, array $data): Trainer
                 'address' => $data['address'] ?? $trainer->address,
                 'gender' => $data['gender'] ?? $trainer->gender,
                 'image' => $data['image'] ?? $trainer->image,
-                'date_of_Birth' => $data['date_of_Birth'] ?? $student->date_of_Birth,
+                'date_of_Birth' => $data['date_of_Birth'] ?? $trainer->date_of_Birth,
                 
             ];
 
