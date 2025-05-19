@@ -26,6 +26,12 @@ public function existsForDateAndTime(int $trainerId, string $date, string $start
         ->where('start_time', $startTime)
         ->exists();
 }
+ public function cancelSessionsForDate(int $trainerId, string $date): int
+    {
+        return TrainingSession::where('trainer_id', $trainerId)
+            ->whereDate('session_date', $date)
+            ->update(['status' => 'cancelled']);
+    }
 
 
 

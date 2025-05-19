@@ -44,7 +44,7 @@ public function rules(): array
         'last_name' => 'sometimes|string|max:255',
   'password' => [
                 'sometimes',
-                'confirmed',
+               
                 'string',
                 'min:8',
                 'max:30',
