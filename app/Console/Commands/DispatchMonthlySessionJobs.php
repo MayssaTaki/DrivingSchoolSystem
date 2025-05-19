@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -14,17 +15,17 @@ class DispatchMonthlySessionJobs extends Command
     public function handle()
     {
         $today = Carbon::today();
-        $monthFromNow = $today->copy()->addMonth();
+        $nextMonthStart = $today->copy()->startOfMonth()->addMonth();
+        $nextMonthEnd = $today->copy()->endOfMonth()->addMonth();
 
         $schedules = TrainingSchedule::where('is_recurring', true)
-            ->whereDate('valid_from', '<=', $monthFromNow)
-            ->whereDate('valid_to', '>=', $today)
+            ->whereDate('valid_to', '>=', $nextMonthStart)
             ->get();
 
         foreach ($schedules as $schedule) {
-GenerateScheduleSessions::dispatch($schedule->id);
+            GenerateScheduleSessions::dispatch($schedule->id);
         }
 
-        $this->info('Jobs dispatched successfully.');
+        $this->info('Monthly session generation jobs dispatched successfully.');
     }
 }
