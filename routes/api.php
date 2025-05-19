@@ -12,6 +12,8 @@ use App\Http\Controllers\TrainingSessionController;
 
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\CarController;
+use App\Http\Controllers\BookingController;
+
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\ScheduleExceptionController;
@@ -97,6 +99,10 @@ Route::put('/schedule-exceptions/{exception}', [ScheduleExceptionController::cla
 Route::delete('/schedule-exceptions/{exception}', [ScheduleExceptionController::class, 'destroy']);
 Route::post('/schedule-exceptions/{id}/approve', [ScheduleExceptionController::class, 'approve'])->middleware('auth:api');
 Route::post('/schedule-exceptions/{id}/reject', [ScheduleExceptionController::class, 'reject'])->middleware('auth:api');
+
+Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSessionCounts']);
+
+Route::post('/bookings', [BookingController::class, 'store']);
 
 
 Route::get('/trainer-sessions', [TrainingSessionController::class, 'getTrainerSessions'])->middleware('auth:api');
