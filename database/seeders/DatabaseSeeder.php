@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\TrainerSeeder::class,           
             \Database\Seeders\StudentSeeder::class,
             \Database\Seeders\CarSeeder::class,
-            \Database\Seeders\TrainingSchedulesSeeder::class,
 
 
 

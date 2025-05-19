@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\TrainingSession;
 use Illuminate\Database\Eloquent\Model;
 
 class TrainingSchedule extends Model
@@ -25,5 +25,9 @@ class TrainingSchedule extends Model
     public function trainingSession()
 {
     return $this->hasMany(TrainingSession::class);
+}
+public function sessions()
+{
+    return $this->hasMany(TrainingSession::class, 'schedule_id');
 }
 }
