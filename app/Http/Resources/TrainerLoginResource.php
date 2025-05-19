@@ -22,6 +22,8 @@ class TrainerLoginResource extends JsonResource
     'phone_number' => $this->trainer->phone_number,
             'date_of_Birth' => $this->trainer->date_of_Birth,
             'gender' => $this->trainer->gender,
+             'address' => $this->trainer->address,
+
             'email' => $this->user?->email,
             'name' => $this->user?->name,
             'image' => $this->trainer->image,
@@ -35,6 +37,7 @@ class TrainerLoginResource extends JsonResource
         'date_of_Birth' => $this->date_of_Birth,
         'gender' => $this->gender,
          'phone_number' => $this->phone_number,
+            'address' => $this->address,
 
         'email' => $this->user?->email,
         'name' => $this->user?->name,

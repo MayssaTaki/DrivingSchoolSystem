@@ -1,60 +1,82 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ScheduleExceptionRequest;
 use App\Services\ScheduleExceptionService;
+use App\Models\ScheduleException;
 use Illuminate\Http\JsonResponse;
-use App\Http\Resources\ScheduleExceptionResource;
-
 
 class ScheduleExceptionController extends Controller
 {
-    public function __construct(private ScheduleExceptionService $service)
+    protected $service;
+
+    public function __construct(ScheduleExceptionService $service)
     {
+        $this->service = $service;
     }
 
-    public function index(int $trainerId): JsonResponse
-{
-    try {
-        $exceptions = $this->service->getTrainerExceptions($trainerId);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'تم جلب استثناءات الجدولة بنجاح.',
-            'data' => ScheduleExceptionResource::collection($exceptions)
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'حدث خطأ أثناء جلب استثناءات الجدولة.',
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}
-
-
-    public function show(int $id): JsonResponse
+     public function store(ScheduleExceptionRequest $request): JsonResponse
     {
-        $exception = $this->service->getException($id);
-        return response()->json([
-            'success' => true,
-            'message' => 'تم جلب استثناء الجدولة بنجاح.',
-            'data' => new ScheduleExceptionResource($exception)
-        ]);
-    }
+        $trainerId = $request->input('trainer_id');
+        $dates = $request->input('exception_dates');
+        $reason = $request->input('reason');
 
-    public function store(ScheduleExceptionRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $exception = $this->service->createException($data);
-        
+        $exceptions = $this->service->createExceptions($trainerId, $dates, $reason);
+
         return response()->json([
-            'success' => true,
-            'message' => 'تم إنشاء استثناء الجدولة بنجاح.',
-            'data' => $exception
+            'message' => 'تم تسجيل الإجازات  بنجاح.',
+            'data' => $exceptions,
         ], 201);
     }
 
+    public function approve(int $id): JsonResponse
+{
+    $exception = $this->service->approveException($id);
 
-  
+    if (!$exception) {
+        return response()->json([
+            'message' => 'طلب الإجازة غير صالح أو تمت معالجته مسبقًا.'
+        ], 400);
+    }
+
+    return response()->json([
+        'message' => 'تمت الموافقة على الإجازة وتم إلغاء الجلسات بنجاح.',
+        'data' => $exception
+    ]);
+}
+public function reject(int $id): JsonResponse
+{
+    $exception = $this->service->rejectException($id);
+
+    if (!$exception) {
+        return response()->json([
+            'message' => 'طلب الإجازة غير صالح أو تمت معالجته مسبقًا.'
+        ], 400);
+    }
+
+    return response()->json([
+        'message' => 'تم رفض الإجازة بنجاح.',
+        'data' => $exception
+    ]);
+}
+
+    public function update(ScheduleExceptionRequest $request, ScheduleException $exception): JsonResponse
+    {
+        $this->service->updateException($exception, $request->validated());
+
+        return response()->json([
+            'message' => 'تم تحديث الإجازة بنجاح.',
+            'data' => $exception->fresh(),
+        ]);
+    }
+
+    public function destroy(ScheduleException $exception): JsonResponse
+    {
+        $this->service->deleteException($exception);
+
+        return response()->json([
+            'message' => 'تم حذف الإجازة بنجاح.',
+        ]);
+    }
 }

@@ -48,7 +48,7 @@ public function findById(int $id): ?Trainer
 
 public function update(Trainer $trainer, array $data): Trainer
 {
-    $trainer=Trainer::with('user')->find($id);
+    
     $trainer->update($data);
     return $trainer;
 }

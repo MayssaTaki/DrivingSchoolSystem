@@ -1,39 +1,58 @@
 <?php
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
+use App\Models\ScheduleException;
 
 class ScheduleExceptionRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'exception_date' => 'required|date',
-            'is_available' => 'required|boolean',
-            'available_start_time' => 'required_if:is_available,true|nullable|date_format:H:i',
-            'available_end_time' => 'required_if:is_available,true|nullable|date_format:H:i|after:available_start_time',
-            'reason' => 'nullable|string|max:500',
+            'trainer_id' => 'required|exists:trainers,id',
+            'exception_dates' => 'required|array|min:1',
+            'exception_dates.*' => 'required|date|after_or_equal:today',
+            'reason' => 'required|string|max:255',
         ];
     }
 
-    public function messages()
+    public function withValidator($validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $trainerId = $this->input('trainer_id');
+            $dates = $this->input('exception_dates', []);
+
+            foreach ($dates as $index => $date) {
+                $exists = ScheduleException::where('trainer_id', $trainerId)
+                    ->whereDate('exception_date', $date)
+                    ->exists();
+
+                if ($exists) {
+                    $validator->errors()->add("exception_dates.$index", "يوجد بالفعل إجازة لهذا المدرب في {$date}.");
+                }
+            }
+        });
+    }
+
+    public function messages(): array
     {
         return [
-            'exception_date.required' => 'حقل تاريخ الاستثناء مطلوب.',
-            'exception_date.date' => 'يجب أن يكون تاريخ الاستثناء تاريخًا صالحًا.',
-            'is_available.required' => 'حقل حالة التوفر مطلوب.',
-            'is_available.boolean' => 'يجب أن تكون حالة التوفر صحيحة أو خاطئة.',
-            'available_start_time.required_if' => 'حقل وقت البدء مطلوب عند التوفر.',
-            'available_start_time.date_format' => 'صيغة وقت البدء غير صالحة.',
-            'available_end_time.required_if' => 'حقل وقت الانتهاء مطلوب عند التوفر.',
-            'available_end_time.date_format' => 'صيغة وقت الانتهاء غير صالحة.',
-            'available_end_time.after' => 'يجب أن يكون وقت الانتهاء بعد وقت البدء.',
-            'reason.max' => 'يجب ألا يتجاوز السبب 500 حرف.',
+            'trainer_id.required' => 'يجب تحديد المدرب.',
+            'trainer_id.exists' => 'المدرب غير موجود.',
+            'exception_dates.required' => 'يجب تحديد تاريخ واحد على الأقل.',
+            'exception_dates.array' => 'يجب أن تكون التواريخ في شكل قائمة.',
+            'exception_dates.*.required' => 'كل تاريخ مطلوب.',
+            'exception_dates.*.date' => 'صيغة التاريخ غير صحيحة.',
+            'exception_dates.*.after_or_equal' => 'يجب أن يكون التاريخ اليوم أو بعده.',
+            'reason.string' => 'سبب الإجازة يجب أن يكون نصًا.',
+            'reason.max' => 'سبب الإجازة يجب ألا يتجاوز 255 حرفًا.',
         ];
     }
 }

@@ -15,11 +15,9 @@ return new class extends Migration
             $table->id();
                     $table->foreignId('trainer_id')->constrained()->onDelete('cascade');
             $table->date('exception_date');
-            $table->boolean('is_available')->default(false);
-            $table->time('available_start_time')->nullable();
-            $table->time('available_end_time')->nullable();
             $table->text('reason')->nullable();
-            
+         $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+
             $table->unique(['trainer_id', 'exception_date']);
         
             $table->timestamps();
