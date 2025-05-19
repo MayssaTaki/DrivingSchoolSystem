@@ -46,6 +46,16 @@ class CarSeeder extends Seeder
     'is_for_special_needs' => true,
 
             ],
+                   [
+                'license_plate' => 'DHF456',
+                'make' => 'Ford',
+                'model' => 'Focus',
+                'color' => 'Black',
+                'year' => 2019,
+                'transmission'=>'manual',
+    'is_for_special_needs' => true,
+
+            ],
         ];
 
         foreach ($cars as $car) {
