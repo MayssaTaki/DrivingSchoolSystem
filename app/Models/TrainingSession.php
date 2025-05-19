@@ -14,6 +14,10 @@ class TrainingSession extends Model
     {
         return $this->belongsTo(TrainingSchedule::class);
     }
+        public function bookings()
+{
+    return $this->hasMany(Booking::class);
+}
 
     public function trainer()
     {

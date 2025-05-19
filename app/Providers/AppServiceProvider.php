@@ -16,6 +16,8 @@ use App\Repositories\EmailVerificationRepository;
 use App\Repositories\ScheduleExceptionRepository;
 use  App\Repositories\TrainingSessionRepository;
 use  App\Repositories\TrainerReviewRepository;
+use  App\Repositories\BookingRepository;
+
 
 
 
@@ -24,6 +26,8 @@ use App\Services\RateLimitService;
 
 use App\Repositories\Contracts\ActivityLogRepositoryInterface;
 use App\Repositories\Contracts\EmployeeRepositoryInterface;
+use App\Repositories\Contracts\BookingRepositoryInterface;
+
 use App\Repositories\Contracts\TrainerReviewRepositoryInterface;
 
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -82,6 +86,10 @@ $this->app->bind(
 $this->app->bind(
     TrainerReviewRepositoryInterface::class,
     TrainerReviewRepository::class
+);
+$this->app->bind(
+    BookingRepositoryInterface::class,
+    BookingRepository::class
 );
 
       

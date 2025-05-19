@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Services\TrainingSessionService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\TrainerSessionDayResource;
+use Illuminate\Http\Request;
 
 
 class TrainingSessionController extends Controller
@@ -33,4 +34,21 @@ class TrainingSessionController extends Controller
         'message' => 'تم جلب الجلسات بنجاح.',
         'data' => TrainerSessionDayResource::collection($grouped)
     ]);
-}}
+}
+
+ public function getSessionCounts(Request $request)
+    {
+        $user = $request->user();
+
+        $trainerId = $request->input('trainer_id');
+        $month = $request->input('month'); 
+
+        $counts = $this->sessionService->getSessionCounts($trainerId, $month);
+
+        return response()->json([
+            'message' => 'تم جلب إحصائيات الجلسات بنجاح.',
+            'data' => $counts,
+        ]);
+    }
+
+}

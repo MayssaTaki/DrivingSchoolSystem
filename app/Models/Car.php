@@ -22,4 +22,9 @@ class Car extends Model
 {
     return $this->is_for_special_needs ? 'سيارة احتياجات خاصة ♿' : 'سيارة عادية 🚗';
 }
+public function bookings()
+{
+    return $this->hasMany(Booking::class);
+}
+
 }
