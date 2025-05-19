@@ -1,6 +1,7 @@
 <?php
 namespace App\Repositories;
 use DB;
+use Carbon\Carbon;
 use App\Models\TrainingSession;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 
@@ -10,6 +11,17 @@ class TrainingSessionRepository implements TrainingSessionRepositoryInterface
     {
         return TrainingSession::create($data);
     }
+    public function find(int $id)
+{
+    return TrainingSession::find($id);
+}
+public function updateStatus(int $sessionId, string $status): bool
+{
+    return TrainingSession::where('id', $sessionId)
+        ->update(['status' => $status]);
+}
+
+
         public function getByTrainer(int $trainerId)
     {
         return TrainingSession::where('trainer_id', $trainerId)
@@ -33,7 +45,30 @@ public function existsForDateAndTime(int $trainerId, string $date, string $start
             ->update(['status' => 'cancelled']);
     }
 
+ public function countAllByTrainer(int $trainerId, ?string $month = null): int
+    {
+        $query = TrainingSession::where('trainer_id', $trainerId);
 
+        if ($month) {
+            $query->whereMonth('session_date', Carbon::parse($month)->month)
+                  ->whereYear('session_date', Carbon::parse($month)->year);
+        }
+
+        return $query->count();
+    }
+
+    public function countByStatus(int $trainerId, string $status, ?string $month = null): int
+    {
+        $query = TrainingSession::where('trainer_id', $trainerId)
+                                ->where('status', $status);
+
+        if ($month) {
+            $query->whereMonth('session_date', Carbon::parse($month)->month)
+                  ->whereYear('session_date', Carbon::parse($month)->year);
+        }
+
+        return $query->count();
+    }
 
 
 }

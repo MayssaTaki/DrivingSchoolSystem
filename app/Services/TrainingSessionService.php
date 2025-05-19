@@ -82,6 +82,15 @@ class TrainingSessionService
     }
 }
 
+ public function getSessionCounts(int $trainerId, ?string $month = null): array
+    {
+        return [
+            'total' => $this->repo->countAllByTrainer($trainerId, $month),
+            'scheduled' => $this->repo->countByStatus($trainerId, 'scheduled', $month),
+            'booked' => $this->repo->countByStatus($trainerId, 'booked', $month),
+            'cancelled' => $this->repo->countByStatus($trainerId, 'cancelled', $month),
+        ];
+    }
 
 
 
