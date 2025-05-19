@@ -79,9 +79,7 @@ class UserService
         try {
             $updateData = [];
     
-            if (isset($data['email']) && $data['email'] !== $user->email) {
-                $updateData['email'] = $data['email'];
-            }
+           
     
             if (isset($data['password'])) {
                 $updateData['password'] = Hash::make($data['password']);

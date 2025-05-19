@@ -29,7 +29,6 @@ class TrainerUpdateRequest extends FormRequest
         return [
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $trainer->user_id,
             'password' => 'sometimes|min:6|confirmed',
 'password' => [
                 'sometimes',
@@ -55,8 +54,6 @@ class TrainerUpdateRequest extends FormRequest
             'last_name.string' => 'يجب أن يكون اسم العائلة نصياً.',
             'last_name.max' => 'يجب ألا يتجاوز اسم العائلة 255 حرفاً.',
 
-            'email.email' => 'يجب إدخال بريد إلكتروني صالح.',
-            'email.unique' => 'البريد الإلكتروني مستخدم من قبل مدرب آخر.',
 
 'password.min' => 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
             'password.max' => 'يجب ألا تتجاوز كلمة المرور 30 حرفاً.',
