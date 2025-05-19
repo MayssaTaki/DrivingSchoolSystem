@@ -38,8 +38,19 @@ class TrainerReviewService
     }
 
     public function approveReview($id)
-    {
-        return $this->repo->approve($id);
+    {   try { 
+       $approve=  $this->repo->approve($id);
+         $this->activityLogger->log(
+                    'تم قبول التقييم',
+                    ['rating' => $data['rating']],
+                    'rating',
+                    $approve, 
+                    auth()->user(),
+                    'rating'
+                );
+       return $approve; }catch (\Exception $e) {
+        throw new \Exception('فشل قبول التقييم : ' . $e->getMessage());
+    }
     }
 
     public function rejectReview($id)
