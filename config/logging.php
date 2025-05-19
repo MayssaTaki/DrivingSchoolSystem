@@ -52,7 +52,12 @@ return [
 
     'channels' => [
 
-
+'scheduler' => [
+        'driver' => 'daily',
+        'path' => storage_path('logs/scheduler.log'),
+        'level' => 'debug',
+        'days' => 30, 
+    ],
         'employee' => [
             'driver' => 'single',
             'path' => storage_path('logs/employee.log'),
