@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -34,6 +35,21 @@ class Student extends Model
     }
 
     return asset('images/default-user-image.webp');
+}
+public function setImageAttribute($value)
+{
+    $defaultImage = 'images/default-user-image.webp';
+
+    if (
+        $this->attributes['image'] ?? false &&
+        $this->attributes['image'] !== $value &&
+        !str_contains($this->attributes['image'], 'default-user-image') &&
+        Storage::disk('public')->exists($this->attributes['image'])
+    ) {
+        Storage::disk('public')->delete($this->attributes['image']);
+    }
+
+    $this->attributes['image'] = $value;
 }
 
 public function reviews()

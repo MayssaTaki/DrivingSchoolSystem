@@ -27,7 +27,7 @@ use App\Events\ImageUploaded;
 
 
 
-class TrainerService
+class TrainerService 
 {
     use LogsActivity;
 

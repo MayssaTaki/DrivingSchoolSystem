@@ -68,7 +68,7 @@ Route::get('/test-middleware', function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
-Route::post('/refresh', [AuthController::class, 'refreshToken'])->middleware('auth:api');
+Route::post('/refresh', [AuthController::class, 'refreshToken']);
 Route::post('/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
 Route::post('/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
@@ -111,7 +111,7 @@ Route::put('/training-schedules/update', [TrainingSchedulesController::class, 'u
 Route::put('/training-schedules/{id}/activate', [TrainingSchedulesController::class, 'activate'])->middleware('auth:api');
 Route::put('/training-schedules/{id}/deactivate', [TrainingSchedulesController::class, 'deactivate'])->middleware('auth:api');
 
-
+Route::get('/trainer-exceptions', [ScheduleExceptionController::class, 'getTrainerExceptions'])->middleware('auth:api');
 Route::post('/schedule-exceptions', [ScheduleExceptionController::class, 'store'])->middleware('auth:api');
 Route::put('/schedule-exceptions/{exception}', [ScheduleExceptionController::class, 'update']);
 Route::delete('/schedule-exceptions/{exception}', [ScheduleExceptionController::class, 'destroy']);
