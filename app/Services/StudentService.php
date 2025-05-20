@@ -182,7 +182,7 @@ protected EmailVreificationService $emailservice;
                 'phone_number' => $data['phone_number'] ?? $student->phone_number,
                 'address' => $data['address'] ?? $student->address,
                 'gender' => $data['gender'] ?? $student->gender,
-                'image' => $data['image'] ?? $student->image,
+    'image' => $data['image'] ?? $student->getOriginal('image'), // هُنا استخدام القيمة الأصلية فقط
                 'date_of_Birth' => $data['date_of_Birth'] ?? $student->date_of_Birth,
             ];
 

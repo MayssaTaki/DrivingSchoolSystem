@@ -168,9 +168,10 @@ class CarService
                if (isset($data['is_for_special_needs']) && $data['is_for_special_needs'] !== $car->is_for_special_needs) {
                 $updateData['is_for_special_needs'] = $data['is_for_special_needs'];
             }
-                if (isset($data['image']) && $data['image'] !== $car->image) {
-                $updateData['image'] = $data['image'];
-            }
+            if (isset($data['image']) && $data['image'] !== $car->getOriginal('image')) {
+    $updateData['image'] = $data['image'];
+}
+
     
               $this->activityLogger->log(
             'تم تعديل سيارة',
