@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,5 +27,17 @@ public function bookings()
 {
     return $this->hasMany(Booking::class);
 }
+public function setImageAttribute($value)
+{
 
+    if (
+        $this->attributes['image'] ?? false &&
+        $this->attributes['image'] !== $value &&
+        Storage::disk('public')->exists($this->attributes['image'])
+    ) {
+        Storage::disk('public')->delete($this->attributes['image']);
+    }
+
+    $this->attributes['image'] = $value;
+}
 }
