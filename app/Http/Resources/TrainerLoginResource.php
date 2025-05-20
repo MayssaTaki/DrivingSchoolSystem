@@ -16,7 +16,8 @@ class TrainerLoginResource extends JsonResource
 {
     if ($this->trainer) {
         return [
-            'user_id' => $this->id,
+            'trainer_id' => $this->id,
+                        'user_id' => $this->user?->id,
             'first_name' => $this->trainer->first_name,
             'last_name' => $this->trainer->last_name,
     'phone_number' => $this->trainer->phone_number,
@@ -31,7 +32,8 @@ class TrainerLoginResource extends JsonResource
     }
 
     return [
-        'user_id' => $this->id,
+        'trainer_id' => $this->id,
+   'user_id' => $this->user?->id,
         'first_name' => $this->first_name,
         'last_name' => $this->last_name,
         'date_of_Birth' => $this->date_of_Birth,
