@@ -86,8 +86,10 @@ class TrainingSessionService
     {
         return [
             'total' => $this->repo->countAllByTrainer($trainerId, $month),
-            'scheduled' => $this->repo->countByStatus($trainerId, 'scheduled', $month),
+            'available' => $this->repo->countByStatus($trainerId, 'available', $month),
             'booked' => $this->repo->countByStatus($trainerId, 'booked', $month),
+         'completed' => $this->repo->countByStatus($trainerId, 'completed', $month),
+          'vacation' => $this->repo->countByStatus($trainerId, 'vacation', $month),
             'cancelled' => $this->repo->countByStatus($trainerId, 'cancelled', $month),
         ];
     }
