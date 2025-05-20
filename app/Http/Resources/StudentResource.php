@@ -16,7 +16,9 @@ class StudentResource extends JsonResource
 {
     if ($this->student) {
         return [
-            'user_id' => $this->id,
+            'student_id' => $this->id,
+        'user_id' => $this->user?->id,
+
             'first_name' => $this->student->first_name,
             'last_name' => $this->student->last_name,
           'phone_number' => $this->student->phone_number,
@@ -32,7 +34,9 @@ class StudentResource extends JsonResource
     }
 
     return [
-        'user_id' => $this->id,
+            'student_id' => $this->id,
+               'user_id' => $this->user?->id,
+
         'first_name' => $this->first_name,
         'last_name' => $this->last_name,
         'date_of_Birth' => $this->date_of_Birth,

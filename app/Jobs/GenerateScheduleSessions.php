@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Jobs;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\TrainingSchedule;
 use App\Services\TrainingSessionService;
@@ -22,7 +23,7 @@ class GenerateScheduleSessions implements ShouldQueue
         $schedule = TrainingSchedule::find($this->scheduleId);
 
         if (!$schedule) {
-            \Log::warning("⛔ Schedule with ID {$this->scheduleId} not found.");
+            Log::channel('scheduler')->warning("⛔ Schedule with ID {$this->scheduleId} not found.");
             return;
         }
 
@@ -42,7 +43,7 @@ class GenerateScheduleSessions implements ShouldQueue
         }
 
         if ($startFrom->gt($endAt)) {
-            \Log::info("⚠️ Schedule ID {$schedule->id}: No new period to generate. Skipped.");
+           Log::channel('scheduler')->info("⚠️ Schedule ID {$schedule->id}: No new period to generate. Skipped.");
             return;
         }
 
@@ -50,7 +51,7 @@ class GenerateScheduleSessions implements ShouldQueue
         $schedule->valid_from = $startFrom->toDateString();
         $schedule->valid_to = $endAt->toDateString();
 
-        \Log::info("✅ Generating sessions for Schedule ID {$schedule->id} from {$startFrom->toDateString()} to {$endAt->toDateString()}");
+         Log::channel('scheduler')->info("✅ Generating sessions for Schedule ID {$schedule->id} from {$startFrom->toDateString()} to {$endAt->toDateString()}");
 
         $service->generateSessionsForSchedule($schedule);
     }
