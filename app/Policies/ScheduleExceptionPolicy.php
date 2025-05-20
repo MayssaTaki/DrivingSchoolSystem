@@ -4,6 +4,8 @@ namespace App\Policies;
 
 use App\Models\ScheduleException;
 use App\Models\User;
+use App\Models\Trainer;
+
 use Illuminate\Auth\Access\Response;
 
 class ScheduleExceptionPolicy
@@ -11,6 +13,13 @@ class ScheduleExceptionPolicy
     /**
      * Determine whether the user can view any models.
      */
+    public function viewAllExceptions(User $user, Trainer $trainer): bool
+{
+    return $user->id === $trainer->user_id||
+           $user->role==='admin' ||
+           $user->role==='employee';
+
+}
  public function approve(User $user, ScheduleException $exception): bool
 {
     return $user->role === 'employee';

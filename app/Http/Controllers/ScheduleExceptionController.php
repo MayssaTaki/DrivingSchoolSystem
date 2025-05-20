@@ -5,7 +5,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ScheduleExceptionRequest;
 use App\Services\ScheduleExceptionService;
 use App\Models\ScheduleException;
+use App\Http\Resources\ScheduleExceptionResource;
+use App\Http\Requests\GetTrainerExceptionsRequest;
+
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ScheduleExceptionController extends Controller
 {
@@ -61,22 +65,13 @@ public function reject(int $id): JsonResponse
     ]);
 }
 
-    public function update(ScheduleExceptionRequest $request, ScheduleException $exception): JsonResponse
-    {
-        $this->service->updateException($exception, $request->validated());
+ public function getTrainerExceptions(GetTrainerExceptionsRequest $request): JsonResponse
+{
+    $exceptions = $this->service->getAllExceptionsByTrainer($request->trainer_id);
 
-        return response()->json([
-            'message' => 'تم تحديث الإجازة بنجاح.',
-            'data' => $exception->fresh(),
-        ]);
-    }
-
-    public function destroy(ScheduleException $exception): JsonResponse
-    {
-        $this->service->deleteException($exception);
-
-        return response()->json([
-            'message' => 'تم حذف الإجازة بنجاح.',
-        ]);
-    }
+    return response()->json([
+        'status' => 'success',
+        'data' => ScheduleExceptionResource::collection($exceptions),
+    ]);
+}
 }

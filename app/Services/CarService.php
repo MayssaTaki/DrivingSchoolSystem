@@ -172,7 +172,14 @@ class CarService
                 $updateData['image'] = $data['image'];
             }
     
-            
+              $this->activityLogger->log(
+            'تم تعديل سيارة',
+            ['make' => $car->make],
+            'cars',
+            $car,
+            auth()->user(),
+            'updated'
+        );
     
             $this->carRepository->update($car, $updateData);
     
