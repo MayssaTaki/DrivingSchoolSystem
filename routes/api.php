@@ -48,6 +48,24 @@ Route::get('/test-email', function () {
 });
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+Route::get('/test-middleware', function () {
+    return '✅ Middleware ran!';
+})->middleware([ App\Http\Middleware\GenerateMonthlySessionsIfNeeded::class]);
+
+
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
 Route::post('/refresh', [AuthController::class, 'refreshToken'])->middleware('auth:api');
