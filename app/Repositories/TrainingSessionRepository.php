@@ -42,7 +42,7 @@ public function existsForDateAndTime(int $trainerId, string $date, string $start
     {
         return TrainingSession::where('trainer_id', $trainerId)
             ->whereDate('session_date', $date)
-            ->update(['status' => 'cancelled']);
+            ->update(['status' => 'vacation']);
     }
 
  public function countAllByTrainer(int $trainerId, ?string $month = null): int
