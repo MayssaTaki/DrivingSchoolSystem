@@ -7,15 +7,20 @@ use App\Models\ScheduleException;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 
 
+
 class ScheduleExceptionService
 {
     protected $repository;
+    protected ActivityLoggerService $activityLogger;
 
     public function __construct(ScheduleExceptionRepositoryInterface $exceptionRepo,
-     protected TrainingSessionRepositoryInterface $sessionRepo)
+     protected TrainingSessionRepositoryInterface $sessionRepo,
+             ActivityLoggerService $activityLogger,
+)
     {
         $this->exceptionRepo = $exceptionRepo;
                 $this->sessionRepo = $sessionRepo;
+        $this->activityLogger = $activityLogger;
 
 
     }
@@ -35,6 +40,14 @@ class ScheduleExceptionService
 
             $created[] = $exception;
         }
+         $this->activityLogger->log(
+                    'تم تسجيل اجازة جديدة ',
+                    ['reason' => $reason ],
+                    'ُexceptions',
+                   $exception,
+                    auth()->user(),
+                    'created exception'
+                );
 
         return $created;
     }
@@ -51,7 +64,14 @@ class ScheduleExceptionService
     $exception->status = 'approved';
     $exception->save();
     $this->sessionRepo->cancelSessionsForDate($exception->trainer_id, $exception->exception_date);
-
+  $this->activityLogger->log(
+                    'تم الموافقة على الاجازة ',
+                    [ 'exception_id' => $exception->id],
+                    'ُexceptions',
+                    $exception,
+                    auth()->user(),
+                    'approve exception'
+                );
     return $exception;
 }
 public function rejectException(int $exceptionId): ?ScheduleException
@@ -66,6 +86,14 @@ public function rejectException(int $exceptionId): ?ScheduleException
     }
     $exception->status = 'rejected';
     $exception->save();
+     $this->activityLogger->log(
+                    'تم رفض  الاجازة ',
+                    ['exception_id' => $exception->idدحمكدحج ],
+                    'ُexceptions',
+                    $exception,
+                    auth()->user(),
+                    'rejecte exception'
+                );
     return $exception;
 }
 

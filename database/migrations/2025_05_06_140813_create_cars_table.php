@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->enum('transmission', ['automatic', 'manual']);
             $table->boolean('is_for_special_needs')->default(false);
+            $table->enum('status', ['booked', 'available', 'in_repair'])->default('available');
 
 
             $table->timestamps();

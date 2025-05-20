@@ -20,7 +20,7 @@ return new class extends Migration
     $table->time('end_time');
         $table->unique(['trainer_id', 'session_date', 'start_time'], 'unique_trainer_session');
 
-$table->enum('status', ['available', 'booked', 'cancelled'])->default('available');
+$table->enum('status', ['available', 'vacation' ,'booked', 'cancelled','completed'])->default('available');
     $table->timestamps();
 });
 
