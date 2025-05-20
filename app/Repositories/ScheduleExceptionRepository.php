@@ -2,6 +2,10 @@
 namespace App\Repositories;
 use App\Repositories\Contracts\ScheduleExceptionRepositoryInterface;
 use App\Models\ScheduleException;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
+
 
 class ScheduleExceptionRepository implements ScheduleExceptionRepositoryInterface
 {
@@ -10,22 +14,22 @@ class ScheduleExceptionRepository implements ScheduleExceptionRepositoryInterfac
         return ScheduleException::create($data);
     }
 
-    public function findByTrainerAndDate(int $trainerId, string $date): ?ScheduleException
-    {
-        return ScheduleException::where('trainer_id', $trainerId)
-            ->whereDate('exception_date', $date)
-            ->first();
-    }
+public function clearCache()
+  {
+      Cache::tags(['trainer_exceptions'])->flush();
+  }
 
-    public function update(ScheduleException $exception, array $data): bool
-    {
-        return $exception->update($data);
-    }
+public function findAllByTrainer(int $trainerId): LengthAwarePaginator
+{
+    $page = request()->get('page', 1);
+    $cacheKey = "trainer_exceptions_{$trainerId}_page_{$page}";
 
-    public function delete(ScheduleException $exception): bool
-    {
-        return $exception->delete();
-    }
+    return Cache::tags(['trainer_exceptions'])->remember($cacheKey, now()->addMinutes(10), function () use ($trainerId) {
+        return ScheduleException::where('trainer_id', $trainerId)->paginate(10);
+    });
+}
+
+   
     public function find(int $id): ?ScheduleException
 {
     return ScheduleException::find($id);

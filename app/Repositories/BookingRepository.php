@@ -12,6 +12,8 @@ class BookingRepository implements BookingRepositoryInterface
         return Booking::create($data);
     }
 
+
+    
     public function isSessionAvailable(int $sessionId): bool
     {
         $session = TrainingSession::find($sessionId);
