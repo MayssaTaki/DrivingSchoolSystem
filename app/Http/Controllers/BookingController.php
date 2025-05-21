@@ -25,4 +25,24 @@ $studentId = auth()->user()->student->id;
 
         ], 201);
     }
+public function complete($bookingId)
+{
+    try {
+        $this->bookingService->completeSession((int) $bookingId);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'تم إنهاء الجلسة بنجاح. .',
+            'data' => null
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'حدث خطأ أثناء إنهاء الجلسة.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
 }
