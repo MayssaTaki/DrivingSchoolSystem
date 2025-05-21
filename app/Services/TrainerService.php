@@ -194,7 +194,7 @@ public function update(Trainer $trainer, array $data): Trainer
                 'phone_number' => $data['phone_number'] ?? $trainer->phone_number,
                 'address' => $data['address'] ?? $trainer->address,
                 'gender' => $data['gender'] ?? $trainer->gender,
-    'image' => $data['image'] ?? $trainer->getOriginal('image'), // هُنا استخدام القيمة الأصلية فقط
+    'image' => $data['image'] ?? $trainer->getRawOriginal('image'), // هُنا استخدام القيمة الأصلية فقط
                 'date_of_Birth' => $data['date_of_Birth'] ?? $trainer->date_of_Birth,
                 
             ];

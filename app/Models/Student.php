@@ -38,6 +38,9 @@ class Student extends Model
 }
 public function setImageAttribute($value)
 {
+    if (is_string($value) && str_starts_with($value, asset('storage'))) {
+        $value = str_replace(asset('storage') . '/', '', $value);
+    }
     $defaultImage = 'images/default-user-image.webp';
 
     if (

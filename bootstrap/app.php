@@ -17,7 +17,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'adminOnly' => App\Http\Middleware\AdminOnly::class,
         ]);
             $middleware->append(App\Http\Middleware\GzipResponse::class);
-    $middleware->append(App\Http\Middleware\GenerateMonthlySessionsIfNeeded::class);
 
     })
     

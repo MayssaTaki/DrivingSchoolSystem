@@ -87,7 +87,7 @@ protected EmailVreificationService $emailservice;
                 $student = $this->studentRepository->create($studentData);
                 $this->emailService->sendVerificationCode($user);
 
-                $this->logActivity(
+                $this->activityLogger->log(
                     'تم تسجيل طالب جديد',
                     ['name' => $student->first_name . ' ' . $student->last_name],
                     'students',
@@ -135,7 +135,7 @@ protected EmailVreificationService $emailservice;
             $this->studentRepository->deleteById($id);
             $this->userService->delete($student->user_id);
 
-            $this->logActivity(
+            $this->activityLogger->log(
                 'تم حذف طالب',
                 ['name' => $student->first_name . ' ' . $student->last_name],
                 'students',
@@ -182,7 +182,7 @@ protected EmailVreificationService $emailservice;
                 'phone_number' => $data['phone_number'] ?? $student->phone_number,
                 'address' => $data['address'] ?? $student->address,
                 'gender' => $data['gender'] ?? $student->gender,
-    'image' => $data['image'] ?? $student->getOriginal('image'), // هُنا استخدام القيمة الأصلية فقط
+    'image' => $data['image'] ?? $student->getRawOriginal('image'), // هُنا استخدام القيمة الأصلية فقط
                 'date_of_Birth' => $data['date_of_Birth'] ?? $student->date_of_Birth,
             ];
 

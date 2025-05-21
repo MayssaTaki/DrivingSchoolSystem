@@ -30,14 +30,14 @@ public function updateStatus(int $sessionId, string $status): bool
             ->orderBy('end_time')
             ->get();
     }
-public function existsForDateAndTime(int $trainerId, string $date, string $startTime): bool
+public function existsForDateAndTime($trainerId, $date, $startTime): bool
 {
-    return \DB::table('training_sessions')
-        ->where('trainer_id', $trainerId)
+    return TrainingSession::where('trainer_id', $trainerId)
         ->where('session_date', $date)
         ->where('start_time', $startTime)
         ->exists();
 }
+
  public function cancelSessionsForDate(int $trainerId, string $date): int
     {
         return TrainingSession::where('trainer_id', $trainerId)
