@@ -39,12 +39,14 @@ class TrainingSchedulesRepository implements TrainingSchedulesRepositoryInterfac
         return TrainingSchedule::create($data);
     }
 
-    public function update(int $id, array $data)
-    {
-        $schedule = TrainingSchedule::findOrFail($id);
-        $schedule->update($data);
-        return $schedule;
-    }
+   public function scheduleExists(array $criteria): bool
+{
+    return TrainingSchedule::where('trainer_id', $criteria['trainer_id'])
+        ->where('day_of_week', $criteria['day_of_week'])
+        ->where('start_time', $criteria['start_time'])
+        ->exists();
+}
+
 
     public function changeStatus(int $id, string $status)
     {
@@ -52,4 +54,9 @@ class TrainingSchedulesRepository implements TrainingSchedulesRepositoryInterfac
         $schedule->update(['status' => $status]);
         return $schedule;
     }
+    public function findById(int $id): TrainingSchedule
+{
+    return TrainingSchedule::findOrFail($id);
+}
+
 }

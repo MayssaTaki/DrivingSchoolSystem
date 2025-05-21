@@ -15,9 +15,12 @@ class TrainingSchedulesResource extends JsonResource
         );
     }
  protected function commonAttributes(): array
-    {
-       $user = auth()->user();
-        if (!in_array($user?->role, ['admin', 'employee']) && $this->status !== 'active') {
+{
+    $user = auth()->user();
+
+    $showFull = $this->shouldShowFullDetails();
+
+    if (!$showFull && $this->status !== 'active') {
         return [];
     }
 
@@ -25,7 +28,8 @@ class TrainingSchedulesResource extends JsonResource
         'day_key' => $this->day_of_week,
         'time_range' => substr($this->start_time, 0, 5) . ' - ' . substr($this->end_time, 0, 5),
     ];
-    }
+}
+
     
     protected function getTranslatedDay($day)
     {
@@ -57,8 +61,21 @@ class TrainingSchedulesResource extends JsonResource
         return []; 
     }
 
-    protected function shouldShowFullDetails(): bool
-    {
-        return in_array(auth()->user()?->role, ['admin', 'employee']);
+   protected function shouldShowFullDetails(): bool
+{
+    $user = auth()->user();
+
+    if (in_array($user?->role, ['admin', 'employee'])) {
+        return true;
     }
+
+    if ($user?->role === 'trainer') {
+        
+        if ($this->trainer_id == $user->trainer->id) {
+            return true;
+        }
+    }
+    return false;
+}
+
 }
