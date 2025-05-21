@@ -85,7 +85,6 @@ public function createMany(array $schedules)
                 $createdSchedule = $this->trainingRepository->create($data);
                 $created[] = $createdSchedule;
 
-                event(new TrainingScheduleCreated($createdSchedule));
 
                 $this->activityLogger->log(
                     'إضافة جدول تدريب',
