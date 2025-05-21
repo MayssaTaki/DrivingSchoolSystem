@@ -9,12 +9,17 @@ class TrainingSessionRepository implements TrainingSessionRepositoryInterface
 {
     public function create(array $data)
     {
-        return TrainingSession::create($data);
+        return TrainingSession::insert($data);
     }
     public function find(int $id)
 {
-    return TrainingSession::find($id);
+    return TrainingSession::findOrFail($id);
 }
+public function findWithLock(int $id)
+{
+    return TrainingSession::where('id', $id)->lockForUpdate()->firstOrFail();
+}
+
 public function updateStatus(int $sessionId, string $status): bool
 {
     return TrainingSession::where('id', $sessionId)
