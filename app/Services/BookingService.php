@@ -3,6 +3,8 @@ namespace App\Services;
 
 use App\Repositories\Contracts\BookingRepositoryInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Auth\Access\AuthorizationException;
 
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -26,21 +28,32 @@ class BookingService
         $this->logService = $logService;
     }
 
+    protected function ensureSessionIsAvailable(int $sessionId)
+{
+    if (!$this->bookingRepo->isSessionAvailable($sessionId)) {
+        throw ValidationException::withMessages([
+            'session' => 'الجلسة غير متاحة للحجز.',
+        ]);
+    }
+}
+
+protected function ensureCarIsAvailable(int $carId)
+{
+    if (!$this->carRepo->isCarAvailable($carId)) {
+        throw ValidationException::withMessages([
+            'car' => 'السيارة غير متاحة للحجز.',
+        ]);
+    }
+}
+
+ 
+
  public function bookSession(int $studentId, int $sessionId, int $carId)
 {
     try {
         return $this->transactionService->run(function () use ($studentId, $sessionId, $carId) {
-            if (!$this->bookingRepo->isSessionAvailable($sessionId)) {
-                throw ValidationException::withMessages([
-                    'session' => 'الجلسة غير متاحة للحجز.',
-                ]);
-            }
-
-            if (!$this->carRepo->isCarAvailable($carId)) {
-                throw ValidationException::withMessages([
-                    'car' => 'السيارة غير متاحة للحجز.',
-                ]);
-            }
+             $this->ensureSessionIsAvailable($sessionId);
+            $this->ensureCarIsAvailable($carId);
 
             $session = $this->sessionRepo->findWithLock($sessionId);
 $car = $this->carRepo->findWithLock($carId);
@@ -85,6 +98,57 @@ $car = $this->carRepo->findWithLock($carId);
         throw $e;
     }
 }
+protected function ensureBookingIsBookable($booking)
+{
+    if ($booking->status !== 'booked') {
+        throw ValidationException::withMessages([
+            'booking' => 'لا يمكن إنهاء جلسة غير محجوزة.',
+        ]);
+    }
+}
+
+
+public function completeSession(int $bookingId)
+{
+    try {
+        return $this->transactionService->run(function () use ($bookingId) {
+            $booking = $this->bookingRepo->findWithRelations($bookingId, ['session', 'car']);
+             if (Gate::denies('complete', $booking)) {
+                throw new AuthorizationException('ليس لديك صلاحية انهاء الجلسة .');
+            }
+
+           $this->ensureBookingIsBookable($booking);
+            $this->bookingRepo->updateStatus($booking->id, 'completed');
+            $this->sessionRepo->updateStatus($booking->session_id, 'completed');
+            $this->carRepo->updateStatus($booking->car_id, 'available');
+
+
+            $this->activityLogger->log(
+                'إنهاء جلسة تدريب',
+                [
+                    'student_id'   => $booking->student_id,
+                    'trainer_id'   => $booking->trainer_id,
+                    'session_day'  => $booking->session->day_of_week ?? null,
+                    'session_time' => $booking->session->start_time ?? null,
+                    'car_id'       => $booking->car_id,
+                ],
+                'bookings',
+                $booking,
+                auth()->user(),
+                'complete'
+            );
+
+        });
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل في إنهاء الجلسة', [
+            'message'     => $e->getMessage(),
+            'booking_id'  => $bookingId,
+        ], 'bookings');
+
+        throw $e;
+    }
+}
+
 
 
 }

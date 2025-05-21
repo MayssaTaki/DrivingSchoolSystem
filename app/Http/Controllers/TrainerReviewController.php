@@ -14,14 +14,32 @@ class TrainerReviewController extends Controller
     }
 
     public function store(StoreTrainerReviewRequest $request)
-    {
-        $data = $request->validated();
-        $data['student_id'] = auth()->user()->student->id;
+{
+    $data = $request->validated();
+    $data['student_id'] = auth()->user()->student->id;
+
+    try {
         $review = $this->service->submitReview($data);
 
-        return response()->json(['message' => 'تم إرسال التقييم بنجاح، بانتظار الموافقة.', 
-        'data' => $review]);
+        return response()->json([
+            'status' => true,
+            'message' => 'تم إرسال التقييم بنجاح، .',
+            'data' => $review
+        ]);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'فشل التقييم',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     public function pending()
     {

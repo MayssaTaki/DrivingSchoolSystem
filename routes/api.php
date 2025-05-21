@@ -119,7 +119,8 @@ Route::post('/schedule-exceptions/{id}/reject', [ScheduleExceptionController::cl
 
 Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSessionCounts']);
 
-Route::post('/bookings', [BookingController::class, 'store']);
+Route::post('/bookings', [BookingController::class, 'store'])->middleware('auth:api');
+Route::post('/bookings/{id}/complete', [BookingController::class, 'complete'])->middleware('auth:api');
 
 
 Route::get('/trainer-sessions', [TrainingSessionController::class, 'getTrainerSessions'])->middleware('auth:api');
