@@ -15,6 +15,7 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 class EmailVerificationService
 {
     use LogsActivity;
+    protected ActivityLoggerService $activityLogger;
 
     protected EmailVerificationRepositoryInterface $repository;
     protected RateLimitService $rateLimiter;
@@ -26,12 +27,16 @@ class EmailVerificationService
         EmailVerificationRepositoryInterface $repository,
         RateLimitService $rateLimiter,
         LogService $logService,
+                ActivityLoggerService $activityLogger,
+
                 UserRepositoryInterface $userRepository
 
     ) {
         $this->repository = $repository;
         $this->rateLimiter = $rateLimiter;
         $this->logService = $logService;
+                $this->activityLogger = $activityLogger;
+
          $this->userRepository = $userRepository;
     }
 
@@ -77,7 +82,7 @@ $this->repository->create($user->email, $code, $expiresAt);
                 'ip' => request()->ip(),
             ], 'auth');
 
-            $this->logActivity('تم إرسال رمز التحقق', [
+            $this->activityLogger->log('تم إرسال رمز التحقق', [
                 'email' => $user->email
             ], 'auth', $user, $user, 'email_verification');
 
@@ -87,7 +92,7 @@ $this->repository->create($user->email, $code, $expiresAt);
                 'error' => $e->getMessage()
             ], 'auth');
 
-            $this->logActivity('فشل إرسال رمز التحقق', [
+             $this->activityLogger->log('فشل إرسال رمز التحقق', [
                 'email' => $user->email,
                 'error' => $e->getMessage()
             ], 'auth', $user, $user, 'email_verification');
@@ -117,7 +122,7 @@ $this->repository->create($user->email, $code, $expiresAt);
             'ip' => request()->ip(),
         ], 'auth');
 
-        $this->logActivity('رمز تحقق خاطئ أو منتهي', [
+        $this->activityLogger->log('رمز تحقق خاطئ أو منتهي', [
             'email' => $user->email
         ], 'auth', $user, $user, 'email_verification');
 
@@ -134,7 +139,7 @@ $this->repository->create($user->email, $code, $expiresAt);
         'ip' => request()->ip(),
     ], 'auth');
 
-    $this->logActivity('تم تفعيل البريد الإلكتروني', [
+     $this->activityLogger->log('تم تفعيل البريد الإلكتروني', [
         'user_id' => $user->id,
         'email' => $user->email
     ], 'auth', $user, $user, 'email_verification');

@@ -20,14 +20,19 @@ class PasswordResetService
     protected PasswordResetRepository $repository;
     protected LogService $logService;
     protected RateLimitService $rateLimiter;
+    protected ActivityLoggerService $activityLogger;
 
     public function __construct(
         PasswordResetRepository $repository,
         LogService $logService,
+                ActivityLoggerService $activityLogger,
+
         RateLimitService $rateLimiter
     ) {
         $this->repository = $repository;
         $this->logService = $logService;
+                $this->activityLogger = $activityLogger;
+
         $this->rateLimiter = $rateLimiter;
     }
 
@@ -67,7 +72,7 @@ class PasswordResetService
                 'ip' => request()->ip()
             ], 'auth');
 
-            $this->logActivity('تم إرسال رمز إعادة تعيين كلمة المرور', [
+            $this->activityLogger->log('تم إرسال رمز إعادة تعيين كلمة المرور', [
                 'email' => $email
             ], 'auth', null, null, 'password_reset');
 
@@ -77,7 +82,7 @@ class PasswordResetService
                 'error' => $e->getMessage()
             ], 'auth');
 
-            $this->logActivity('فشل إرسال رمز إعادة تعيين كلمة المرور', [
+            $this->activityLogger->log('فشل إرسال رمز إعادة تعيين كلمة المرور', [
                 'email' => $email,
                 'error' => $e->getMessage()
             ], 'auth', null, null, 'password_reset');
@@ -106,7 +111,7 @@ class PasswordResetService
             'ip' => request()->ip()
         ], 'auth');
 
-        $this->logActivity('تمت إعادة تعيين كلمة المرور', [
+        $this->activityLogger->log('تمت إعادة تعيين كلمة المرور', [
             'user_id' => $user->id,
             'email' => $user->email
         ], 'auth', $user, $user, 'password_reset');
@@ -117,7 +122,7 @@ class PasswordResetService
             'error' => $e->getMessage()
         ], 'auth');
 
-        $this->logActivity('فشل إعادة تعيين كلمة المرور', [
+        $this->activityLogger->log('فشل إعادة تعيين كلمة المرور', [
             'email' => $data['email'],
             'error' => $e->getMessage()
         ], 'auth', null, null, 'password_reset');
@@ -144,7 +149,7 @@ class PasswordResetService
             'ip' => request()->ip()
         ], 'auth');
 
-        $this->logActivity('رمز تحقق غير صحيح', [
+      $this->activityLogger->log('رمز تحقق غير صحيح', [
             'email' => $email
         ], 'auth', null, null, 'password_reset');
 
@@ -159,7 +164,7 @@ class PasswordResetService
             'ip' => request()->ip()
         ], 'auth');
 
-        $this->logActivity('رمز منتهي الصلاحية', [
+    $this->activityLogger->log('رمز منتهي الصلاحية', [
             'email' => $email
         ], 'auth', null, null, 'password_reset');
 
@@ -171,7 +176,7 @@ class PasswordResetService
         'ip' => request()->ip()
     ], 'auth');
 
-    $this->logActivity('تم التحقق من رمز التحقق بنجاح', [
+   $this->activityLogger->log('تم التحقق من رمز التحقق بنجاح', [
         'email' => $email
     ], 'auth', null, null, 'password_reset');
 

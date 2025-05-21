@@ -27,7 +27,6 @@ class GenerateScheduleSessions implements ShouldQueue
             return;
         }
 
-        // Get last session
         $lastSession = $schedule->sessions()
             ->orderByDesc('session_date')
             ->first();
@@ -47,7 +46,6 @@ class GenerateScheduleSessions implements ShouldQueue
             return;
         }
 
-        // مؤقتًا نمرر التواريخ لتوليد الجلسات
         $schedule->valid_from = $startFrom->toDateString();
         $schedule->valid_to = $endAt->toDateString();
 

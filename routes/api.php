@@ -107,7 +107,6 @@ Route::get('/count/rejected', [TrainerController::class, 'rejected'])->middlewar
 Route::get('/count/pened', [TrainerController::class, 'pened'])->middleware('auth:api');
 Route::get('/trainer/{id}/schedules', [TrainingSchedulesController::class, 'showByTrainer'])->middleware('auth:api');
 Route::post('/training-schedules', [TrainingSchedulesController::class, 'store'])->middleware('auth:api');
-Route::put('/training-schedules/update', [TrainingSchedulesController::class, 'update'])->middleware('auth:api');
 Route::put('/training-schedules/{id}/activate', [TrainingSchedulesController::class, 'activate'])->middleware('auth:api');
 Route::put('/training-schedules/{id}/deactivate', [TrainingSchedulesController::class, 'deactivate'])->middleware('auth:api');
 
