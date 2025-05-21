@@ -19,7 +19,6 @@ class GenerateTrainingSessions
 {
     $schedule = $event->schedule;
 
-    TrainingSession::where('schedule_id', $schedule->id)->delete();
 
     $this->service->generateSessionsForSchedule($schedule);
 }
