@@ -58,4 +58,18 @@ class CarRepository implements CarRepositoryInterface
         ->update(['status' => $status]);
 }
 
+ public function isCarAvailable(int $carId): bool
+    {
+        $car= Car::find($carId);
+        return $car && $car->status === 'available';
+    }
+       public function find(int $id)
+{
+    return Car::findOrFail($id);
+}
+public function findWithLock(int $id)
+{
+    return Car::where('id', $id)->lockForUpdate()->firstOrFail();
+}
+
 }
