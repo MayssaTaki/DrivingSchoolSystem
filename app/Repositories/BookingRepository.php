@@ -19,4 +19,15 @@ class BookingRepository implements BookingRepositoryInterface
         $session = TrainingSession::find($sessionId);
         return $session && $session->status === 'available';
     }
+
+       public function updateStatus(int $bookId, string $status): bool
+{
+    return Booking::where('id', $bookId)
+        ->update(['status' => $status]);
+}
+    public function findWithRelations(int $id, array $relations = [])
+{
+    return Booking::with($relations)->findOrFail($id);
+}
+
 }

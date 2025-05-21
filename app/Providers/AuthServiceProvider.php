@@ -9,6 +9,8 @@ use App\Policies\LogEntryPolicy;
 use App\Policies\EmployeePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use App\Models\Booking;
+use App\Policies\BookingPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,8 @@ class AuthServiceProvider extends ServiceProvider
      * The policy mappings for the application.
      */
     protected $policies = [
+            \App\Models\Booking::class => \App\Policies\BookingPolicy::class,
+
         \App\Models\Trainer::class => \App\Policies\TrainerPolicy::class,
         \App\Models\Student::class => \App\Policies\StudentPolicy::class,
     \App\Models\ScheduleException::class => \App\Policies\ScheduleExceptionPolicy::class,
