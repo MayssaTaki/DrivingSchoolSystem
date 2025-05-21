@@ -7,6 +7,8 @@ use App\Repositories\Contracts\TrainingSchedulesRepositoryInterface;
 use App\Services\TransactionService;
 use App\Events\TrainingScheduleUpdated;
 use App\Events\ScheduleNeedsSessionGeneration;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Auth\Access\AuthorizationException;
 
 use App\Exceptions\TrainingScheduleException;
 use App\Traits\LogsActivity;
@@ -53,102 +55,142 @@ class TrainingSchedulesService
         $this->trainingRepository->clearCache($trainerId);
     }
 
-    public function createMany(array $schedules)
-    {
-        $trainer = auth()->user()->trainer;
-
-        if ($trainer->status !== 'approved') {
-            throw new TrainingScheduleException("لا يمكن إنشاء جدول لأن حالة حسابك غير معتمدة.", 403);
-        }
-
-        $created = [];
-
-        foreach ($schedules as $data) {
-            $exists = TrainingSchedule::where('trainer_id', $data['trainer_id'])
-                ->where('day_of_week', $data['day_of_week'])
-                ->where('start_time', $data['start_time'])
-                ->exists();
-
-            if ($exists) {
-                throw new TrainingScheduleException("المدرب لديه جدول في نفس اليوم والوقت بالفعل.", 422);
-            }
-
-            $createdSchedule = $this->trainingRepository->create($data);
-            $created[] = $createdSchedule;
-    event(new TrainingScheduleCreated($createdSchedule));
-
-            $this->activityLogger->log(
-                'إضافة جدول تدريب',
-                ['day' => $data['day_of_week'], 'start' => $data['start_time']],
-                'training_schedules',
-                $createdSchedule,
-                auth()->user(),
-                'created'
-            );
-        }
-
-        $this->clearTrainingCache($trainer->id);
-    return TrainingSchedule::whereIn('id', collect($created)->pluck('id'))->get();
+    protected function checkTrainerApproval($trainer)
+{
+    if ($trainer->status !== 'approved') {
+        throw new TrainingScheduleException("لا يمكن إنشاء جدول لأن حالة حسابك غير معتمدة.", 403);
     }
+}
 
-    public function updateMany(array $schedules)
-    {
-        $trainerId = auth()->user()->trainer->id;
-        $updated = [];
-
-        foreach ($schedules as $data) {
-            $schedule = TrainingSchedule::findOrFail($data['id']);
-
-            if ($schedule->trainer_id !== $trainerId) {
-                throw new TrainingScheduleException("غير مسموح لك بالتعديل ", 403);
-            }
-
-            $exists = TrainingSchedule::where('trainer_id', $trainerId)
-                ->where('day_of_week', $data['day_of_week'])
-                ->where('start_time', $data['start_time'])
-                ->where('id', '!=', $data['id'])
-                ->exists();
-
-            if ($exists) {
-                throw new TrainingScheduleException("يوجد جدول آخر بنفس الوقت.", 422);
-            }
-
-            $updatedSchedule = $this->trainingRepository->update($data['id'], $data);
-            event(new TrainingScheduleUpdated($updatedSchedule));
-
-            $updated[] = $updatedSchedule;
-
-            $this->activityLogger->log(
-                'تعديل جدول تدريب',
-                ['day' => $data['day_of_week'], 'start' => $data['start_time']],
-                'training_schedules',
-                $updatedSchedule,
-                auth()->user(),
-                'updated'
-            );
-        }
-
-        $this->clearTrainingCache($trainerId);
-          return collect($updated);
+protected function checkScheduleConflict(array $data)
+{
+    if ($this->trainingRepository->scheduleExists($data)) {
+        throw new TrainingScheduleException("المدرب لديه جدول في نفس اليوم والوقت بالفعل.", 422);
     }
+}
+
+public function createMany(array $schedules)
+{
+    $trainer = auth()->user()->trainer;
+
+    try {
+        return $this->transactionService->run(function () use ($schedules, $trainer) {
+            $this->checkTrainerApproval($trainer);
+
+            $created = [];
+
+            foreach ($schedules as $data) {
+                $this->checkScheduleConflict($data);
+
+                $createdSchedule = $this->trainingRepository->create($data);
+                $created[] = $createdSchedule;
+
+                event(new TrainingScheduleCreated($createdSchedule));
+
+                $this->activityLogger->log(
+                    'إضافة جدول تدريب',
+                    ['day' => $data['day_of_week'], 'start' => $data['start_time']],
+                    'training_schedules',
+                    $createdSchedule,
+                    auth()->user(),
+                    'created schedule training'
+                );
+            }
+
+            $this->clearTrainingCache($trainer->id);
+
+          
+
+            return TrainingSchedule::whereIn('id', collect($created)->pluck('id'))->get();
+        });
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل في إنشاء جداول التدريب', [
+            'message' => $e->getMessage(),
+            'input' => $schedules,
+            'trace' => $e->getTraceAsString(),
+        ], 'training_schedules');
+
+        throw $e;
+    }
+}
+
+
+ 
 
     public function activate(int $id)
-    {
-        return $this->changeStatusWithCheck($id, 'active');
+{
+    try {
+        return $this->transactionService->run(function () use ($id) {
+            $schedule = $this->trainingRepository->findById($id);
+
+  if (Gate::denies('active', $schedule)) {
+                throw new AuthorizationException('ليس لديك صلاحية تفعيل جدول التدريب.');
+            }
+            $updatedSchedule = $this->changeStatusWithCheck($id, 'active');
+                event(new TrainingScheduleCreated($updatedSchedule));
+
+            $this->clearTrainingCache($schedule->trainer_id);
+
+            $this->activityLogger->log(
+                'تفعيل جدول تدريب',
+                ['day' => $schedule->day_of_week, 'start' => $schedule->start_time],
+                'training_schedules',
+                $schedule,
+                auth()->user(),
+                'activate  '
+            );
+
+            return $updatedSchedule;
+        });
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل في تفعيل الجدول التدريبي', [
+            'message' => $e->getMessage(),
+            'schedule_id' => $id,
+            'trace' => $e->getTraceAsString(),
+        ], 'training_schedules');
+
+        throw $e;
     }
+}
+
 
     public function deactivate(int $id)
-    {
-        return $this->changeStatusWithCheck($id, 'inactive');
+{
+    try {
+        return $this->transactionService->run(function () use ($id) {
+            $schedule = $this->trainingRepository->findById($id);
+ if (Gate::denies('diactive', $schedule)) {
+                throw new AuthorizationException('ليس لديك صلاحية عدم تفعيل جدول التدريب.');
+            }
+            $updatedSchedule = $this->changeStatusWithCheck($id, 'inactive');
+            $this->clearTrainingCache($schedule->trainer_id);
+
+            $this->activityLogger->log(
+                'تعطيل جدول تدريب',
+                ['day' => $schedule->day_of_week, 'start' => $schedule->start_time],
+                'training_schedules',
+                $schedule,
+                auth()->user(),
+                'deactivate '
+            );
+
+            return $updatedSchedule;
+        });
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل في تعطيل الجدول التدريبي', [
+            'message' => $e->getMessage(),
+            'schedule_id' => $id,
+            'trace' => $e->getTraceAsString(),
+        ], 'training_schedules');
+
+        throw $e;
     }
+}
+
 
     protected function changeStatusWithCheck(int $id, string $status)
     {
-        $schedule = TrainingSchedule::findOrFail($id);
-
-        if (auth()->user()->role !== 'employee') {
-            throw new TrainingScheduleException('ليس لديك الصلاحية ', 403);
-        }
+            $schedule = $this->trainingRepository->findById($id);
 
         $updatedSchedule = $this->trainingRepository->changeStatus($id, $status);
 

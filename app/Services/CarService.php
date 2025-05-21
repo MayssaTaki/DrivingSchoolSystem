@@ -168,7 +168,7 @@ class CarService
                if (isset($data['is_for_special_needs']) && $data['is_for_special_needs'] !== $car->is_for_special_needs) {
                 $updateData['is_for_special_needs'] = $data['is_for_special_needs'];
             }
-            if (isset($data['image']) && $data['image'] !== $car->getOriginal('image')) {
+            if (isset($data['image']) && $data['image'] !== $car->getRawOriginal('image')) {
     $updateData['image'] = $data['image'];
 }
 
