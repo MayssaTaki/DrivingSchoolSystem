@@ -9,6 +9,7 @@ use App\Http\Controllers\TrainerReviewController;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
+use App\Http\Controllers\FeedbackStudentController;
 
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\CarController;
@@ -121,14 +122,18 @@ Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSe
 
 Route::post('/bookings', [BookingController::class, 'store'])->middleware('auth:api');
 Route::post('/bookings/{id}/complete', [BookingController::class, 'complete'])->middleware('auth:api');
+Route::get('/trainer/bookings', [BookingController::class, 'getTrainerBookedSessions']);
 
 
 Route::get('/trainer-sessions', [TrainingSessionController::class, 'getTrainerSessions'])->middleware('auth:api');
 
-    Route::post('trainer-reviews', [TrainerReviewController::class, 'store']);
+Route::get('/trainer/{trainerId}/reviews', [TrainerReviewController::class, 'index']);
+
+    Route::post('trainer-reviews', [TrainerReviewController::class, 'store'])->middleware('auth:api');
   Route::get('trainer-reviews/pending', [TrainerReviewController::class, 'pending']);
-        Route::post('trainer-reviews/{id}/approve', [TrainerReviewController::class, 'approve']);
-        Route::post('trainer-reviews/{id}/reject', [TrainerReviewController::class, 'reject']);
+        Route::post('trainer-reviews/{id}/approve', [TrainerReviewController::class, 'approve'])->middleware('auth:api');
+        Route::post('trainer-reviews/{id}/reject', [TrainerReviewController::class, 'reject'])->middleware('auth:api');
+    Route::post('/feedback/student', [FeedbackStudentController::class, 'store']);
 
 
 

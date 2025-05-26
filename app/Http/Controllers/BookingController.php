@@ -6,6 +6,7 @@ use App\Http\Requests\BookingRequest;
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\BookingResource;
+use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
@@ -43,6 +44,16 @@ public function complete($bookingId)
         ], 500);
     }
 }
+
+
+    public function getTrainerBookedSessions(Request $request)
+    {
+        $trainerId = $request->user()->trainer->id; 
+
+        $bookings = $this->bookingService->getTrainerBookedSessions($trainerId);
+
+        return BookingResource::collection($bookings);
+    }
 
 
 }

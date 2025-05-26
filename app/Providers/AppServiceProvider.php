@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 use App\Repositories\UserRepository;
+use App\Repositories\FeedbackStudentRepository;
+
 use App\Repositories\EmployeeRepository;
 use App\Repositories\ActivityLogRepository;
 use App\Repositories\TrainerRepository;
@@ -27,6 +29,8 @@ use App\Services\RateLimitService;
 use App\Repositories\Contracts\ActivityLogRepositoryInterface;
 use App\Repositories\Contracts\EmployeeRepositoryInterface;
 use App\Repositories\Contracts\BookingRepositoryInterface;
+use App\Repositories\Contracts\FeedbackStudentRepositoryInterface;
+
 
 use App\Repositories\Contracts\TrainerReviewRepositoryInterface;
 
@@ -90,6 +94,10 @@ $this->app->bind(
 $this->app->bind(
     BookingRepositoryInterface::class,
     BookingRepository::class
+);
+$this->app->bind(
+    FeedbackStudentRepositoryInterface::class,
+    FeedbackStudentRepository::class
 );
 
       
