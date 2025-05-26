@@ -3,6 +3,10 @@
 namespace App\Services;
 use App\Repositories\Contracts\TrainerReviewRepositoryInterface;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 
 class TrainerReviewService
 {
@@ -10,9 +14,11 @@ class TrainerReviewService
     protected ActivityLoggerService $activityLogger;
 
     public function __construct(TrainerReviewRepositoryInterface $repo,
-    ActivityLoggerService $activityLogger,
+    ActivityLoggerService $activityLogger,        TransactionService $transactionService,
+
      protected LogService $logService)
     {        $this->activityLogger = $activityLogger;
+        $this->transactionService = $transactionService;
 
         $this->repo = $repo;
     }
@@ -63,22 +69,53 @@ class TrainerReviewService
 
     public function approveReview($id)
     {   try { 
+
+if (!auth()->user()->role === 'employee') {
+    throw new AuthorizationException('ليس لديك صلاحية الموافقة على التقييم.');
+}
        $approve=  $this->repo->approve($id);
          $this->activityLogger->log(
                     'تم قبول التقييم',
-                    ['rating' => $data['rating']],
+                      ['rating' => $approve->rating],
                     'rating',
                     $approve, 
                     auth()->user(),
                     'rating'
                 );
        return $approve; }catch (\Exception $e) {
+          $this->logService->log('error', 'فشل قبول  التقييم ', [
+                'message' => $e->getMessage(),
+            ], 'trainer_reviews');
+
         throw new \Exception('فشل قبول التقييم : ' . $e->getMessage());
     }
     }
 
-    public function rejectReview($id)
+     public function RejectReview($id)
+    {   try { 
+
+if (!auth()->user()->role === 'employee') {
+    throw new AuthorizationException('ليس لديك صلاحية الموافقة على التقييم.');
+}
+       $approve=  $this->repo->reject($id);
+         $this->activityLogger->log(
+                    'تم رفض التقييم',
+                      ['rating' => $approve->rating],
+                    'rating',
+                    $approve, 
+                    auth()->user(),
+                    'rating'
+                );
+       return $approve; }catch (\Exception $e) {
+          $this->logService->log('error', 'فشل رفض  التقييم ', [
+                'message' => $e->getMessage(),
+            ], 'trainer_reviews');
+
+        throw new \Exception('فشل رفض التقييم : ' . $e->getMessage());
+    }
+    }
+      public function getTrainerReviews(int $trainerId): LengthAwarePaginator
     {
-        return $this->repo->reject($id);
+        return $this->repo->getByTrainerId($trainerId);
     }
 }

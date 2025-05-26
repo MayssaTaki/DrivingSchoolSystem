@@ -24,7 +24,10 @@ class TrainerLoginResource extends JsonResource
             'date_of_Birth' => $this->trainer->date_of_Birth,
             'gender' => $this->trainer->gender,
              'address' => $this->trainer->address,
-
+'experience'=>$this->trainer->experience,
+'training_type'=>$this->trainer->training_type,
+ 'license_number'=>$this->trainer->license_number,
+ 'license_expiry_date'=>$this->trainer->license_expiry_date,
             'email' => $this->user?->email,
             'name' => $this->user?->name,
             'image' => $this->trainer->image,
@@ -40,7 +43,10 @@ class TrainerLoginResource extends JsonResource
         'gender' => $this->gender,
          'phone_number' => $this->phone_number,
             'address' => $this->address,
-
+'experience'=>$this->experience,
+'training_type'=>$this->training_type,
+ 'license_number'=>$this->license_number,
+ 'license_expiry_date'=>$this->license_expiry_date,
         'email' => $this->user?->email,
         'name' => $this->user?->name,
         'image' => $this->image,
