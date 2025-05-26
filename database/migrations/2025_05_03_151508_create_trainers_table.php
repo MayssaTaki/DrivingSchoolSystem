@@ -23,7 +23,10 @@ return new class extends Migration
             $table->enum('gender', ['female', 'male']);
             $table->string('image')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-
+   $table->string('license_number')->unique(); 
+    $table->date('license_expiry_date');       
+    $table->string('experience'); 
+    $table->enum('training_type', ['normal', 'special_needs']); 
 
             $table->timestamps();
         });

@@ -17,7 +17,11 @@ class Trainer extends Model
          'date_of_Birth',
            'gender',
            'image',
-           'status'
+           'status',
+           'license_number',
+           'license_expiry_date',
+           'training_type',
+           'experience'
           
         
     ];
@@ -71,7 +75,10 @@ public function reviews()
 {
     return $this->hasMany(TrainerReview::class);
 }
-
+public function feedbacks()
+{
+    return $this->hasMany(Feedback_student::class);
+}
 public function scheduleExceptions()
 {
     return $this->hasMany(ScheduleException::class);

@@ -39,8 +39,15 @@ class TrainerUpdateRequest extends FormRequest
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/'
             ],              'gender' => 'sometimes|in:female,male',
             'address' => 'sometimes|string|max:100',
-                    'date_of_Birth' =>'sometimes|date|before_or_equal:today',
-
+                   'license_number' => [
+    'sometimes',
+    'regex:/^\d{7}$/',
+    'unique:trainers,license_number'
+],
+            'date_of_Birth' =>'sometimes|date|before_or_equal:today',
+'license_expiry_date' => 'sometimes|date|after_or_equal:today',
+        'experience' => 'sometimes|string|max:255',
+        'training_type' => 'sometimes|in:normal,special_needs',
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
@@ -73,6 +80,10 @@ class TrainerUpdateRequest extends FormRequest
             'date_of_Birth.before_or_equal' => 'يجب أن يكون تاريخ الولادة في الماضي أو اليوم.',
             'image.image' => 'يجب أن يكون الملف المرفوع صورة.',
             'image.mimes' => 'يجب أن تكون الصورة من نوع: jpeg, png, jpg, gif, svg.',
+                    'training_type.in' => 'يجب أن يكون نوع التدريب إما "normal" أو "special_needs".',
+        'license_number.unique' => 'رقم الرخصة مسجل مسبقاً.',
+            'license_number.regex' => 'يجب أن يتكون رقم الرخصة من 7 أرقام.',
+
             'image.max' => 'يجب ألا تتجاوز حجم الصورة 2 ميجابايت.',
         ];
     }

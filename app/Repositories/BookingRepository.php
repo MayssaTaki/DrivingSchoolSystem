@@ -7,12 +7,26 @@ use App\Repositories\Contracts\BookingRepositoryInterface;
 
 class BookingRepository implements BookingRepositoryInterface
 {
+
+        protected $booking;
+
+    public function __construct(Booking $booking)
+    {
+        $this->booking = $booking;
+    }
     public function create(array $data)
     {
         return Booking::create($data);
     }
 
-
+  public function getBookedSessionsByTrainer(int $trainerId)
+    {
+        return $this->booking
+            ->where('trainer_id', $trainerId)
+            ->where('status', 'booked')
+            ->with(['session', 'student', 'car'])  
+            ->get();
+    }
     
     public function isSessionAvailable(int $sessionId): bool
     {
