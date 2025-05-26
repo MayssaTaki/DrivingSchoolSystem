@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use App\Http\Requests\storeTrainerReviewRequest;
 use App\Services\TrainerReviewService;
+use App\Http\Resources\TrainerReviewResource;
+use Illuminate\Http\JsonResponse;
 
 class TrainerReviewController extends Controller
 {
@@ -56,5 +58,11 @@ class TrainerReviewController extends Controller
     {
         $this->service->rejectReview($id);
         return response()->json(['message' => 'تم رفض التقييم.']);
+    }
+
+      public function index(int $trainerId): JsonResponse
+    {
+        $reviews = $this->service->getTrainerReviews($trainerId);
+        return response()->json(TrainerReviewResource::collection($reviews));
     }
 }

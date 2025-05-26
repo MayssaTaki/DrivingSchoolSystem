@@ -79,6 +79,11 @@ protected EmailVreificationService $emailservice;
                     'phone_number' => $data['phone_number'],
                     'address' => $data['address'],
                     'gender' => $data['gender'],
+                 'license_number' => $data['license_number'],
+                 'license_expiry_date' => $data['license_expiry_date'],
+                    'training_type' => $data['training_type'],
+                    'experience' => $data['experience'],
+
                     'image' => $data['image'] ?? null,
                     'date_of_Birth'=>$data['date_of_Birth'],
 
@@ -194,9 +199,15 @@ public function update(Trainer $trainer, array $data): Trainer
                 'phone_number' => $data['phone_number'] ?? $trainer->phone_number,
                 'address' => $data['address'] ?? $trainer->address,
                 'gender' => $data['gender'] ?? $trainer->gender,
-    'image' => $data['image'] ?? $trainer->getRawOriginal('image'), // هُنا استخدام القيمة الأصلية فقط
+    'image' => $data['image'] ?? $trainer->getRawOriginal('image'), 
                 'date_of_Birth' => $data['date_of_Birth'] ?? $trainer->date_of_Birth,
-                
+             'license_number' => $data['license_number'] ?? $trainer->license_number,
+
+      'license_expiry_date' => $data['license_expiry_date'] ?? $trainer->license_expiry_date,
+
+        'training_type' => $data['training_type'] ?? $trainer->training_type,
+             'experience' => $data['experience'] ?? $trainer->experience,
+
             ];
 
             $this->trainerRepository->update($trainer, $trainerData);

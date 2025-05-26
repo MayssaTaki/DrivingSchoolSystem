@@ -148,7 +148,10 @@ public function completeSession(int $bookingId)
         throw $e;
     }
 }
-
+  public function getTrainerBookedSessions(int $trainerId)
+    {
+        return $this->bookingRepo->getBookedSessionsByTrainer($trainerId);
+    }
 
 
 }
