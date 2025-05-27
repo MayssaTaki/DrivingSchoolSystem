@@ -34,6 +34,13 @@ class BookingRepository implements BookingRepositoryInterface
         return $session && $session->status === 'available';
     }
 
+
+ public function isSessionBook(int $sessionId): bool
+    {
+        $session = TrainingSession::find($sessionId);
+        return $session && $session->status === 'booked';
+    }
+
        public function updateStatus(int $bookId, string $status): bool
 {
     return Booking::where('id', $bookId)
@@ -42,6 +49,10 @@ class BookingRepository implements BookingRepositoryInterface
     public function findWithRelations(int $id, array $relations = [])
 {
     return Booking::with($relations)->findOrFail($id);
+}
+  public function getBySessionIdWithLock(int $sessionId): ?Booking
+{
+    return Booking::where('session_id', $sessionId)->lockForUpdate()->first();
 }
 
 }

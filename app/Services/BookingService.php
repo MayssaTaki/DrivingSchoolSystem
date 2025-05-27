@@ -36,6 +36,23 @@ class BookingService
         ]);
     }
 }
+    protected function ensureSessionIsBook(int $sessionId)
+{
+    if (!$this->bookingRepo->isSessionBook($sessionId)) {
+        throw ValidationException::withMessages([
+            'session' => 'الجلسة غير محجوزة.',
+        ]);
+    }
+}
+
+protected function ensureCarIsBook(int $carId)
+{
+    if (!$this->carRepo->isCarBook($carId)) {
+        throw ValidationException::withMessages([
+            'car' => 'السيارة غير محجوزة .',
+        ]);
+    }
+}
 
 protected function ensureCarIsAvailable(int $carId)
 {
@@ -153,5 +170,48 @@ public function completeSession(int $bookingId)
         return $this->bookingRepo->getBookedSessionsByTrainer($trainerId);
     }
 
+
+   public function CancelSession(int $bookingId)
+{
+    try {
+        return $this->transactionService->run(function () use ($bookingId) {
+            $booking = $this->bookingRepo->getBySessionIdWithLock($bookingId);
+
+            $session = $this->sessionRepo->findWithLock($booking->session_id);
+            $car = $this->carRepo->findWithLock($booking->car_id);
+
+            $this->ensureSessionIsBook($session->id);
+            $this->ensureCarIsBook($car->id);
+
+            $this->bookingRepo->updateStatus($booking->id, 'cancelled');
+            $this->sessionRepo->updateStatus($session->id, 'cancelled');
+            $this->carRepo->updateStatus($car->id, 'available');
+
+            $this->activityLogger->log(
+                'الغاء جلسة تدريب',
+                [
+                    'student_id' => $booking->student_id,
+                    'session_day' => $session->day_of_week ?? null,
+                    'session_time' => $session->start_time ?? null,
+                    'car_id' => $car->id,
+                ],
+                'bookings',
+                $booking,
+                auth()->user(),
+                'book'
+            );
+
+            return $booking;
+        });
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل في الغاء الجلسة التدريبية', [
+            'message' => $e->getMessage(),
+            'booking_id' => $bookingId,
+            'trace' => $e->getTraceAsString(),
+        ], 'bookings');
+
+        throw $e;
+    }
+}
 
 }
