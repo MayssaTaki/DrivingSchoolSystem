@@ -31,6 +31,11 @@ class Trainer extends Model
     return $this->hasMany(Booking::class);
 }
 
+public function exams()
+{
+    return $this->hasMany(Exam::class, 'trainer_id');
+}
+
     public function user()
     {
         return $this->belongsTo(User::class);

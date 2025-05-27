@@ -14,6 +14,10 @@ class StudentRepository  implements StudentRepositoryInterface
   {
       return Student::create($data);
   }
+public function find(int $id)
+{
+    return Student::findOrFail($id);
+}
 
   public function getAllStudents(?string $name, int $perPage = 10)
   {

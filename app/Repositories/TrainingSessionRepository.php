@@ -11,6 +11,18 @@ class TrainingSessionRepository implements TrainingSessionRepositoryInterface
     {
         return TrainingSession::insert($data);
     }
+
+public function getAvailableSessions()
+{
+    return TrainingSession::where('status', 'available')
+        ->where('session_date', '>=', now()->toDateString())
+        ->orderBy('session_date')
+        ->orderBy('start_time')
+        ->get();
+}
+
+
+
     public function find(int $id)
 {
     return TrainingSession::findOrFail($id);

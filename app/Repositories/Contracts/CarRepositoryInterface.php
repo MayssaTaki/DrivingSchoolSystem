@@ -16,7 +16,7 @@ interface CarRepositoryInterface
  public function isCarAvailable(int $carId): bool;
   public function findWithLock(int $id);
          public function find(int $id);
-
+public function getAvailableCars();
 
 
 
