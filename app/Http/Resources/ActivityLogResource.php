@@ -11,7 +11,8 @@ class ActivityLogResource extends JsonResource
         $causer = $this->causer;
 
         return [
-            
+                        'id' => $this->id,
+
             'log_name'    => $this->log_name,
             'event'       => $this->event,
             'created_at'  => $this->created_at,

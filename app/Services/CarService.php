@@ -181,7 +181,7 @@ class CarService
             auth()->user(),
             'updated'
         );
-    
+     $this->clearCarCache();
             $this->carRepository->update($car, $updateData);
     
             return $car->fresh();  

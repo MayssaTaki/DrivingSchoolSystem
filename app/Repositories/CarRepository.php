@@ -63,6 +63,14 @@ class CarRepository implements CarRepositoryInterface
         $car= Car::find($carId);
         return $car && $car->status === 'available';
     }
+
+
+public function isCarBook(int $carId): bool
+    {
+        $car= Car::find($carId);
+        return $car && $car->status === 'booked';
+    }
+
        public function find(int $id)
 {
     return Car::findOrFail($id);
