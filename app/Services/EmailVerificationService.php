@@ -156,5 +156,27 @@ public function resendVerificationCodeById(int $userId): void
     $this->sendVerificationCode($user);
 }
 
+
+
+
+public function sendCustomEmail(User $user, string $subject, string $html)
+{
+    Http::withHeaders([
+        'api-key' => env('BREVO_API_KEY'),
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+    ])->post('https://api.brevo.com/v3/smtp/email', [
+        'sender' => [
+            'name' => 'Qyada School',
+            'email' => 'qyadaschool@gmail.com'
+        ],
+        'to' => [
+            ['email' => $user->email]
+        ],
+        'subject' => $subject,
+        'htmlContent' => $html
+    ]);
+}
+
   }
 
