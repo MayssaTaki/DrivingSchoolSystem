@@ -11,7 +11,7 @@ interface StudentRepositoryInterface
     public function findById(int $id): ?Student;
     public function update(Student $student, array $data): Student;
     public function countStudents(): int;
-
+public function find(int $id);
 
 
 }

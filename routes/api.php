@@ -6,6 +6,7 @@ use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
 use App\Http\Controllers\TrainerReviewController;
+use App\Http\Controllers\ExamController;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
@@ -95,6 +96,22 @@ Route::get('/employees/count', [EmployeeController::class, 'countEmployees']);
 
 
 
+Route::prefix('exams')->group(function () {
+    Route::post('/{id}/submit', [ExamController::class, 'submit']);
+});
+Route::post('/exams', [ExamController::class, 'store'])->middleware('auth:api');
+ Route::get('/exams/{id}', [ExamController::class, 'show'])->middleware('auth:api');
+    Route::get('/exam', [ExamController::class, 'index'])->middleware('auth:api');
+Route::post('/exams/start', [ExamController::class, 'start'])->middleware('auth:api');
+Route::post('/exams/submit', [ExamController::class, 'submitAnswers'])->middleware('auth:api');
+
+
+
+
+
+
+
+
 Route::post('/trainer/register', [TrainerController::class, 'register']);
 Route::get('/trainers', [TrainerController::class, 'getAllTrainers'])->middleware('auth:api');
 Route::delete('/trainers/{id}', [TrainerController::class, 'destroy'])->middleware('auth:api');
@@ -123,6 +140,8 @@ Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSe
 Route::post('/bookings', [BookingController::class, 'store'])->middleware('auth:api');
 Route::post('/bookings/{id}/complete', [BookingController::class, 'complete'])->middleware('auth:api');
 Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancell'])->middleware('auth:api');
+Route::post('/auto-book', [BookingController::class, 'autoBook']);
+Route::post('/recommended-sessions', [BookingController::class, 'getRecommendedSessions']);
 
 Route::get('/trainer/bookings', [BookingController::class, 'getTrainerBookedSessions']);
 

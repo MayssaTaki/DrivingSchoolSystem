@@ -26,6 +26,63 @@ $studentId = auth()->user()->student->id;
 
         ], 201);
     }
+
+
+public function getRecommendedSessions(Request $request)
+{
+    $validated = $request->validate([
+        'student_id' => 'required|integer|exists:students,id',
+        'preferred_date' => 'required|date',
+        'preferred_time' => 'required|date_format:H:i',
+    ]);
+
+    $sessions = $this->bookingService->getRecommendedSessions(
+        $validated['student_id'],
+        $validated['preferred_date'],
+        $validated['preferred_time']
+    );
+
+    return response()->json([
+        'sessions' => $sessions,
+    ]);
+}
+
+
+
+
+ public function autoBook(Request $request)
+{
+    $validated = $request->validate([
+        'student_id' => 'required|integer|exists:students,id',
+        'preferred_date' => 'required|date',
+        'preferred_time' => 'required|date_format:H:i',
+    ]);
+
+    $booking = $this->bookingService->autoBookSession(
+        $validated['student_id'],
+        $validated['preferred_date'],
+        $validated['preferred_time']
+    );
+
+    return response()->json([
+        'message' => 'تم الحجز بنجاح',
+        'booking' => $booking,
+    ]);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public function complete($bookingId)
 {
     try {
