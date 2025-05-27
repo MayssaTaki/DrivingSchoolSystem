@@ -5,6 +5,8 @@ use App\Repositories\UserRepository;
 use App\Repositories\FeedbackStudentRepository;
 
 use App\Repositories\EmployeeRepository;
+use App\Repositories\ExamRepository;
+
 use App\Repositories\ActivityLogRepository;
 use App\Repositories\TrainerRepository;
 use App\Repositories\StudentRepository;
@@ -33,6 +35,7 @@ use App\Repositories\Contracts\FeedbackStudentRepositoryInterface;
 
 
 use App\Repositories\Contracts\TrainerReviewRepositoryInterface;
+use App\Repositories\Contracts\ExamRepositoryInterface;
 
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Contracts\TrainerRepositoryInterface;
@@ -98,6 +101,10 @@ $this->app->bind(
 $this->app->bind(
     FeedbackStudentRepositoryInterface::class,
     FeedbackStudentRepository::class
+);
+$this->app->bind(
+    ExamRepositoryInterface::class,
+    ExamRepository::class
 );
 
       

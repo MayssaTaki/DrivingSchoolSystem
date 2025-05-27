@@ -5,6 +5,7 @@ use App\Repositories\Contracts\BookingRepositoryInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
+use App\Repositories\StudentRepository;
 
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -14,18 +15,32 @@ class BookingService
 { protected ActivityLoggerService $activityLogger;
     protected LogService $logService;
         protected TransactionService $transactionService;
+        protected EmailVreificationService $emailservice;
+                protected DecisionEngineService $decisionEngineService;
+
+
 
     public function __construct(
+                EmailVerificationService $emailService,
+DecisionEngineService $decisionEngineService,
         protected BookingRepositoryInterface $bookingRepo,
         protected CarRepositoryInterface $carRepo,
         TransactionService $transactionService,
         ActivityLoggerService $activityLogger,
         LogService $logService,
+                StudentRepository $studentRepo,
+
         protected TrainingSessionRepositoryInterface $sessionRepo
     ) {
         $this->transactionService = $transactionService;
         $this->activityLogger = $activityLogger;
+                $this->studentRepo = $studentRepo;
+
         $this->logService = $logService;
+                $this->emailService=$emailService;
+      $this->decisionEngineService=$decisionEngineService;
+
+
     }
 
     protected function ensureSessionIsAvailable(int $sessionId)
@@ -115,6 +130,46 @@ $car = $this->carRepo->findWithLock($carId);
         throw $e;
     }
 }
+
+
+public function autoBookSession(int $studentId, string $preferredDate, string $preferredTime)
+{
+    try {
+        return $this->transactionService->run(function () use ($studentId, $preferredDate, $preferredTime) {
+            $decision = $this->decisionEngineService->chooseBestSessionAndCar($studentId, $preferredDate, $preferredTime);
+            $sessionId = $decision['session_id'];
+            $carId = $decision['car_id'];
+
+            return $this->bookSession($studentId, $sessionId, $carId);
+        });
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل في الحجز التلقائي', [
+            'message' => $e->getMessage(),
+            'student_id' => $studentId,
+            'preferred_date' => $preferredDate,
+            'preferred_time' => $preferredTime,
+        ], 'bookings');
+
+        throw $e;
+    }
+}
+
+
+
+public function getRecommendedSessions(int $studentId, string $preferredDate, string $preferredTime)
+{
+    $student = $this->studentRepo->find($studentId);
+
+    return $this->decisionEngineService->getAvailableSessionsForStudent($preferredDate, $preferredTime)
+        ->values(); // ترجع مجموعة جلسات مرتبة بالأقرب
+}
+
+
+
+
+
+
+
 protected function ensureBookingIsBookable($booking)
 {
     if ($booking->status !== 'booked') {
@@ -200,6 +255,7 @@ public function completeSession(int $bookingId)
                 auth()->user(),
                 'book'
             );
+            $this->sendSessionCancellationEmail($booking, $session);
 
             return $booking;
         });
@@ -212,6 +268,30 @@ public function completeSession(int $bookingId)
 
         throw $e;
     }
+}
+protected function sendSessionCancellationEmail($booking, $session)
+{
+    $currentUser = auth()->user();
+$isStudent = ($currentUser->role === 'student');
+
+    $recipientUser = $isStudent
+        ? $session->trainer->user
+        : $booking->student->user;
+
+   $message = $isStudent
+    ? 'قام الطالب بإلغاء جلسة التدريب المحددة. .'
+    : 'قام المدرب بإلغاء جلسة التدريب المحددة. يمكنك الآن حجز جلسة جديدة في الوقت المناسب لك.';
+
+
+    $htmlContent = "
+        <p>{$message}</p>
+        <p>اليوم: <strong>{$session->session_date}</strong></p>
+        <p>الوقت: <strong>{$session->start_time}</strong></p>
+            <p>شكراً لاستخدامك نظامنا.</p>
+
+    ";
+
+    $this->emailService->sendCustomEmail($recipientUser, 'إلغاء جلسة تدريب', $htmlContent);
 }
 
 }
