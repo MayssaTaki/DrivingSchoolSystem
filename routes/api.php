@@ -122,6 +122,8 @@ Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSe
 
 Route::post('/bookings', [BookingController::class, 'store'])->middleware('auth:api');
 Route::post('/bookings/{id}/complete', [BookingController::class, 'complete'])->middleware('auth:api');
+Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancell'])->middleware('auth:api');
+
 Route::get('/trainer/bookings', [BookingController::class, 'getTrainerBookedSessions']);
 
 

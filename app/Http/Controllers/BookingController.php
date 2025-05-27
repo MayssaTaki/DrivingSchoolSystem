@@ -46,6 +46,26 @@ public function complete($bookingId)
 }
 
 
+public function cancell($bookingId)
+{
+    try {
+        $this->bookingService->CancelSession((int) $bookingId);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'تم الغاء  الجلسة بنجاح. .',
+            'data' => null
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'حدث خطأ أثناء الغاء الجلسة.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
     public function getTrainerBookedSessions(Request $request)
     {
         $trainerId = $request->user()->trainer->id; 
