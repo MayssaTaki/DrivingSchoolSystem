@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookingRequest;
+use App\Http\Requests\AutoBookRequest;
+
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\BookingResource;
@@ -28,45 +30,18 @@ $studentId = auth()->user()->student->id;
     }
 
 
-public function getRecommendedSessions(Request $request)
+
+
+public function autoBook(AutoBookRequest $request)
 {
-    $validated = $request->validate([
-        'student_id' => 'required|integer|exists:students,id',
-        'preferred_date' => 'required|date',
-        'preferred_time' => 'required|date_format:H:i',
-    ]);
+    $studentId = auth()->user()->student->id;
+    $sessionId = $request->input('session_id');
 
-    $sessions = $this->bookingService->getRecommendedSessions(
-        $validated['student_id'],
-        $validated['preferred_date'],
-        $validated['preferred_time']
-    );
-
-    return response()->json([
-        'sessions' => $sessions,
-    ]);
-}
-
-
-
-
- public function autoBook(Request $request)
-{
-    $validated = $request->validate([
-        'student_id' => 'required|integer|exists:students,id',
-        'preferred_date' => 'required|date',
-        'preferred_time' => 'required|date_format:H:i',
-    ]);
-
-    $booking = $this->bookingService->autoBookSession(
-        $validated['student_id'],
-        $validated['preferred_date'],
-        $validated['preferred_time']
-    );
+    $booking = $this->bookingService->autoBookSession($studentId, $sessionId);
 
     return response()->json([
         'message' => 'تم الحجز بنجاح',
-        'booking' => $booking,
+        'data' => $booking,
     ]);
 }
 
@@ -74,7 +49,15 @@ public function getRecommendedSessions(Request $request)
 
 
 
-
+ public function startSession(Request $request, $id)
+    {
+        try {
+            $this->bookingService->startSession($id);
+            return response()->json(['message' => 'تم بدء الجلسة بنجاح.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
 
 
 

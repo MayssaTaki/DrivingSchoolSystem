@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
 use App\Http\Controllers\TrainerReviewController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\BookingStatusLogController;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
@@ -104,6 +105,7 @@ Route::post('/exams', [ExamController::class, 'store'])->middleware('auth:api');
     Route::get('/exam', [ExamController::class, 'index'])->middleware('auth:api');
 Route::post('/exams/start', [ExamController::class, 'start'])->middleware('auth:api');
 Route::post('/exams/submit', [ExamController::class, 'submitAnswers'])->middleware('auth:api');
+Route::post('/start-mixed-exam', [ExamController::class, 'startMixedExam']);
 
 
 
@@ -135,13 +137,18 @@ Route::delete('/schedule-exceptions/{exception}', [ScheduleExceptionController::
 Route::post('/schedule-exceptions/{id}/approve', [ScheduleExceptionController::class, 'approve'])->middleware('auth:api');
 Route::post('/schedule-exceptions/{id}/reject', [ScheduleExceptionController::class, 'reject'])->middleware('auth:api');
 
-Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSessionCounts']);
+Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSessionCounts'])->middleware('auth:api');
+Route::get('/recommended-sessions', [TrainingSessionController::class, 'getRecommendedSessions'])->middleware('auth:api');
+
 
 Route::post('/bookings', [BookingController::class, 'store'])->middleware('auth:api');
 Route::post('/bookings/{id}/complete', [BookingController::class, 'complete'])->middleware('auth:api');
 Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancell'])->middleware('auth:api');
-Route::post('/auto-book', [BookingController::class, 'autoBook']);
-Route::post('/recommended-sessions', [BookingController::class, 'getRecommendedSessions']);
+Route::post('/auto-book-session', [BookingController::class, 'autoBook'])->middleware('auth:api');
+Route::post('/booking/{id}/start', [BookingController::class, 'startSession']);
+
+    Route::get('/bookings/{bookingId}/status-logs', [BookingStatusLogController::class, 'index']);
+
 
 Route::get('/trainer/bookings', [BookingController::class, 'getTrainerBookedSessions']);
 

@@ -37,11 +37,10 @@ public function getAllCars(Request $request)
             ], 404);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'تم استرجاع السيارات  بنجاح',
-            'data' =>  CarResource::collection($cars),
-        ]);
+       return CarResource::collection($cars)->additional([
+        'status' => 'success',
+        'message' => 'تم استرجاع السيارات بنجاح',
+    ]);
     }
     public function countCars(): JsonResponse
 {

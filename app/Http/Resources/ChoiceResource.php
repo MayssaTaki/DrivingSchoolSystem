@@ -9,7 +9,7 @@ class ChoiceResource extends JsonResource
     {
       //  static $index = 0;
         return [
-           // 'choice_id' => $this->id,
+           'choice_id' => $this->id,
            // 'index' => ++$index,
             'text' => $this->choice_text,
             'is_correct' => (bool) $this->is_correct,

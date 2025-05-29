@@ -63,11 +63,11 @@ public function getAllEmployes(Request $request)
             ], 404);
         }
 
-        return response()->json([
+        return EmployeeResource::collection($employees)->additional([
             'status' => 'success',
             'message' => 'تم استرجاع الموظفين بنجاح',
-            'data' => EmployeeResource::collection($employees),
         ]);
+    
     }
 
     public function destroy($id): JsonResponse

@@ -10,7 +10,7 @@ class ExamResource extends JsonResource
         return [
             'trainer_id'=>$this->trainer_id,
             'exam_id' => $this->id,
-            'title' => $this->title,
+            'type' => $this->type,
             'duration_minutes' => $this->duration_minutes,
             'questions' => QuestionResource::collection($this->whenLoaded('questions')),
         ];

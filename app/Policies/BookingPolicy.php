@@ -15,12 +15,17 @@ class BookingPolicy
 public function complete(User $user, Booking $booking): bool
 {
     return $user->role === 'trainer'
-        && $user->trainer // تأكد أن لديه سجل مدرب
+        && $user->trainer 
         && $user->trainer->id === $booking->trainer_id;
 }
 
 
-
+public function start(User $user, Booking $booking): bool
+{
+    return $user->role === 'trainer'
+        && $user->trainer 
+        && $user->trainer->id === $booking->trainer_id;
+}
 
 
     /**

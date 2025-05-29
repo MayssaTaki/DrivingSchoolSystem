@@ -63,10 +63,9 @@ public function getAllStudents(Request $request)
             ], 404);
         }
 
-        return response()->json([
+        return StudentResource::collection($students)->additional([
             'status' => 'success',
             'message' => 'تم استرجاع الطلاب بنجاح',
-            'data' => StudentResource::collection($students),
         ]);
     }
 

@@ -76,10 +76,67 @@ public function createExamWithQuestions(array $data)
         return $this->examRepo->submitExam($examId, $answers);
     }
 
-    public function startExam(int $examId, int $studentId)
+public function startExam(int $examId, int $studentId)
 {
-    return $this->examRepo->startExamAttempt($examId, $studentId);
+    try {
+        return $this->transactionService->run(function () use ($examId, $studentId) {
+            $examAttempt = $this->examRepo->startExamAttempt($examId, $studentId);
+
+            $this->activityLogger->log(
+                'بدء محاولة امتحان',
+                [
+                    'exam_id' => $examId,
+                    'student_id' => $studentId,
+                    'started_at' => now(),
+                ],
+                'exam_attempts',
+                $examAttempt,
+                auth()->user(),
+                'start'
+            );
+
+            return $examAttempt;
+        });
+    } catch (\Exception $e) {
+        $this->logService->log(
+            'error',
+            'فشل بدء محاولة الامتحان',
+            [
+                'message' => $e->getMessage(),
+                'exam_id' => $examId,
+                'student_id' => $studentId,
+                'trace' => $e->getTraceAsString(),
+            ],
+            'exam_attempts'
+        );
+
+        throw $e;
+    }
 }
+
+public function startMixedExamForStudent(int $studentId)
+{
+    $result = $this->examRepo->generateStudentExamQuestions($studentId);
+
+    $this->activityLogger->log(
+        'بدء امتحان مختلط',
+        [
+            'student_id' => $studentId,
+            'question_count' => count($result['questions']),
+            'attempt_id' => $result['attempt']->id,
+        ],
+        'exam_attempts',
+      
+       $result['attempt'],
+        auth()->user(),
+        'start-mixed'
+    );
+
+    return $result;
+}
+
+
+
 public function submitExam(int $attemptId, array $answers): array
 {
     return $this->examRepo->submitExamAttempt($attemptId, $answers);
