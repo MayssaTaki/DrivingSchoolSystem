@@ -41,11 +41,13 @@ class BookingRepository implements BookingRepositoryInterface
         return $session && $session->status === 'booked';
     }
 
-       public function updateStatus(int $bookId, string $status): bool
+public function updateStatus(int $bookId, string $status): bool
 {
-    return Booking::where('id', $bookId)
-        ->update(['status' => $status]);
+    $booking = Booking::findOrFail($bookId); 
+    $booking->status = $status;
+    return $booking->save(); 
 }
+
     public function findWithRelations(int $id, array $relations = [])
 {
     return Booking::with($relations)->findOrFail($id);

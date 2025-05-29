@@ -33,5 +33,9 @@ public function session()
 {
     return $this->belongsTo(TrainingSession::class, 'session_id');
 }
+public function statusLogs()
+{
+    return $this->hasMany(BookingStatusLog::class);
+}
 
 }

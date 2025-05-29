@@ -119,6 +119,12 @@ public function generateSessionsForSchedule(TrainingSchedule $schedule): void
 }
 
 
+public function getRecommendedSessions(int $studentId, string $preferredDate, string $preferredTime, int $limit = 10)
+{
+    return $this->repo->getRecommendedSessionsForStudent($studentId, $preferredDate, $preferredTime, $limit);
+}
+
+
  public function getSessionCounts(int $trainerId, ?string $month = null): array
     {
         return [

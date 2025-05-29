@@ -16,7 +16,7 @@ class LogController extends Controller
         $this->logService = $logService;
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $logs = $this->logService->getPaginatedLogs(
             $request->get('per_page', 10),
@@ -24,9 +24,8 @@ class LogController extends Controller
             $request->get('channel')
         );
     
-        return response()->json([
+        return LogEntryResource::collection($logs)->additional([
             'status' => 'success',
-            'data' => LogEntryResource::collection($logs),
         ]);
     }
     
