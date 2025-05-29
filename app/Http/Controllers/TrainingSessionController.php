@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 use App\Http\Requests\GetSessionCountsRequest;
+use App\Http\Requests\RecommendedSessionRequest;
+
 
 use App\Services\TrainingSessionService;
 use Illuminate\Http\JsonResponse;
@@ -24,6 +26,21 @@ class TrainingSessionController extends Controller
         'data' => TrainerSessionDayResource::collection($grouped)
     ]);
 }
+
+public function getRecommendedSessions(RecommendedSessionRequest $request)
+{
+$studentId = auth()->user()->student->id;
+    $preferredDate = $request->input('preferred_date');
+    $preferredTime = $request->input('preferred_time');
+
+    $sessions = $this->sessionService->getRecommendedSessions($studentId, $preferredDate, $preferredTime);
+
+    return response()->json([
+        'message' => 'قائمة الجلسات المقترحة بنجاح',
+        'data' => $sessions,
+    ]);
+}
+
 
 
 

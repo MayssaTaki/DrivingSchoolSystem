@@ -28,10 +28,9 @@ class ActivityLogController extends Controller
         ], 404);
     }
 
-    return response()->json([
+    return ActivityLogResource::collection($logs)->additional([
         'status' => 'success',
         'message' => 'تم استرجاع سجلات النشاط بنجاح',
-        'data' => ActivityLogResource::collection($logs), 
     ]);
 }
 
