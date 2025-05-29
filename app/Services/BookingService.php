@@ -16,13 +16,11 @@ class BookingService
     protected LogService $logService;
         protected TransactionService $transactionService;
         protected EmailVreificationService $emailservice;
-                protected DecisionEngineService $decisionEngineService;
 
 
 
     public function __construct(
                 EmailVerificationService $emailService,
-DecisionEngineService $decisionEngineService,
         protected BookingRepositoryInterface $bookingRepo,
         protected CarRepositoryInterface $carRepo,
         TransactionService $transactionService,
@@ -38,7 +36,6 @@ DecisionEngineService $decisionEngineService,
 
         $this->logService = $logService;
                 $this->emailService=$emailService;
-      $this->decisionEngineService=$decisionEngineService;
 
 
     }
@@ -132,22 +129,53 @@ $car = $this->carRepo->findWithLock($carId);
 }
 
 
-public function autoBookSession(int $studentId, string $preferredDate, string $preferredTime)
+public function autoBookSession(int $studentId, int $sessionId)
 {
     try {
-        return $this->transactionService->run(function () use ($studentId, $preferredDate, $preferredTime) {
-            $decision = $this->decisionEngineService->chooseBestSessionAndCar($studentId, $preferredDate, $preferredTime);
-            $sessionId = $decision['session_id'];
-            $carId = $decision['car_id'];
+        return $this->transactionService->run(function () use ($studentId, $sessionId) {
+            $this->ensureSessionIsAvailable($sessionId);
 
-            return $this->bookSession($studentId, $sessionId, $carId);
+            $session = $this->sessionRepo->findWithLock($sessionId);
+
+            $availableCar = $this->carRepo->getFirstAvailableForSession($session->session_date, $session->start_time);
+            if (!$availableCar) {
+                throw new \Exception('لا توجد سيارات متاحة في هذا الوقت.');
+            }
+
+            $booking = $this->bookingRepo->create([
+                'student_id' => $studentId,
+                'session_id' => $session->id,
+                'trainer_id' => $session->trainer_id,
+                'car_id' => $availableCar->id,
+                'status' => 'booked',
+            ]);
+
+            $this->sessionRepo->updateStatus($session->id, 'booked');
+            $this->carRepo->updateStatus($availableCar->id, 'booked');
+
+            $this->activityLogger->log(
+                'تم حجز جلسة تدريب تلقائيًا',
+                [
+                    'student_id' => $studentId,
+                    'session_id' => $sessionId,
+                    'car_id' => $availableCar->id,
+                    'session_date' => $session->session_date,
+                    'start_time' => $session->start_time,
+                ],
+                'bookings',
+                $booking,
+                auth()->user(),
+                'auto-book'
+            );
+
+            return $booking;
         });
     } catch (\Exception $e) {
-        $this->logService->log('error', 'فشل في الحجز التلقائي', [
+        $this->logService->log('error', 'فشل الحجز التلقائي للجلسة التدريبية', [
             'message' => $e->getMessage(),
+            'session_id' => $sessionId,
             'student_id' => $studentId,
-            'preferred_date' => $preferredDate,
-            'preferred_time' => $preferredTime,
+            'trace' => $e->getTraceAsString(),
         ], 'bookings');
 
         throw $e;
@@ -156,25 +184,15 @@ public function autoBookSession(int $studentId, string $preferredDate, string $p
 
 
 
-public function getRecommendedSessions(int $studentId, string $preferredDate, string $preferredTime)
+
+
+
+
+protected function ensureBookingIsStarted($booking)
 {
-    $student = $this->studentRepo->find($studentId);
-
-    return $this->decisionEngineService->getAvailableSessionsForStudent($preferredDate, $preferredTime)
-        ->values(); // ترجع مجموعة جلسات مرتبة بالأقرب
-}
-
-
-
-
-
-
-
-protected function ensureBookingIsBookable($booking)
-{
-    if ($booking->status !== 'booked') {
+    if ($booking->status !== 'started') {
         throw ValidationException::withMessages([
-            'booking' => 'لا يمكن إنهاء جلسة غير محجوزة.',
+            'booking' => 'لا يمكن إنهاء جلسة غير مبتدئة.',
         ]);
     }
 }
@@ -189,7 +207,7 @@ public function completeSession(int $bookingId)
                 throw new AuthorizationException('ليس لديك صلاحية انهاء الجلسة .');
             }
 
-           $this->ensureBookingIsBookable($booking);
+           $this->ensureBookingIsStarted($booking);
             $this->bookingRepo->updateStatus($booking->id, 'completed');
             $this->sessionRepo->updateStatus($booking->session_id, 'completed');
             $this->carRepo->updateStatus($booking->car_id, 'available');
@@ -219,7 +237,60 @@ public function completeSession(int $bookingId)
 
         throw $e;
     }
+
+ 
 }
+
+
+
+
+
+ public function startSession(int $bookingId)
+    {
+        try {
+        return $this->transactionService->run(function () use ($bookingId) {
+                $booking = $this->bookingRepo->findWithRelations($bookingId, ['session', 'car']);
+                
+                if (Gate::denies('start', $booking)) {
+                    throw new AuthorizationException('ليس لديك صلاحية بدء الجلسة.');
+                }
+
+                if (!in_array($booking->status, ['booked'])) {
+                    throw new \Exception('لا يمكن بدء جلسة غير محجوزة أو مكتملة.');
+                }
+
+                $this->bookingRepo->updateStatus($booking->id, 'started'); // أو حالة خاصة لو تريدها مثل "started"
+
+                $this->activityLogger->log(
+                    'بدء جلسة تدريب',
+                    [
+                        'student_id'   => $booking->student_id,
+                        'trainer_id'   => $booking->trainer_id,
+                        'session_day'  => $booking->session->day_of_week ?? null,
+                        'session_time' => $booking->session->start_time ?? null,
+                        'car_id'       => $booking->car_id,
+                    ],
+                    'bookings',
+                    $booking,
+                    auth()->user(),
+                    'start'
+                );
+            });
+        } catch (\Exception $e) {
+            $this->logService->log('error', 'فشل في بدء الجلسة', [
+                'message'    => $e->getMessage(),
+                'booking_id' => $bookingId,
+            ], 'bookings');
+
+            throw $e;
+        }
+    }
+
+
+
+
+
+
   public function getTrainerBookedSessions(int $trainerId)
     {
         return $this->bookingRepo->getBookedSessionsByTrainer($trainerId);

@@ -52,6 +52,14 @@ class CarRepository implements CarRepositoryInterface
         $car->update($data);
         return $car;
     }
+
+
+public function getFirstAvailableForSession(string $date, string $time)
+{
+    return Car::where('status', 'available')->first();
+}
+
+
     public function updateStatus(int $carId, string $status): bool
 {
     return Car::where('id', $carId)

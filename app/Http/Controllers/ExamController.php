@@ -78,6 +78,20 @@ $validated['trainer_id'] = $trainerId;
 }
 
 
+public function startMixedExam()
+{
+    $studentId = auth()->user()->student->id;
+
+    $result = $this->examService->startMixedExamForStudent($studentId);
+
+    return response()->json([
+        'message' => 'تم بدء امتحان مختلط بنجاح.',
+        'attempt_id' => $result['attempt']->id,
+        'data' => $result['questions'],
+    ]);
+}
+
+
 public function submitAnswers(SubmitExamRequest $request)
 {
     $data = $request->validated();

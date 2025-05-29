@@ -69,10 +69,9 @@ public function getAllTrainers(Request $request)
             ], 404);
         }
 
-        return response()->json([
+        return TrainerResource::collection($trainers)->additional([
             'status' => 'success',
             'message' => 'تم استرجاع المدربين بنجاح',
-            'data' => TrainerResource::collection($trainers),
         ]);
     }
     public function getAllTrainersApprove(Request $request)

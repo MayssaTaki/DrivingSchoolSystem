@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('trainer_id')->constrained('trainers')->onDelete('cascade');
             $table->foreignId('car_id')->constrained('cars')->onDelete('cascade');
 
-            $table->enum('status', ['booked', 'cancelled', 'completed'])->default('booked');
+            $table->enum('status', ['booked', 'cancelled', 'completed','started'])->default('booked');
             $table->timestamps();
         });
     }

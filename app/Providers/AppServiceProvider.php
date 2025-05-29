@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Providers;
+
+use App\Models\Booking;
+use App\Observers\BookingObserver;
+
 use App\Repositories\UserRepository;
 use App\Repositories\FeedbackStudentRepository;
 
@@ -21,6 +25,8 @@ use App\Repositories\ScheduleExceptionRepository;
 use  App\Repositories\TrainingSessionRepository;
 use  App\Repositories\TrainerReviewRepository;
 use  App\Repositories\BookingRepository;
+use  App\Repositories\BookingStatusLogRepository;
+
 
 
 
@@ -36,6 +42,8 @@ use App\Repositories\Contracts\FeedbackStudentRepositoryInterface;
 
 use App\Repositories\Contracts\TrainerReviewRepositoryInterface;
 use App\Repositories\Contracts\ExamRepositoryInterface;
+use App\Repositories\Contracts\BookingStatusLogRepositoryInterface;
+
 
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Contracts\TrainerRepositoryInterface;
@@ -106,6 +114,10 @@ $this->app->bind(
     ExamRepositoryInterface::class,
     ExamRepository::class
 );
+$this->app->bind(
+    BookingStatusLogRepositoryInterface::class,
+    BookingStatusLogRepository::class
+);
 
       
        
@@ -116,6 +128,7 @@ $this->app->bind(
      */
     public function boot(): void
     {
-        //
+            Booking::observe(BookingObserver::class);
+
     }
 }
