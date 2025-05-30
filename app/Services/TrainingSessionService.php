@@ -2,7 +2,12 @@
 namespace App\Services;
 use Log;
 use App\Models\TrainingSchedule;
+use App\Models\Car;
+
+use App\Models\TrainingSession;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
+
+use App\Repositories\Contracts\CarRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
@@ -11,9 +16,12 @@ class TrainingSessionService
     public function __construct( TrainingSessionRepositoryInterface $repo,
             TransactionService $transactionService,        ActivityLoggerService $activityLogger,
         LogService $logService,
+        CarRepositoryInterface $carRepo,
 
 ) {
         $this->repo=$repo;
+                $this->carRepo=$carRepo;
+
          $this->activityLogger = $activityLogger;
         $this->logService = $logService;
                 $this->transactionService = $transactionService;
@@ -119,10 +127,34 @@ public function generateSessionsForSchedule(TrainingSchedule $schedule): void
 }
 
 
-public function getRecommendedSessions(int $studentId, string $preferredDate, string $preferredTime, int $limit = 10)
-{
-    return $this->repo->getRecommendedSessionsForStudent($studentId, $preferredDate, $preferredTime, $limit);
-}
+public function getRecommendedSessions(
+        int $studentId,
+        string $preferredDate,
+        string $preferredTime,
+        ?string $trainingType = null,
+        int $limit = 10
+    ) {
+        $preferredDateTime = Carbon::parse("$preferredDate $preferredTime");
+
+        $query = TrainingSession::query()
+            ->where('status', 'available')
+            ->whereDate('session_date', '>=', $preferredDate);
+
+    
+
+        if ($trainingType) {
+            $query->whereHas('trainer', function ($q) use ($trainingType) {
+                $q->where('training_type', $trainingType);
+            });
+        }
+
+        return $query->orderByRaw(
+                "ABS(TIMESTAMPDIFF(SECOND, CONCAT(session_date, ' ', start_time), ?))",
+                [$preferredDateTime]
+            )
+            ->limit($limit)
+            ->get();
+    }
 
 
  public function getSessionCounts(int $trainerId, ?string $month = null): array

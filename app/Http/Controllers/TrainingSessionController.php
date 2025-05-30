@@ -29,17 +29,21 @@ class TrainingSessionController extends Controller
 
 public function getRecommendedSessions(RecommendedSessionRequest $request)
 {
-$studentId = auth()->user()->student->id;
-    $preferredDate = $request->input('preferred_date');
-    $preferredTime = $request->input('preferred_time');
+    $studentId = auth()->user()->student->id;
 
-    $sessions = $this->sessionService->getRecommendedSessions($studentId, $preferredDate, $preferredTime);
+    $sessions = $this->sessionService->getRecommendedSessions(
+        $studentId,
+        $request->input('preferred_date'),
+        $request->input('preferred_time'),
+        $request->input('training_type')
+    );
 
     return response()->json([
         'message' => 'قائمة الجلسات المقترحة بنجاح',
         'data' => $sessions,
     ]);
 }
+
 
 
 

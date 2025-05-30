@@ -21,17 +21,6 @@ public function getAvailableSessions()
         ->orderBy('start_time')
         ->get();
 }
-public function getRecommendedSessionsForStudent(int $studentId, string $preferredDate, string $preferredTime, int $limit = 10)
-{
-    $preferredDateTime = Carbon::parse("$preferredDate $preferredTime");
-
-    return TrainingSession::query()
-        ->where('status', 'available')
-        ->whereDate('session_date', '>=', $preferredDate)
-        ->orderByRaw("ABS(TIMESTAMPDIFF(SECOND, CONCAT(session_date, ' ', start_time), ?))", [$preferredDateTime])
-        ->limit($limit)
-        ->get();
-}
 
 
 
