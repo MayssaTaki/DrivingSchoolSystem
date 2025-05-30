@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use App\Http\Requests\StoreExamRequest;
 use App\Http\Requests\StartExamRequest;
+use App\Http\Requests\ShowRandomQuestionsRequest;
 
 use App\Http\Resources\ExamResource;
 use App\Http\Requests\SubmitExamRequest;
@@ -78,18 +79,30 @@ $validated['trainer_id'] = $trainerId;
 }
 
 
-public function startMixedExam()
-{
-    $studentId = auth()->user()->student->id;
 
-    $result = $this->examService->startMixedExamForStudent($studentId);
+
+ public function showRandomQuestions(ShowRandomQuestionsRequest $request)
+{
+    $validated = $request->validated();
+
+    $userId = $request->user()->student->id;
+
+    $questions = $this->examService->getExamQuestionsForStudent($userId, $validated['type']);
+
+    if (!$questions) {
+        return response()->json([
+            'message' => '⚠️ يجب إكمال الجلسات التدريبية قبل بدء الامتحان.'
+        ], 403);
+    }
 
     return response()->json([
-        'message' => 'تم بدء امتحان مختلط بنجاح.',
-        'attempt_id' => $result['attempt']->id,
-        'data' => $result['questions'],
+        'questions' => $questions
     ]);
 }
+
+
+
+
 
 
 public function submitAnswers(SubmitExamRequest $request)

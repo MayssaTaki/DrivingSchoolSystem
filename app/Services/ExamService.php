@@ -142,4 +142,17 @@ public function submitExam(int $attemptId, array $answers): array
     return $this->examRepo->submitExamAttempt($attemptId, $answers);
 }
 
+
+
+
+ public function getExamQuestionsForStudent(int $trainerId, string $type, int $count = 10)
+    {
+        $trainerId = $this->examRepo->hasCompletedSessions($trainerId);
+        if (!$trainerId) {
+            return null;
+        }
+
+        return $this->examRepo->getRandomQuestionsForTrainer($trainerId, $type, $count);
+    }
+
 }

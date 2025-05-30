@@ -25,6 +25,7 @@ class RecommendedSessionRequest extends FormRequest
                     }
                 },
             ],
+        'training_type' => ['required', 'in:normal,special_needs'],
         ];
     }
 
@@ -33,7 +34,8 @@ class RecommendedSessionRequest extends FormRequest
         return [
             'preferred_date.required' => 'يرجى إدخال التاريخ المفضل.',
             'preferred_date.date' => 'صيغة التاريخ غير صحيحة.',
-
+  'training_type.required' => 'نوع التدريب مطلوب.',
+        'training_type.in' => 'يجب أن يكون نوع التدريب إما "normal" أو "special_needs".',
             'preferred_time.required' => 'يرجى إدخال الوقت المفضل.',
             'preferred_time.date_format' => 'صيغة الوقت يجب أن تكون على الشكل HH:MM مثل 14:00.',
         ];

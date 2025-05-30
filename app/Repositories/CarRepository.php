@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\Car;
+use Illuminate\Database\Eloquent\Builder;
+
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\Contracts\CarRepositoryInterface;
 
@@ -54,10 +56,21 @@ class CarRepository implements CarRepositoryInterface
     }
 
 
-public function getFirstAvailableForSession(string $date, string $time)
+public function getFirstAvailableForSession(string $date, string $time, string $transmission, bool $isForSpecialNeeds)
 {
-    return Car::where('status', 'available')->first();
+    return Car::where('status', 'available')
+        ->where('transmission', $transmission)
+        ->where('is_for_special_needs', $isForSpecialNeeds)
+        ->first();
 }
+
+
+   public function filterByTransmission(Builder $query, string $transmission): Builder
+    {
+        return $query->whereHas('car', function ($q) use ($transmission) {
+            $q->where('transmission', $transmission);
+        });
+    }
 
 
     public function updateStatus(int $carId, string $status): bool
