@@ -14,12 +14,26 @@ class BookingStatusLogController extends Controller
         $this->statusLogService = $statusLogService;
     }
 
-    public function index(Request $request, $bookingId)
-    {
-        $perPage = 10;
-        $logs = $this->statusLogService->getPaginatedStatusLogs($bookingId, $perPage);
+   public function index(Request $request)
+{
+    $perPage = $request->get('per_page', 10); // اجعلها ديناميكية إن أردت
+    $logs = $this->statusLogService->getPaginatedStatusLogs($perPage);
 
-     return BookingStatusLogResource::collection($logs)
-        ->additional(['message' => 'بنجاح']);
-    }
+    return BookingStatusLogResource::collection($logs)
+        ->additional([
+            'message' => 'تم بنجاح',
+            'status' => 'success',
+          
+        ]);
+}
+
+  public function export()
+{
+    return $this->statusLogService->exportBookingStatusLogs();
+}
+
+public function exportPdf()
+{
+    return $this->statusLogService->exportBookingStatusLogsPdf();
+}
 }
