@@ -147,7 +147,9 @@ Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancell'])->mid
 Route::post('/auto-book-session', [BookingController::class, 'autoBook'])->middleware('auth:api');
 Route::post('/booking/{id}/start', [BookingController::class, 'startSession']);
 
-    Route::get('/bookings/{bookingId}/status-logs', [BookingStatusLogController::class, 'index']);
+    Route::get('/bookings/status-logs', [BookingStatusLogController::class, 'index'])->middleware('auth:api');
+Route::get('/bookings/status-logs/export', [BookingStatusLogController::class, 'export'])->middleware('auth:api');
+Route::get('/booking-status-logs/export-pdf', [BookingStatusLogController::class, 'exportPdf']);
 
 
 Route::get('/trainer/bookings', [BookingController::class, 'getTrainerBookedSessions']);
