@@ -105,7 +105,7 @@ Route::post('/exams', [ExamController::class, 'store'])->middleware('auth:api');
     Route::get('/exam', [ExamController::class, 'index'])->middleware('auth:api');
 Route::post('/exams/start', [ExamController::class, 'start'])->middleware('auth:api');
 Route::post('/exams/submit', [ExamController::class, 'submitAnswers'])->middleware('auth:api');
-Route::post('/start-mixed-exam', [ExamController::class, 'startMixedExam']);
+Route::post('/generate', [ExamController::class, 'showRandomQuestions'])->middleware('auth:api');
 
 
 

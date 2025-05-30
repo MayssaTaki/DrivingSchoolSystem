@@ -205,7 +205,6 @@ public function update(Trainer $trainer, array $data): Trainer
 
       'license_expiry_date' => $data['license_expiry_date'] ?? $trainer->license_expiry_date,
 
-        'training_type' => $data['training_type'] ?? $trainer->training_type,
              'experience' => $data['experience'] ?? $trainer->experience,
 
             ];
