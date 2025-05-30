@@ -128,18 +128,23 @@ $car = $this->carRepo->findWithLock($carId);
     }
 }
 
-
-public function autoBookSession(int $studentId, int $sessionId)
+public function autoBookSession(int $studentId, int $sessionId, string $transmission, bool $isForSpecialNeeds)
 {
     try {
-        return $this->transactionService->run(function () use ($studentId, $sessionId) {
+        return $this->transactionService->run(function () use ($studentId, $sessionId, $transmission, $isForSpecialNeeds) {
             $this->ensureSessionIsAvailable($sessionId);
 
             $session = $this->sessionRepo->findWithLock($sessionId);
 
-            $availableCar = $this->carRepo->getFirstAvailableForSession($session->session_date, $session->start_time);
+            $availableCar = $this->carRepo->getFirstAvailableForSession(
+                $session->session_date,
+                $session->start_time,
+                $transmission,
+                $isForSpecialNeeds
+            );
+
             if (!$availableCar) {
-                throw new \Exception('لا توجد سيارات متاحة في هذا الوقت.');
+                throw new \Exception('لا توجد سيارات متاحة بالمواصفات المطلوبة في هذا الوقت.');
             }
 
             $booking = $this->bookingRepo->create([
@@ -181,6 +186,7 @@ public function autoBookSession(int $studentId, int $sessionId)
         throw $e;
     }
 }
+
 
 
 

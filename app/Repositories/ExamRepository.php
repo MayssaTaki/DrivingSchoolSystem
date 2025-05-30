@@ -3,6 +3,7 @@ namespace App\Repositories;
 
 use App\Models\Exam;
 use App\Models\Choice;
+use App\Models\Booking;
 
 use App\Models\ExamAttempt;
 
@@ -66,34 +67,34 @@ public function createExamWithQuestions(array $data): Exam
     return $exam->load('questions.choices');
 }
 
-public function generateStudentExamQuestions(int $studentId, int $limit = 15)
-{
-    // ✅ استخراج المدرّب من آخر حجز للطالب
-    $latestBooking = \App\Models\Booking::where('student_id', $studentId)
-        ->latest()
-        ->first();
 
-    if (!$latestBooking || !$latestBooking->trainer_id) {
-        throw new \Exception('لم يتم العثور على أي حجز سابق للطالب.');
+
+
+public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10)
+    {
+        $exam = Exam::where('trainer_id', $trainerId)
+                    ->where('type', $type)
+                    ->first();
+
+        if (!$exam) return [];
+
+        return $exam->questions()
+                    ->inRandomOrder()
+                    ->take($count)
+                    ->with('choices')
+                    ->get();
     }
 
-    $trainerId = $latestBooking->trainer_id;
+    public function hasCompletedSessions(int $trainerId): ?int
+    {
+        $session = Booking::where('trainer_id', $trainerId)
+                          ->where('status', 'completed')
+                          ->first();
 
-    // ✅ استخراج الأسئلة من جميع الامتحانات الخاصة بالمدرب
-    $questions = \App\Models\Question::with('choices')
-        ->whereHas('exam', function ($query) use ($trainerId) {
-            $query->where('trainer_id', $trainerId);
-        })
-        ->inRandomOrder()
-        ->limit($limit)
-        ->get();
-
-    if ($questions->isEmpty()) {
-        throw new \Exception('لا توجد أسئلة متاحة لهذا المدرب.');
+        return $session?->trainer_id;
     }
 
-    return $questions;
-}
+
 
 
 

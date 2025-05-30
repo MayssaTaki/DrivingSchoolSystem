@@ -6,7 +6,8 @@ use App\Models\ExamAttempt;
 interface ExamRepositoryInterface
 {
     public function getAllExams();
-public function generateStudentExamQuestions(int $studentId, int $limit = 15);
+    public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10);
+    public function hasCompletedSessions(int $trainerId): ?int; 
     public function getExamWithQuestions($examId);
     public function submitExam($examId, array $answers);
     public function createExamWithQuestions(array $data): Exam;

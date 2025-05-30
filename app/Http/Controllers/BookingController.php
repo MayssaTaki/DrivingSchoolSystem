@@ -35,15 +35,20 @@ $studentId = auth()->user()->student->id;
 public function autoBook(AutoBookRequest $request)
 {
     $studentId = auth()->user()->student->id;
-    $sessionId = $request->input('session_id');
 
-    $booking = $this->bookingService->autoBookSession($studentId, $sessionId);
+    $booking = $this->bookingService->autoBookSession(
+        $studentId,
+        $request->input('session_id'),
+        $request->input('transmission'),
+        $request->boolean('is_for_special_needs') 
+    );
 
     return response()->json([
         'message' => 'تم الحجز بنجاح',
         'data' => $booking,
     ]);
 }
+
 
 
 

@@ -27,4 +27,5 @@ class TrainingSession extends Model
     {
         return $this->belongsTo(Trainer::class);
     }
+    
 }
