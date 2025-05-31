@@ -47,6 +47,7 @@ $validated['trainer_id'] = $trainerId;
 
    public function show($id)
 {
+
     $exam = $this->examService->showExam($id);
 
     return response()->json([
@@ -63,31 +64,30 @@ $validated['trainer_id'] = $trainerId;
         return response()->json($this->examService->processSubmission($id, $data['answers']));
     }
 
-    public function start(StartExamRequest $request)
+public function start(StartExamRequest $request)
 {
-    $studentId = auth()->user()->student->id;
+    $examAttemptId = $request->input('exam_attempt_id');
 
-    $examId = $request->input('exam_id');
-
-    $attempt = $this->examService->startExam($examId, $studentId);
+    $attempt = $this->examService->startExamByAttemptId($examAttemptId);
 
     return response()->json([
-        'message' => 'تم بدء الامتحان بنجاح.',
+        'message' => 'تم بدء الامتحان بنجاح',
         'attempt_id' => $attempt->id,
         'started_at' => $attempt->started_at
-    ], 200);
+    ]);
 }
 
 
 
 
- public function showRandomQuestions(ShowRandomQuestionsRequest $request)
+
+
+public function showRandomQuestions(ShowRandomQuestionsRequest $request)
 {
     $validated = $request->validated();
-
     $userId = $request->user()->student->id;
 
-    $questions = $this->examService->getExamQuestionsForStudent($userId, $validated['type']);
+    $questions = $this->examService->getExamQuestionsForStudent($userId, $validated['type'], 10, $userId);
 
     if (!$questions) {
         return response()->json([
@@ -105,15 +105,24 @@ $validated['trainer_id'] = $trainerId;
 
 
 
+
 public function submitAnswers(SubmitExamRequest $request)
 {
-    $data = $request->validated();
+    try {
+        $data = $request->validated();
+        $result = $this->examService->submitExam($data['attempt_id'], $data['answers']);
 
-    $result = $this->examService->submitExam($data['attempt_id'], $data['answers']);
-
-    return response()->json([
-        'message' => 'تم تصحيح الامتحان بنجاح.',
-        'result' => $result
-    ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تصحيح الامتحان بنجاح',
+            'data' => $result
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 400);
+    }
 }
+
 }
