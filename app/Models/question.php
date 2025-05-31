@@ -14,4 +14,9 @@ protected $fillable = ['image_path',
     return $this->hasMany(Choice::class);
 }
 
+ public function examAttemptQuestions()
+    {
+        return $this->hasMany(ExamAttemptQuestion::class);
+    }
+
 }
