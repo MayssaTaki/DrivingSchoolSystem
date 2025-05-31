@@ -1,6 +1,14 @@
 <?php
 namespace App\Services;
 use App\Services\TransactionService;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Auth\Access\AuthorizationException;
+use App\Models\Exam;
+use App\Models\Question;
+
+use App\Models\ExamAttemptQuestion;
+
+use App\Models\ExamAttempt;
 
 use App\Repositories\Contracts\ExamRepositoryInterface;
 
@@ -76,18 +84,22 @@ public function createExamWithQuestions(array $data)
         return $this->examRepo->submitExam($examId, $answers);
     }
 
-public function startExam(int $examId, int $studentId)
+
+
+
+
+public function startExamByAttemptId(int $examAttemptId)
 {
     try {
-        return $this->transactionService->run(function () use ($examId, $studentId) {
-            $examAttempt = $this->examRepo->startExamAttempt($examId, $studentId);
+        return $this->transactionService->run(function () use ($examAttemptId) {
+            $examAttempt = $this->examRepo->startExamAttemptById($examAttemptId);
 
             $this->activityLogger->log(
                 'بدء محاولة امتحان',
                 [
-                    'exam_id' => $examId,
-                    'student_id' => $studentId,
-                    'started_at' => now(),
+                    'exam_id' => $examAttempt->exam_id,
+                    'student_id' => $examAttempt->student_id,
+                    'started_at' => $examAttempt->started_at,
                 ],
                 'exam_attempts',
                 $examAttempt,
@@ -103,8 +115,7 @@ public function startExam(int $examId, int $studentId)
             'فشل بدء محاولة الامتحان',
             [
                 'message' => $e->getMessage(),
-                'exam_id' => $examId,
-                'student_id' => $studentId,
+                'exam_attempt_id' => $examAttemptId,
                 'trace' => $e->getTraceAsString(),
             ],
             'exam_attempts'
@@ -114,45 +125,156 @@ public function startExam(int $examId, int $studentId)
     }
 }
 
-public function startMixedExamForStudent(int $studentId)
-{
-    $result = $this->examRepo->generateStudentExamQuestions($studentId);
 
-    $this->activityLogger->log(
-        'بدء امتحان مختلط',
-        [
-            'student_id' => $studentId,
-            'question_count' => count($result['questions']),
-            'attempt_id' => $result['attempt']->id,
+
+
+
+
+
+
+
+
+
+
+public function getExamQuestionsForStudent(int $trainerId, string $type, int $count = 10, int $studentId)
+{
+    $trainerId = $this->examRepo->hasCompletedSessions($trainerId);
+    if (!$trainerId) {
+        return null;
+    }
+
+    $examData = $this->getRandomQuestionsForTrainer($trainerId, $type, $count);
+
+    $examAttempt = $this->examRepo->createExamAttempt($examData['exam_info']['exam_id'], $studentId);
+
+    $questionIds = collect($examData['questions'])->pluck('question_id')->toArray();
+    $this->examRepo->attachQuestionsToAttempt($examAttempt->id, $questionIds);
+
+    return [
+        'exam_attempt_id' => $examAttempt->id,
+        'exam_data' => $examData
+    ];
+}
+
+
+    public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10)
+{
+    $exam = Exam::where('trainer_id', $trainerId)
+                ->where('type', $type)
+                ->firstOrFail();
+
+    $questions = $exam->questions()
+                    ->inRandomOrder()
+                    ->take($count)
+                    ->with(['choices' => function($query) {
+                        $query->select('id', 'question_id', 'choice_text');
+                    }])
+                    ->get()
+                    ->map(function ($question) {
+                        return [
+                            'question_id' => $question->id,
+                            'question_text' => $this->extractQuestionText($question->question_text),
+                            'question_number' => $this->extractQuestionNumber($question->question_text),
+                            'choices' => $question->choices->map(function ($choice) {
+                                return [
+                                    'choice_id' => $choice->id,
+                                    'text' => $choice->choice_text
+                                ];
+                            })
+                        ];
+                    });
+
+    return [
+        'exam_info' => [
+            'exam_id' => $exam->id,
+            'total_questions' => $questions->count(),
+            'time_limit' => $exam->duration_minutes
         ],
-        'exam_attempts',
-      
-       $result['attempt'],
-        auth()->user(),
-        'start-mixed'
-    );
-
-    return $result;
+        'questions' => $questions,
+        'metadata' => [
+            'generated_at' => now()->toIso8601String(),
+            'version' => '1.0'
+        ]
+    ];
 }
 
 
-
-public function submitExam(int $attemptId, array $answers): array
+private function extractQuestionText($text)
 {
-    return $this->examRepo->submitExamAttempt($attemptId, $answers);
+    return preg_replace('/\(سؤال رقم \d+\)/', '', $text);
+}
+
+private function extractQuestionNumber($text)
+{
+    preg_match('/\(سؤال رقم (\d+)\)/', $text, $matches);
+    return $matches[1] ?? null;
 }
 
 
+public function submitExam(int $attemptId, array $answers)
+{
+    $attempt = ExamAttempt::with('exam')->findOrFail($attemptId); 
 
+    if (!$attempt->started_at) {
+        throw new \Exception('لم يتم بدء الامتحان.');
+    }
 
- public function getExamQuestionsForStudent(int $trainerId, string $type, int $count = 10)
-    {
-        $trainerId = $this->examRepo->hasCompletedSessions($trainerId);
-        if (!$trainerId) {
-            return null;
+    if ($attempt->finished_at) {
+        throw new \Exception('تم تسليم الامتحان مسبقًا.');
+    }
+
+    $timeLimit = $attempt->exam->duration_minutes; 
+    $timePassed = now()->diffInMinutes($attempt->started_at);
+
+    $isTimeOver = $timePassed > $timeLimit;
+
+    $selectedQuestionIds = ExamAttemptQuestion::where('exam_attempt_id', $attempt->id)
+                            ->pluck('question_id')
+                            ->toArray();
+
+    $questions = Question::with(['choices' => fn($q) => $q->where('is_correct', true)])
+                ->whereIn('id', $selectedQuestionIds)
+                ->get();
+
+    $score = 0;
+    $results = [];
+
+    foreach ($questions as $q) {
+        // نتحقق فقط من الأسئلة التي أجاب عليها الطالب
+        if (!isset($answers[$q->id])) {
+            continue;
         }
 
-        return $this->examRepo->getRandomQuestionsForTrainer($trainerId, $type, $count);
+        $userAnswerId = $answers[$q->id];
+        $correct = $q->choices->first();
+        $isCorrect = $correct && $correct->id == $userAnswerId;
+
+        if ($isCorrect) $score++;
+
+        $results[] = [
+            'question_id' => $q->id,
+            'user_answer' => $userAnswerId,
+            'correct_answer' => $correct->id ?? null,
+            'is_correct' => $isCorrect,
+            'question_text' => $q->question_text
+        ];
     }
+
+    $attempt->update([
+        'finished_at' => now(),
+        'score' => $score,
+    ]);
+
+    return [
+        'score' => $score,
+        'total' => count($answers), // عدد الأسئلة التي أجاب عليها فقط
+        'percentage' => count($answers) > 0 ? round(($score / count($answers)) * 100, 2) : 0,
+        'details' => $results,
+        'message' => $isTimeOver
+            ? 'انتهى وقت الامتحان. تم تصحيح الإجابات المُدخلة فقط.'
+            : 'تم تسليم الامتحان بنجاح.'
+    ];
+}
+
 
 }
