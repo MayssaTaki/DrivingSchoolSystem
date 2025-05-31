@@ -4,7 +4,7 @@ namespace App\Repositories;
 use App\Models\Exam;
 use App\Models\Choice;
 use App\Models\Booking;
-
+use DB;
 use App\Models\ExamAttempt;
 
 use Illuminate\Support\Facades\Storage;
@@ -70,20 +70,6 @@ public function createExamWithQuestions(array $data): Exam
 
 
 
-public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10)
-    {
-        $exam = Exam::where('trainer_id', $trainerId)
-                    ->where('type', $type)
-                    ->first();
-
-        if (!$exam) return [];
-
-        return $exam->questions()
-                    ->inRandomOrder()
-                    ->take($count)
-                    ->with('choices')
-                    ->get();
-    }
 
     public function hasCompletedSessions(int $trainerId): ?int
     {
@@ -99,63 +85,63 @@ public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $
 
 
 
-    public function getAllExams()
-    {
-        return Exam::all();
+   public function getAllExams()
+{
+    $trainer = auth()->user()->trainer;
+    
+    if (!$trainer) {
+        return collect(); 
     }
+    
+    return $trainer->exams()->get();
+}
 
     public function getExamWithQuestions($examId)
     {
+      
         return Exam::with('questions.choices')->findOrFail($examId);
     }
 
-    public function submitExam($examId, array $answers)
-    {
-        $exam = Exam::with('questions.choices')->findOrFail($examId);
-        $score = 0;
 
-        foreach ($exam->questions as $question) {
-            $userAnswer = $answers[$question->id] ?? null;
-            $correctChoice = $question->choices->where('is_correct', true)->first();
-            if ($correctChoice && $correctChoice->id == $userAnswer) {
-                $score++;
-            }
-        }
 
-        return ['score' => $score, 'total' => $exam->questions->count()];
+public function startExamAttemptById(int $examAttemptId): ExamAttempt
+{
+    $examAttempt = ExamAttempt::findOrFail($examAttemptId);
+
+    if (!$examAttempt->started_at) {
+        $examAttempt->started_at = now();
+        $examAttempt->save();
     }
 
-    public function startExamAttempt(int $examId, int $studentId): ExamAttempt
+    return $examAttempt;
+}
+
+
+
+public function createExamAttempt(int $examId, int $studentId): ExamAttempt
 {
     return ExamAttempt::create([
         'exam_id' => $examId,
         'student_id' => $studentId,
-        'started_at' => now(),
+       // 'started_at' => now(),
     ]);
 }
-public function submitExamAttempt(int $attemptId, array $answers): array
+
+public function attachQuestionsToAttempt(int $examAttemptId, array $questionIds): void
 {
-    $attempt = ExamAttempt::with('exam.questions.choices')->findOrFail($attemptId);
+    $now = now();
+    $data = array_map(function ($questionId) use ($examAttemptId, $now) {
+        return [
+            'exam_attempt_id' => $examAttemptId,
+            'question_id' => $questionId,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+    }, $questionIds);
 
-    $score = 0;
-    $total = $attempt->exam->questions->count();
-
-    foreach ($attempt->exam->questions as $question) {
-        $userAnswerId = $answers[$question->id] ?? null;
-        $correct = $question->choices->firstWhere('is_correct', true);
-
-        if ($correct && $correct->id == $userAnswerId) {
-            $score++;
-        }
-    }
-
-    $attempt->update([
-        'score' => $score,
-        'submitted_at' => now()
-    ]);
-
-    return ['score' => $score, 'total' => $total];
+    DB::table('exam_attempt_questions')->insert($data);
 }
+
 
 
 }
