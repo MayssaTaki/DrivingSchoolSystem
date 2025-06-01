@@ -21,14 +21,6 @@ use App\Repositories\TrainingSchedulesRepository;
 use App\Repositories\PasswordResetRepository;
 use App\Repositories\RateLimitRepository;
 use App\Repositories\EmailVerificationRepository;
-use App\Repositories\ScheduleExceptionRepository;
-use  App\Repositories\TrainingSessionRepository;
-use  App\Repositories\TrainerReviewRepository;
-use  App\Repositories\BookingRepository;
-use  App\Repositories\BookingStatusLogRepository;
-use  App\Repositories\CertificateRepository;
-
-
 
 
 
@@ -94,36 +86,7 @@ $this->app->bind(
 $this->app->bind(
   EmailVerificationRepositoryInterface::class,EmailVerificationRepository ::class
 );
-   $this->app->bind(ScheduleExceptionRepositoryInterface::class,ScheduleExceptionRepository::class
-    );
 
-$this->app->bind(
-   TrainingSessionRepositoryInterface::class,TrainingSessionRepository::class
-);
-$this->app->bind(
-    TrainerReviewRepositoryInterface::class,
-    TrainerReviewRepository::class
-);
-$this->app->bind(
-    BookingRepositoryInterface::class,
-    BookingRepository::class
-);
-$this->app->bind(
-    FeedbackStudentRepositoryInterface::class,
-    FeedbackStudentRepository::class
-);
-$this->app->bind(
-    ExamRepositoryInterface::class,
-    ExamRepository::class
-);
-$this->app->bind(
-    BookingStatusLogRepositoryInterface::class,
-    BookingStatusLogRepository::class
-);
-$this->app->bind(
-    CertificateRepositoryInterface::class,
-    CertificateRepository::class
-);
 
       
        

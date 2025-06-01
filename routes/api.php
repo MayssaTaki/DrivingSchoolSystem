@@ -5,11 +5,6 @@ use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
-use App\Http\Controllers\TrainerReviewController;
-use App\Http\Controllers\ExamController;
-use App\Http\Controllers\CertificateController;
-
-use App\Http\Controllers\BookingStatusLogController;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
@@ -92,26 +87,6 @@ Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
 Route::put('/employees/{employee}', [EmployeeController::class, 'update']);
 Route::get('/employees/count', [EmployeeController::class, 'countEmployees']);
 });
-
-
-
-
-
-
-
-Route::prefix('exams')->group(function () {
-    Route::post('/{id}/submit', [ExamController::class, 'submit']);
-});
-Route::post('/exams', [ExamController::class, 'store'])->middleware('auth:api');
- Route::get('/exams/{id}', [ExamController::class, 'show'])->middleware('auth:api');
-    Route::get('/exam', [ExamController::class, 'index'])->middleware('auth:api');
-Route::post('/exams/start', [ExamController::class, 'start'])->middleware('auth:api');
-Route::post('/exams/submit', [ExamController::class, 'submitAnswers'])->middleware('auth:api');
-Route::post('/generate', [ExamController::class, 'showRandomQuestions'])->middleware('auth:api');
-
-Route::get('/student/evaluation', [ExamController::class, 'evaluate']);
-Route::get('/certificate/generate/{studentId}', [CertificateController::class, 'generate']);
-Route::get('/certificate/download', [CertificateController::class, 'download']);
 
 
 
