@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Auth\AuthenticationException;
+
 use App\Services\RateLimitService;
 
 class AuthService

@@ -1,5 +1,6 @@
 <?php
 namespace App\Services;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 
 use App\Repositories\Contracts\RateLimiterInterface;
 use Illuminate\Support\Str;
@@ -28,7 +29,7 @@ class RateLimitService
 
         if ($this->limiter->tooManyAttempts($key, $max)) {
             $seconds = $this->limiter->availableIn($key);
-            abort(429, "محاولات كثيرة جدًا، حاول بعد {$seconds} ثانية.");
+        throw new ThrottleRequestsException("محاولات كثيرة جدًا، حاول بعد {$seconds} ثانية.");
         }
 
         $this->limiter->attempt($key, $max, $decay);

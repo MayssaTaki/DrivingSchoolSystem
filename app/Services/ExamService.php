@@ -129,13 +129,6 @@ public function startExamByAttemptId(int $examAttemptId)
 
 
 
-
-
-
-
-
-
-
 public function getExamQuestionsForStudent(int $trainerId, string $type, int $count = 10, int $studentId)
 {
     $trainerId = $this->examRepo->hasCompletedSessions($trainerId);
@@ -213,68 +206,160 @@ private function extractQuestionNumber($text)
 
 public function submitExam(int $attemptId, array $answers)
 {
-    $attempt = ExamAttempt::with('exam')->findOrFail($attemptId); 
+    try {
+        return $this->transactionService->run(function () use ($attemptId, $answers) {
+            $attempt = ExamAttempt::with('exam')->findOrFail($attemptId); 
 
-    if (!$attempt->started_at) {
-        throw new \Exception('لم يتم بدء الامتحان.');
+            if (!$attempt->started_at) {
+                throw new \Exception('لم يتم بدء الامتحان.');
+            }
+
+            if ($attempt->finished_at) {
+                throw new \Exception('تم تسليم الامتحان مسبقًا.');
+            }
+
+            $timeLimit = $attempt->exam->duration_minutes; 
+            $timePassed = now()->diffInMinutes($attempt->started_at);
+            $isTimeOver = $timePassed > $timeLimit;
+
+            $selectedQuestionIds = ExamAttemptQuestion::where('exam_attempt_id', $attempt->id)
+                                    ->pluck('question_id')
+                                    ->toArray();
+
+            $questions = Question::with(['choices' => fn($q) => $q->where('is_correct', true)])
+                        ->whereIn('id', $selectedQuestionIds)
+                        ->get();
+
+            $score = 0;
+            $results = [];
+
+            foreach ($questions as $q) {
+                if (!isset($answers[$q->id])) {
+                    continue;
+                }
+
+                $userAnswerId = $answers[$q->id];
+                $correct = $q->choices->first();
+                $isCorrect = $correct && $correct->id == $userAnswerId;
+
+                if ($isCorrect) $score++;
+
+                $results[] = [
+                    'question_id' => $q->id,
+                    'user_answer' => $userAnswerId,
+                    'correct_answer' => $correct->id ?? null,
+                    'is_correct' => $isCorrect,
+                    'question_text' => $q->question_text
+                ];
+            }
+
+            $attempt->update([
+                'finished_at' => now(),
+                'score' => $score,
+            ]);
+
+            $this->activityLogger->log(
+                'تسليم محاولة امتحان',
+                [
+                    'exam_id' => $attempt->exam_id,
+                    'student_id' => $attempt->student_id,
+                    'score' => $score,
+                    'finished_at' => $attempt->finished_at,
+                    'time_over' => $isTimeOver,
+                ],
+                'exam_attempts',
+                $attempt,
+                auth()->user(),
+                'submit'
+            );
+
+            $response = [
+                'score' => $score,
+                'total' => count($answers), 
+                'percentage' => count($answers) > 0 ? round(($score / count($answers)) * 100, 2) : 0,
+                'details' => $results,
+                'message' => $isTimeOver
+                    ? 'انتهى وقت الامتحان. تم تصحيح الإجابات المُدخلة فقط.'
+                    : 'تم تسليم الامتحان بنجاح.'
+            ];
+
+            return $response;
+        });
+    } catch (\Exception $e) {
+        $this->logService->log(
+            'error',
+            'فشل تسليم محاولة الامتحان',
+            [
+                'message' => $e->getMessage(),
+                'exam_attempt_id' => $attemptId,
+                'trace' => $e->getTraceAsString(),
+            ],
+            'exam_attempts'
+        );
+
+        throw $e;
     }
 
-    if ($attempt->finished_at) {
-        throw new \Exception('تم تسليم الامتحان مسبقًا.');
-    }
 
-    $timeLimit = $attempt->exam->duration_minutes; 
-    $timePassed = now()->diffInMinutes($attempt->started_at);
+}
 
-    $isTimeOver = $timePassed > $timeLimit;
 
-    $selectedQuestionIds = ExamAttemptQuestion::where('exam_attempt_id', $attempt->id)
-                            ->pluck('question_id')
-                            ->toArray();
 
-    $questions = Question::with(['choices' => fn($q) => $q->where('is_correct', true)])
-                ->whereIn('id', $selectedQuestionIds)
-                ->get();
 
-    $score = 0;
-    $results = [];
 
-    foreach ($questions as $q) {
-        // نتحقق فقط من الأسئلة التي أجاب عليها الطالب
-        if (!isset($answers[$q->id])) {
+
+
+public function evaluateStudent(int $studentId, float $passPercentage = 60.0): array
+{
+    $requiredTypes = Exam::distinct()->pluck('type')->toArray();
+
+    $result = [
+        'student_id' => $studentId,
+        'details' => [],
+        'passed_all' => true,
+    ];
+
+    foreach ($requiredTypes as $type) {
+        // جلب آخر محاولة مكتملة لهذا النوع
+        $attempt = ExamAttempt::with('exam')
+            ->where('student_id', $studentId)
+            ->whereNotNull('finished_at')
+            ->whereHas('exam', fn($q) => $q->where('type', $type))
+            ->latest('finished_at')
+            ->first();
+
+        if (!$attempt) {
+            $result['details'][] = [
+                'type' => $type,
+                'status' => '❌ لم يتم إجراء الامتحان'
+            ];
+            $result['passed_all'] = false;
             continue;
         }
 
-        $userAnswerId = $answers[$q->id];
-        $correct = $q->choices->first();
-        $isCorrect = $correct && $correct->id == $userAnswerId;
+        $totalQuestions = ExamAttemptQuestion::where('exam_attempt_id', $attempt->id)->count();
+        $percentage = $totalQuestions > 0 ? round(($attempt->score / $totalQuestions) * 100, 2) : 0;
+        $isPassed = $percentage >= $passPercentage;
 
-        if ($isCorrect) $score++;
-
-        $results[] = [
-            'question_id' => $q->id,
-            'user_answer' => $userAnswerId,
-            'correct_answer' => $correct->id ?? null,
-            'is_correct' => $isCorrect,
-            'question_text' => $q->question_text
+        $result['details'][] = [
+            'type' => $type,
+            'score' => $attempt->score,
+            'percentage' => $percentage,
+            'status' => $isPassed ? '✅ ناجح' : '❌ راسب'
         ];
+
+        if (!$isPassed) {
+            $result['passed_all'] = false;
+        }
     }
 
-    $attempt->update([
-        'finished_at' => now(),
-        'score' => $score,
-    ]);
+    $result['final_status'] = $result['passed_all']
+        ? '✅ الطالب ناجح في كل الفحوصات'
+        : '❌ الطالب لم يجتز كل الفحوصات';
 
-    return [
-        'score' => $score,
-        'total' => count($answers), // عدد الأسئلة التي أجاب عليها فقط
-        'percentage' => count($answers) > 0 ? round(($score / count($answers)) * 100, 2) : 0,
-        'details' => $results,
-        'message' => $isTimeOver
-            ? 'انتهى وقت الامتحان. تم تصحيح الإجابات المُدخلة فقط.'
-            : 'تم تسليم الامتحان بنجاح.'
-    ];
+    return $result;
 }
+
 
 
 }

@@ -10,6 +10,7 @@ interface ExamRepositoryInterface
     public function getExamWithQuestions($examId);
  // public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10);
   //  public function submitExam(array $answers);
+  
     public function createExamWithQuestions(array $data): Exam;
 public function startExamAttemptById(int $examAttemptId): ExamAttempt;
 //public function submitExamAttempt(int $attemptId, array $answers): array;
