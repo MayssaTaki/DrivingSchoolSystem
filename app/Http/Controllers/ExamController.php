@@ -125,4 +125,11 @@ public function submitAnswers(SubmitExamRequest $request)
     }
 }
 
+
+ public function evaluate(Request $request)
+    {
+        $studentId = auth()->user()->student->id;
+        $result = $this->examService->evaluateStudent($studentId);
+        return response()->json($result);
+    }
 }

@@ -10,8 +10,11 @@ use App\Http\Requests\ResetPasswordRequest;
 use App\Exceptions\InvalidResetTokenException;
 use Illuminate\Http\JsonResponse;
 use Exception;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+
 use App\Http\Resources\StudentResource;
 use App\Http\Resources\EmployeeResource;
+use Illuminate\Auth\AuthenticationException;
 
 use App\Http\Resources\TrainerLoginResource;
 
@@ -59,7 +62,7 @@ class AuthController extends Controller
         $userResource = match($result['role']) {
             'trainer' => new TrainerLoginResource($result['user']->trainer ?? $result['user']),
             'employee' => new EmployeeResource($result['user']->employee ?? $result['user']),
-            'admin' => ($result['user']), 
+            'admin' => ($result['user']),
             'student' => new StudentResource($result['user']->student ?? $result['user']),
             default => throw new Exception("نوع المستخدم غير مدعوم: {$result['role']}")
         };
@@ -84,16 +87,21 @@ class AuthController extends Controller
             'message' => $e->getMessage(),
             'error_type' => 'authentication_error'
         ], 401);
-        
+
+    } catch (ThrottleRequestsException $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(), // عادة رسالة مثل "محاولات كثيرة جدًا، حاول بعد X ثانية."
+            'error_type' => 'rate_limit_error'
+        ], 429);
+
     } catch (Exception $e) {
         return response()->json([
             'status' => 'error',
             'message' => 'حدث خطأ أثناء تسجيل الدخول: ' . $e->getMessage(),
             'error_type' => 'server_error'
         ], 500);
-    }
-
-}
+    }}
     public function logout(): JsonResponse
     {
         $this->authService->logoutUser();

@@ -7,7 +7,20 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
-
+Schedule::command('archive:exam-attempts')
+        ->daily()
+        ->before(function () {
+            Log::channel('scheduler')->info('📦 بدء أرشفة محاولات الامتحان القديمة...');
+        })
+        ->after(function () {
+            Log::channel('scheduler')->info('✅ تم الانتهاء من عملية الأرشفة.');
+        })
+        ->onSuccess(function () {
+            Log::channel('scheduler')->info('✅ تمت أرشفة محاولات الامتحان بنجاح.');
+        })
+        ->onFailure(function () {
+            Log::channel('scheduler')->error('❌ فشل في تنفيذ أمر الأرشفة.');
+        });
 Schedule::command('training:dispatch-monthly-jobs')
     ->daily() 
     ->before(function () {

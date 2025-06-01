@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookingRequest;
 use App\Http\Requests\AutoBookRequest;
+use Illuminate\Validation\ValidationException;
 
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
@@ -14,20 +15,26 @@ class BookingController extends Controller
 {
     public function __construct(protected BookingService $bookingService) {}
 
-    public function store(BookingRequest $request): JsonResponse
-    {
-$studentId = auth()->user()->student->id;
-        $sessionId = $request->input('session_id');
-        $carId = $request->input('car_id');
+   public function store(BookingRequest $request): JsonResponse
+{
+    $studentId = auth()->user()->student->id;
+    $sessionId = $request->input('session_id');
+    $carId = $request->input('car_id');
 
+    try {
         $booking = $this->bookingService->bookSession($studentId, $sessionId, $carId);
 
         return response()->json([
             'message' => 'تم حجز الجلسة بنجاح.',
             'data' =>  new BookingResource($booking),
-
         ], 201);
-    }
+
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'خطأ في التحقق.',
+            'errors' => $e->errors(),
+        ], 422);
+    }}
 
 
 

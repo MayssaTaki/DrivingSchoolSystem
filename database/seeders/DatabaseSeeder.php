@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
              \Database\Seeders\ExamSeeder::class,
             \Database\Seeders\TrainerReviewSeeder::class,
              \Database\Seeders\TrainingScheduleSeeder::class,
+            \Database\Seeders\TrainingSessionSeeder::class,
+
 
 
 

@@ -26,7 +26,7 @@ use  App\Repositories\TrainingSessionRepository;
 use  App\Repositories\TrainerReviewRepository;
 use  App\Repositories\BookingRepository;
 use  App\Repositories\BookingStatusLogRepository;
-
+use  App\Repositories\CertificateRepository;
 
 
 
@@ -52,6 +52,8 @@ use App\Repositories\Contracts\RefreshTokenRepositoryInterface;
 use App\Repositories\Contracts\LogRepositoryInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
 use App\Repositories\Contracts\RateLimiterInterface;
+use App\Repositories\Contracts\CertificateRepositoryInterface;
+
 use App\Repositories\Contracts\PasswordResetRepositoryInterface;
 use App\Repositories\Contracts\EmailVerificationRepositoryInterface;
 use App\Repositories\Contracts\ScheduleExceptionRepositoryInterface;
@@ -117,6 +119,10 @@ $this->app->bind(
 $this->app->bind(
     BookingStatusLogRepositoryInterface::class,
     BookingStatusLogRepository::class
+);
+$this->app->bind(
+    CertificateRepositoryInterface::class,
+    CertificateRepository::class
 );
 
       

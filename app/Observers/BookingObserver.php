@@ -23,7 +23,7 @@ class BookingObserver
         if ($booking->wasChanged('status')) {
             $booking->statusLogs()->create([
                 'status'      => $booking->status,
-                'changed_by'  => Auth::id() ?? 1,
+                'changed_by'  => Auth::id(),
                 'changed_at'  => now(),
             ]);
         }
