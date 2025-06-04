@@ -74,4 +74,15 @@ public function reject(int $id): JsonResponse
         'data' => ScheduleExceptionResource::collection($exceptions),
     ]);
 }
+
+public function getAllTrainersExceptions(): JsonResponse
+{
+    $exceptions = $this->service->getAllTrainersExceptions();
+
+    return response()->json([
+        'status' => 'success',
+        'data' => ScheduleExceptionResource::collection($exceptions),
+       
+    ]);
+}
 }

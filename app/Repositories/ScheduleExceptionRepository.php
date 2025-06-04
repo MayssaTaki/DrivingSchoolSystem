@@ -29,6 +29,18 @@ public function findAllByTrainer(int $trainerId): LengthAwarePaginator
     });
 }
 
+public function findAll(): LengthAwarePaginator
+{
+    $page = request()->get('page', 1);
+    $cacheKey = "trainer_exceptions_all_page_{$page}";
+
+    return Cache::tags(['trainer_exceptions'])->remember($cacheKey, now()->addMinutes(10), function () {
+        return ScheduleException::paginate(10);
+    });
+}
+
+
+
    
     public function find(int $id): ?ScheduleException
 {

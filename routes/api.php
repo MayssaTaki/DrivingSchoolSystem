@@ -110,6 +110,7 @@ Route::post('/training-schedules', [TrainingSchedulesController::class, 'store']
 Route::put('/training-schedules/{id}/activate', [TrainingSchedulesController::class, 'activate'])->middleware('auth:api');
 Route::put('/training-schedules/{id}/deactivate', [TrainingSchedulesController::class, 'deactivate'])->middleware('auth:api');
 
+Route::get('/trainer-exception', [ScheduleExceptionController::class, 'getAllTrainersExceptions'])->middleware('auth:api');
 Route::get('/trainer-exceptions', [ScheduleExceptionController::class, 'getTrainerExceptions'])->middleware('auth:api');
 Route::post('/schedule-exceptions', [ScheduleExceptionController::class, 'store'])->middleware('auth:api');
 Route::put('/schedule-exceptions/{exception}', [ScheduleExceptionController::class, 'update']);
