@@ -178,4 +178,9 @@ $trainer = $this->trainerrepo->find($trainerId);
 
     return $this->exceptionRepo->findAllByTrainer($trainerId);
 }
+
+public function getAllTrainersExceptions(): LengthAwarePaginator
+{
+    return $this->exceptionRepo->findAll();
+} 
 }
