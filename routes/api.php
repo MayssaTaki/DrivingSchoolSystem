@@ -5,11 +5,6 @@ use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
-use App\Http\Controllers\TrainerReviewController;
-use App\Http\Controllers\ExamController;
-use App\Http\Controllers\CertificateController;
-
-use App\Http\Controllers\BookingStatusLogController;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
@@ -96,9 +91,6 @@ Route::get('/employees/count', [EmployeeController::class, 'countEmployees']);
 
 
 
-
-
-
 Route::prefix('exams')->group(function () {
     Route::post('/{id}/submit', [ExamController::class, 'submit']);
 });
@@ -112,9 +104,6 @@ Route::post('/generate', [ExamController::class, 'showRandomQuestions'])->middle
 Route::get('/student/evaluation', [ExamController::class, 'evaluate'])->middleware('auth:api');
 Route::get('/certificate/generate/{studentId}', [CertificateController::class, 'generate']);
 Route::get('/certificate/download', [CertificateController::class, 'download']);
-
-
-
 
 
 
