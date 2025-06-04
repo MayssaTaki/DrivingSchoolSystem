@@ -109,7 +109,7 @@ Route::post('/exams/start', [ExamController::class, 'start'])->middleware('auth:
 Route::post('/exams/submit', [ExamController::class, 'submitAnswers'])->middleware('auth:api');
 Route::post('/generate', [ExamController::class, 'showRandomQuestions'])->middleware('auth:api');
 
-Route::get('/student/evaluation', [ExamController::class, 'evaluate']);
+Route::get('/student/evaluation', [ExamController::class, 'evaluate'])->middleware('auth:api');
 Route::get('/certificate/generate/{studentId}', [CertificateController::class, 'generate']);
 Route::get('/certificate/download', [CertificateController::class, 'download']);
 

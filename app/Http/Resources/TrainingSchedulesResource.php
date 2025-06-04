@@ -27,6 +27,8 @@ class TrainingSchedulesResource extends JsonResource
     return [
         'day_key' => $this->day_of_week,
         'time_range' => substr($this->start_time, 0, 5) . ' - ' . substr($this->end_time, 0, 5),
+         'valid_from' => Carbon::parse($this->valid_from)->format('Y-m-d'),
+            'valid_to' => $this->valid_to ? Carbon::parse($this->valid_to)->format('Y-m-d') : null,
     ];
 }
 
@@ -50,8 +52,7 @@ class TrainingSchedulesResource extends JsonResource
               'start_time' => substr($this->start_time, 0, 5),
             'end_time' => substr($this->end_time, 0, 5),
            'is_recurring' => (bool)$this->is_recurring,
-            'valid_from' => Carbon::parse($this->valid_from)->format('Y-m-d'),
-            'valid_to' => $this->valid_to ? Carbon::parse($this->valid_to)->format('Y-m-d') : null,
+           
             'status' => $this->status,
           
         ];

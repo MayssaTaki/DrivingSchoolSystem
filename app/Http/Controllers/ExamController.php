@@ -6,6 +6,7 @@ use App\Http\Requests\ShowRandomQuestionsRequest;
 
 use App\Http\Resources\ExamResource;
 use App\Http\Requests\SubmitExamRequest;
+use Illuminate\Support\Arr;
 
 use App\Services\ExamService;
 use Illuminate\Http\Request;
@@ -108,22 +109,38 @@ public function showRandomQuestions(ShowRandomQuestionsRequest $request)
 
 public function submitAnswers(SubmitExamRequest $request)
 {
+   
+
     try {
         $data = $request->validated();
         $result = $this->examService->submitExam($data['attempt_id'], $data['answers']);
 
         return response()->json([
             'success' => true,
-            'message' => 'تم تصحيح الامتحان بنجاح',
-            'data' => $result
+            'message' => $result['message'],
+            'data' => Arr::except($result, ['message'])
         ]);
-    } catch (\Exception $e) {
+    } catch (ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'لم يتم العثور على محاولة الامتحان'
+        ], 404);
+    } catch (HttpException $e) {
         return response()->json([
             'success' => false,
             'message' => $e->getMessage()
-        ], 400);
+        ], $e->getStatusCode());
+    } catch (\Exception $e) {
+        // 👇 أضف هنا
+        dd($e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'حدث خطأ أثناء تسليم الامتحان'
+        ], 500);
     }
 }
+
 
 
  public function evaluate(Request $request)
