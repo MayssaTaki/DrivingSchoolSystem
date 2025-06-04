@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Models\Exam;
 use App\Models\Question;
+use Carbon\Carbon;
 
 use App\Models\ExamAttemptQuestion;
 
@@ -208,6 +209,7 @@ public function submitExam(int $attemptId, array $answers)
 {
     try {
         return $this->transactionService->run(function () use ($attemptId, $answers) {
+
             $attempt = ExamAttempt::with('exam')->findOrFail($attemptId); 
 
             if (!$attempt->started_at) {
@@ -218,9 +220,9 @@ public function submitExam(int $attemptId, array $answers)
                 throw new \Exception('تم تسليم الامتحان مسبقًا.');
             }
 
-            $timeLimit = $attempt->exam->duration_minutes; 
-            $timePassed = now()->diffInMinutes($attempt->started_at);
-            $isTimeOver = $timePassed > $timeLimit;
+$endTime = \Carbon\Carbon::parse($attempt->started_at)->addMinutes($attempt->exam->duration_minutes);
+$isTimeOver = $endTime->lt(now());
+$isTimeOver = $endTime->copy()->addSeconds(5)->lt(now());
 
             $selectedQuestionIds = ExamAttemptQuestion::where('exam_attempt_id', $attempt->id)
                                     ->pluck('question_id')
@@ -320,7 +322,6 @@ public function evaluateStudent(int $studentId, float $passPercentage = 60.0): a
     ];
 
     foreach ($requiredTypes as $type) {
-        // جلب آخر محاولة مكتملة لهذا النوع
         $attempt = ExamAttempt::with('exam')
             ->where('student_id', $studentId)
             ->whereNotNull('finished_at')
@@ -328,14 +329,17 @@ public function evaluateStudent(int $studentId, float $passPercentage = 60.0): a
             ->latest('finished_at')
             ->first();
 
-        if (!$attempt) {
-            $result['details'][] = [
-                'type' => $type,
-                'status' => '❌ لم يتم إجراء الامتحان'
-            ];
-            $result['passed_all'] = false;
-            continue;
-        }
+       if (!$attempt) {
+    $result['details'][] = [
+        'type' => $type,
+        'score' => null,
+        'percentage' => null,
+        'status' => '❌ لم يتم إجراء الامتحان'
+    ];
+    $result['passed_all'] = false;
+    continue;
+}
+
 
         $totalQuestions = ExamAttemptQuestion::where('exam_attempt_id', $attempt->id)->count();
         $percentage = $totalQuestions > 0 ? round(($attempt->score / $totalQuestions) * 100, 2) : 0;
