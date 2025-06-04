@@ -78,11 +78,13 @@ public function reject(int $id): JsonResponse
 public function getAllTrainersExceptions(): JsonResponse
 {
     $exceptions = $this->service->getAllTrainersExceptions();
-
-    return response()->json([
+    
+    $resource = ScheduleExceptionResource::collection($exceptions);
+    $resource->additional([
         'status' => 'success',
-        'data' => ScheduleExceptionResource::collection($exceptions),
-       
+        'message' => 'تم استرجاع اجازات المدربين بنجاح'
     ]);
+    
+    return $resource->response();
 }
 }
