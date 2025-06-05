@@ -38,7 +38,6 @@ class LoginTest extends TestCase
         'expires_in',
         'role'
     ],
-    'timestamp'
 ]);
 
     }
