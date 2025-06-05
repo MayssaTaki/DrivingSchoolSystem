@@ -6,6 +6,10 @@ use App\Models\Booking;
 use App\Observers\BookingObserver;
 
 use App\Repositories\UserRepository;
+use App\Repositories\CertificateRepository;
+
+use App\Repositories\ScheduleExceptionRepository;
+
 use App\Repositories\FeedbackStudentRepository;
 
 use App\Repositories\EmployeeRepository;
@@ -13,10 +17,20 @@ use App\Repositories\ExamRepository;
 
 use App\Repositories\ActivityLogRepository;
 use App\Repositories\TrainerRepository;
+use App\Repositories\TrainingSessionRepository;
+
+
 use App\Repositories\StudentRepository;
 use App\Repositories\RefreshTokenRepository;
 use App\Repositories\LogRepository;
 use App\Repositories\CarRepository;
+
+use App\Repositories\BookingRepository;
+use App\Repositories\TrainerReviewRepository;
+
+use App\Repositories\BookingStatusLogRepository;
+
+
 use App\Repositories\TrainingSchedulesRepository;
 use App\Repositories\PasswordResetRepository;
 use App\Repositories\RateLimitRepository;
@@ -29,6 +43,7 @@ use App\Services\RateLimitService;
 use App\Repositories\Contracts\ActivityLogRepositoryInterface;
 use App\Repositories\Contracts\EmployeeRepositoryInterface;
 use App\Repositories\Contracts\BookingRepositoryInterface;
+
 use App\Repositories\Contracts\FeedbackStudentRepositoryInterface;
 
 
@@ -86,6 +101,31 @@ $this->app->bind(
 $this->app->bind(
   EmailVerificationRepositoryInterface::class,EmailVerificationRepository ::class
 );
+$this->app->bind(
+  TrainingSessionRepositoryInterface::class, TrainingSessionRepository ::class
+);
+$this->app->bind(
+  ScheduleExceptionRepositoryInterface::class, ScheduleExceptionRepository ::class
+);
+$this->app->bind(
+  BookingRepositoryInterface::class, BookingRepository ::class
+);
+$this->app->bind(
+  BookingStatusLogRepositoryInterface::class, BookingStatusLogRepository ::class
+);
+$this->app->bind(
+ TrainerReviewRepositoryInterface::class, TrainerReviewRepository ::class
+);
+$this->app->bind(
+FeedbackStudentRepositoryInterface::class, FeedbackStudentRepository ::class
+);
+$this->app->bind(
+ExamRepositoryInterface::class, ExamRepository ::class
+);
+$this->app->bind(
+CertificateRepositoryInterface::class, CertificateRepository ::class
+);
+
 
 
       

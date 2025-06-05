@@ -13,10 +13,18 @@ use App\Http\Controllers\FeedbackStudentController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ExamController;
+
+use App\Http\Controllers\BookingStatusLogController;
+use App\Http\Controllers\TrainerReviewController;
+
+
 
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\ScheduleExceptionController;
+use App\Http\Controllers\CertificateController;
+
 
 
 

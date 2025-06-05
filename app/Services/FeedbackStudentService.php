@@ -8,10 +8,16 @@ class FeedbackStudentService
 {
     protected ActivityLoggerService $activityLogger;
 
-    public function __construct(
-        protected FeedbackStudentRepositoryInterface $feedbackRepo
-        , ActivityLoggerService $activityLogger,protected LogService $logService
-    ) {}
+   public function __construct(
+    FeedbackStudentRepositoryInterface $feedbackRepo,
+    ActivityLoggerService $activityLogger,
+    LogService $logService
+) {
+    $this->feedbackRepo = $feedbackRepo;
+    $this->activityLogger = $activityLogger;
+    $this->logService = $logService;
+}
+
 
 public function giveFeedback(array $data): Feedback_student
 {

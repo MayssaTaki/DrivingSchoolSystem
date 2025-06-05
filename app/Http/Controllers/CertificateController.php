@@ -16,7 +16,7 @@ class CertificateController extends Controller
 
    public function generate(int $studentId): JsonResponse
 {
-    $certificateUrl = $this->certificateService->createCertificateIfPassed($studentId);
+    $certificateUrl = $this->certificateService->generateOrGetCertificate($studentId);
 
     if (!$certificateUrl) {
         return response()->json([
