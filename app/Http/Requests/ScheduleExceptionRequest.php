@@ -9,9 +9,16 @@ use App\Models\ScheduleException;
 class ScheduleExceptionRequest extends FormRequest
 {
     public function authorize(): bool
-    {
-        return true;
+{
+    $trainer = auth()->user()->trainer;
+
+    if (!$trainer) {
+        return false;
     }
+
+    return $this->input('trainer_id') == $trainer->id;
+}
+
 
     public function rules(): array
     {

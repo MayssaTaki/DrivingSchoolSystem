@@ -183,4 +183,19 @@ public function getAllTrainersExceptions(): LengthAwarePaginator
 {
     return $this->exceptionRepo->findAll();
 } 
+
+ public function getPendingExceptions(): LengthAwarePaginator
+    {
+        return $this->exceptionRepo->findByStatus('pending');
+    }
+
+    public function getApprovedExceptions(): LengthAwarePaginator
+    {
+        return $this->exceptionRepo->findByStatus('approved');
+    }
+
+    public function getRejectedExceptions(): LengthAwarePaginator
+    {
+        return $this->exceptionRepo->findByStatus('rejected');
+    }
 }
