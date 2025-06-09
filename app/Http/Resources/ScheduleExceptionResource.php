@@ -18,6 +18,7 @@ class ScheduleExceptionResource extends JsonResource
             'date' => $this->exception_date->toDateString(),
             'reason' => $this->reason,
             'status' => $this->status,
+'trainer_name' => optional($this->trainer)->first_name . ' ' . optional($this->trainer)->last_name,
             'created_at' => $this->created_at->format('Y-m-d H:i'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i'),
         ];
