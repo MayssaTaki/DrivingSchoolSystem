@@ -139,6 +139,9 @@ Route::put('/schedule-exceptions/{exception}', [ScheduleExceptionController::cla
 Route::delete('/schedule-exceptions/{exception}', [ScheduleExceptionController::class, 'destroy']);
 Route::post('/schedule-exceptions/{id}/approve', [ScheduleExceptionController::class, 'approve'])->middleware('auth:api');
 Route::post('/schedule-exceptions/{id}/reject', [ScheduleExceptionController::class, 'reject'])->middleware('auth:api');
+   Route::get('/pending', [ScheduleExceptionController::class, 'getPending'])->middleware('auth:api');
+    Route::get('/approved', [ScheduleExceptionController::class, 'getApproved'])->middleware('auth:api');
+    Route::get('/rejected', [ScheduleExceptionController::class, 'getRejected'])->middleware('auth:api');
 
 Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSessionCounts'])->middleware('auth:api');
 Route::get('/recommended-sessions', [TrainingSessionController::class, 'getRecommendedSessions'])->middleware('auth:api');

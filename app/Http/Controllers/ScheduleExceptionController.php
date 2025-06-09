@@ -87,4 +87,39 @@ public function getAllTrainersExceptions(): JsonResponse
     
     return $resource->response();
 }
+    public function getPending(): JsonResponse
+    {
+        $exceptions = $this->service->getPendingExceptions();
+
+        return ScheduleExceptionResource::collection($exceptions)
+            ->additional([
+                'status' => 'success',
+                'message' => 'تم استرجاع الإجازات قيد الانتظار'
+            ])
+            ->response();
+    }
+
+    public function getApproved(): JsonResponse
+    {
+        $exceptions = $this->service->getApprovedExceptions();
+
+        return ScheduleExceptionResource::collection($exceptions)
+            ->additional([
+                'status' => 'success',
+                'message' => 'تم استرجاع الإجازات الموافق عليها'
+            ])
+            ->response();
+    }
+
+    public function getRejected(): JsonResponse
+    {
+        $exceptions = $this->service->getRejectedExceptions();
+
+        return ScheduleExceptionResource::collection($exceptions)
+            ->additional([
+                'status' => 'success',
+                'message' => 'تم استرجاع الإجازات المرفوضة'
+            ])
+            ->response();
+    }
 }

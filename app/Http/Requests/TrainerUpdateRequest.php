@@ -29,7 +29,6 @@ class TrainerUpdateRequest extends FormRequest
         return [
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
-            'password' => 'sometimes|min:6|confirmed',
 'password' => [
                 'sometimes',
                 
@@ -47,6 +46,8 @@ class TrainerUpdateRequest extends FormRequest
             'date_of_Birth' =>'sometimes|date|before_or_equal:today',
 'license_expiry_date' => 'sometimes|date|after_or_equal:today',
         'experience' => 'sometimes|string|max:255',
+               'phone_number' => 'sometimes|string|digits:10|unique:trainers,phone_number',
+
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }

@@ -75,7 +75,7 @@ public function rules(): array
 
             'phone_number.string' => 'يجب أن يكون رقم الهاتف نصياً.',
             'phone_number.digits' => 'يجب أن يتكون رقم الهاتف من 10 أرقام بالضبط.',
-            'phone_number.unique' => 'رقم الهاتف مستخدم من قبل مدرب آخر.',
+            'phone_number.unique' => 'رقم الهاتف مستخدم من قبل طالب آخر.',
 
             'date_of_Birth.date' => 'يجب إدخال تاريخ صحيح.',
             'date_of_Birth.before_or_equal' => 'يجب أن يكون تاريخ الولادة في الماضي أو اليوم.',

@@ -39,6 +39,16 @@ public function findAll(): LengthAwarePaginator
     });
 }
 
+    public function findByStatus(string $status): LengthAwarePaginator
+    {
+        $page = request()->get('page', 1);
+        $cacheKey = "trainer_exceptions_{$status}_page_{$page}";
+
+        return Cache::tags(['trainer_exceptions'])->remember($cacheKey, now()->addMinutes(10), function () use ($status) {
+            return ScheduleException::where('status', $status)->paginate(10);
+        });
+    }
+
 
 
    

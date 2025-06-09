@@ -6,10 +6,25 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTrainingScheduleRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
+   public function authorize(): bool
+{
+    $trainer = auth()->user()->trainer;
+
+    if (!$trainer) {
+        return false;
     }
+
+    $schedules = $this->input('schedules', []);
+
+    foreach ($schedules as $schedule) {
+        if (($schedule['trainer_id'] ?? null) != $trainer->id) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 
     public function rules(): array
     {
