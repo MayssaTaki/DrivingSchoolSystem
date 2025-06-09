@@ -35,7 +35,7 @@ public function findAll(): LengthAwarePaginator
     $cacheKey = "trainer_exceptions_all_page_{$page}";
 
     return Cache::tags(['trainer_exceptions'])->remember($cacheKey, now()->addMinutes(10), function () {
-        return ScheduleException::paginate(10);
+        return ScheduleException::with('trainer')->paginate(10);
     });
 }
 
