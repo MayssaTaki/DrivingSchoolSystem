@@ -1,64 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <title>Certificate of Completion</title>
     <style>
         body {
-            font-family: DejaVu Sans, sans-serif;
-            background-color: #ffffff;
-            color: #2e7d32;
-            text-align: center;
+            font-family: 'Arial', 'Amiri', serif;
+            background-color: #fdfdfd;
+            color: #000;
             padding: 40px;
         }
 
         .certificate {
-            border: 8px solid #81c784;
+            border: 10px double #000;
             padding: 60px;
-            border-radius: 10px;
-            background-color: #f1f8e9;
-            width: 90%;
+            background-color: #fff;
+            width: 85%;
             margin: auto;
+            position: relative;
+            text-align: center;
+            z-index: 1;
         }
 
         .certificate h1 {
-            font-size: 48px;
-            margin-bottom: 10px;
+            font-size: 40px;
+            margin-bottom: 5px;
+            color: #11560f;
+            text-transform: uppercase;
         }
 
         .certificate h2 {
-            font-size: 24px;
-            margin-top: 0;
-            margin-bottom: 30px;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: normal;
         }
 
         .certificate p {
-            font-size: 18px;
-            line-height: 1.6;
+            font-size: 20px;
+            line-height: 2;
+            margin: 15px 0;
+        }
+
+        .recipient-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #11560f;
         }
 
         .school-name {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
-            color: #1b5e20;
-            margin-top: 40px;
+            color: #11560f;
+            margin-top: 20px;
         }
 
-        .date {
-            margin-top: 30px;
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding: 0 40px;
+        }
+
+        .footer .date,
+        .footer .signature {
             font-size: 16px;
-            color: #33691e;
+            text-align: center;
+            width: 40%;
+        }
+
+        .signature-line-container {
+            position: relative;
+        }
+
+        .signature-line {
+            margin-top: 40px;
+            border-top: 1px solid #000;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stamps-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: -20px; /* لتقريب الستامبات من الخط */
+        }
+
+        .seal {
+            width: 50px;
+            opacity: 1;
+            display: block;
+        }
+
+        .half-over-line {
+            position: relative;
+            top: -25px; /* نصفه فوق السطر */
+        }
+
+        .logo {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 90px;
+            z-index: 2;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            width: 300px;
+            z-index: 0;
         }
     </style>
 </head>
 <body>
     <div class="certificate">
-        <h1>Certificate of Completion</h1>
-        <h2>This is to certify that</h2>
-        <p><strong>{{ $name }}</strong></p>
-        <p>has successfully passed all required exams conducted by</p>
-        <p class="school-name">Driving School</p>
-        <p class="date">Date: {{ $date }}</p>
+        <!-- Background Watermark -->
+        <img src="{{ public_path('images/stamp3.png') }}" class="watermark" alt="Watermark">
+
+        <!-- Logo -->
+        <img src="{{ public_path('images/logo.jpg') }}" class="logo" alt="Logo">
+
+        <h1>CERTIFICATE OF COMPLETION</h1>
+        <h2>This certificate is awarded to</h2>
+
+        <p class="recipient-name">{{ $name }}</p>
+
+        <p>For successfully passing all seven theoretical driving tests,</p>
+        <p>And fulfilling all standards and requirements approved by</p>
+
+        <p class="school-name">AL-QYADA DRIVING SCHOOL</p>
+
+        <div class="footer">
+            <div class="date">
+                Date:<br>
+                <strong>{{ $date }}</strong>
+                <br>
+                <img src="{{ public_path('images/SIGNATURE.png') }}" alt="Signature"
+                     style="width:120px; margin-top: 10px;">
+            </div>
+            <div class="signature">
+                <div class="signature-line-container">
+                    <div class="signature-line"></div>
+                    <div class="stamps-container">
+                        <img src="{{ public_path('images/stamp.png') }}" class="seal" alt="Seal">
+                        <img src="{{ public_path('images/stamp3.png') }}" class="seal half-over-line" alt="Seal">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

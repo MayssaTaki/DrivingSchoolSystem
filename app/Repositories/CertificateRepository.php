@@ -19,7 +19,7 @@ class CertificateRepository implements CertificateRepositoryInterface
 
         $student = Student::findOrFail($studentId);
         $data = [
-            'name' => $student->name,
+            'name' => $student->user->name,
             'date' => now()->format('Y-m-d'),
         ];
 
