@@ -55,4 +55,43 @@ class TrainerReviewRepository implements TrainerReviewRepositoryInterface
         return TrainerReview::where('trainer_id', $trainerId)
             ->paginate(10);
     }
+
+    public function findByStatus(string $status): LengthAwarePaginator
+    {
+        $page = request()->get('page', 1);
+        $cacheKey = "trainer_reviews_{$status}_page_{$page}";
+
+        return Cache::tags(['trainer_reviews'])->remember($cacheKey, now()->addMinutes(10), function () use ($status) {
+            return TrainerReview::where('status', $status)->paginate(10);
+        });
+    }
+    public function clearCache()
+  {
+      Cache::tags(['trainer_reviews'])->flush();
+  }
+
+      public function getTopTrainers(int $limit = 5)
+    {
+        return TrainerReview::select('trainer_id')
+            ->selectRaw('AVG(rating) as avg_rating')
+            ->where('status', 'approved')
+            ->groupBy('trainer_id')
+            ->orderByDesc('avg_rating')
+            ->with('trainer')
+            ->take($limit)
+            ->get();
+    }
+
+   public function getWorstTrainers(int $limit = 5, array $excludedTrainerIds = [])
+{
+    return TrainerReview::select('trainer_id')
+        ->selectRaw('AVG(rating) as avg_rating')
+        ->where('status', 'approved')
+        ->whereNotIn('trainer_id', $excludedTrainerIds) 
+        ->groupBy('trainer_id')
+        ->orderBy('avg_rating')
+        ->with('trainer')
+        ->take($limit)
+        ->get();
+}
 }

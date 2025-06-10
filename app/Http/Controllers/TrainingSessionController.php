@@ -8,6 +8,8 @@ use App\Services\TrainingSessionService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\TrainerSessionDayResource;
 use App\Http\Requests\GetTrainerSessionsRequest;
+use App\Http\Requests\GetScheduleSessionsRequest;
+
 use Illuminate\Http\Request;
 
 
@@ -26,6 +28,18 @@ class TrainingSessionController extends Controller
         'data' => TrainerSessionDayResource::collection($grouped)
     ]);
 }
+public function getScheduleSessions(GetScheduleSessionsRequest $request): JsonResponse
+{
+    $scheduleId = $request->input('schedule_id');
+
+    $grouped = $this->sessionService->getScheduleSessionsGroupedByDate($scheduleId);
+
+    return response()->json([
+        'message' => 'تم جلب الجلسات بنجاح.',
+        'data' => TrainerSessionDayResource::collection($grouped)
+    ]);
+}
+
 
 public function getRecommendedSessions(RecommendedSessionRequest $request)
 {

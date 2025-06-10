@@ -19,13 +19,21 @@ class TrainerReviewResource extends JsonResource
             }
         }
 
-        return [
+        // البيانات الأساسية المشتركة
+        $data = [
             'id' => $this->id,
             'student_id' => $this->student_id,
+            'student_name' => $this->student->first_name . ' ' . $this->student->last_name,
             'rating' => $this->rating,
             'comment' => $this->comment,
             'status' => $this->status,
             'created_at' => $this->created_at->toDateTimeString(),
         ];
+
+        if (in_array($user?->role, ['admin', 'employee'])) {
+            $data['trainer_name'] = $this->trainer->first_name . ' ' . $this->trainer->last_name;
+        }
+
+        return $data;
     }
 }
