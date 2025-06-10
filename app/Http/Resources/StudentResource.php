@@ -7,47 +7,27 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class StudentResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
-   public function toArray(Request $request): array
-{
-    if ($this->student) {
+    public function toArray(Request $request): array
+    {
+        $student = $this->student ?? $this;
+
         return [
-            'student_id' => $this->id,
-        'user_id' => $this->user?->id,
-
-            'first_name' => $this->student->first_name,
-            'last_name' => $this->student->last_name,
-          'phone_number' => $this->student->phone_number,
-            'date_of_Birth' => $this->student->date_of_Birth,
-            'gender' => $this->student->gender,
-            'address' => $this->student->address,
-
-            'email' => $this->email,
-            'name' => $this->name,
-
-            'image' => $this->student->image,
+            'id' => $this->user?->id,
+            'email' => $this->user?->email,
+            'name' => $this->user?->name,
+            'student' => [
+                'id' => $student->id,
+                'user_id' => $this->user?->id,
+                'first_name' => $student->first_name,
+                'last_name' => $student->last_name,
+                'phone_number' => $student->phone_number,
+                'date_of_Birth' => $student->date_of_Birth,
+                'gender' => $student->gender,
+                'address' => $student->address,
+                'image' => $student->image,
+                'created_at' => $student->created_at,
+                'updated_at' => $student->updated_at,
+            ]
         ];
     }
-
-    return [
-            'student_id' => $this->id,
-               'user_id' => $this->user?->id,
-
-        'first_name' => $this->first_name,
-        'last_name' => $this->last_name,
-        'date_of_Birth' => $this->date_of_Birth,
-        'gender' => $this->gender,
-                'address' => $this->address,
-
-    'phone_number' => $this->phone_number,
-
-        'email' => $this->user?->email,
-        'name' => $this->user?->name,
-        'image' => $this->image,
-    ];
-}
 }

@@ -5,7 +5,8 @@
     <title>Certificate of Completion</title>
     <style>
         body {
-            font-family: 'Arial', 'Amiri', serif;
+
+           font-family:  'Amiri', serif;
             background-color: #fdfdfd;
             color: #000;
             padding: 40px;
@@ -125,7 +126,6 @@
 
         <!-- Logo -->
         <img src="{{ public_path('images/logo.jpg') }}" class="logo" alt="Logo">
-
         <h1>CERTIFICATE OF COMPLETION</h1>
         <h2>This certificate is awarded to</h2>
 

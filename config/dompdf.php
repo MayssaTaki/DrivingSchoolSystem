@@ -28,6 +28,10 @@ return [
 
         // 👇 مهم: تحديد الخط الافتراضي الداعم للعربية
         'default_font' => 'Amiri',
+        'font_family' => [
+    'Amiri' => [
+        'R' => 'Amiri-Regular.ttf',
+    ],],
 
         'dpi' => 96,
         'enable_php' => false,
@@ -50,9 +54,6 @@ return [
         'debugLayoutInline' => false,
         'debugLayoutPaddingBox' => false,
 
-        'admin' => [
-            'username' => 'user',
-            'password' => 'pass',
-        ],
+      
     ],
 ];

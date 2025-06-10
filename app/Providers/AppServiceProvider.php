@@ -24,6 +24,8 @@ use App\Repositories\StudentRepository;
 use App\Repositories\RefreshTokenRepository;
 use App\Repositories\LogRepository;
 use App\Repositories\CarRepository;
+use App\Repositories\CarFaultRepository;
+
 
 use App\Repositories\BookingRepository;
 use App\Repositories\TrainerReviewRepository;
@@ -58,6 +60,8 @@ use App\Repositories\Contracts\StudentRepositoryInterface;
 use App\Repositories\Contracts\RefreshTokenRepositoryInterface;
 use App\Repositories\Contracts\LogRepositoryInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
+use App\Repositories\Contracts\CarFaultRepositoryInterface;
+
 use App\Repositories\Contracts\RateLimiterInterface;
 use App\Repositories\Contracts\CertificateRepositoryInterface;
 
@@ -126,6 +130,7 @@ $this->app->bind(
 CertificateRepositoryInterface::class, CertificateRepository ::class
 );
 
+        $this->app->bind(CarFaultRepositoryInterface::class, CarFaultRepository::class);
 
 
       

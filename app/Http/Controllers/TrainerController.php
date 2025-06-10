@@ -131,8 +131,9 @@ public function getAllTrainers(Request $request)
                 return response()->json([
                     'status' => 'success',
                     'message' => 'تم تحديث بيانات المدرب بنجاح.',
-                    'data' => new TrainerLoginResource($updatedTrainer)
-                ]);
+  'data' => [
+        'user' => new TrainerLoginResource($updatedTrainer), 
+    ],                ]);
             } catch (\Exception $e) {
                 return response()->json([
                     'status' => 'error',

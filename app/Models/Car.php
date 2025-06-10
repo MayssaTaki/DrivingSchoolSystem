@@ -42,4 +42,8 @@ if (is_string($value) && str_starts_with($value, asset('storage'))) {
 
     $this->attributes['image'] = $value;
 }
+   public function faultReports()
+    {
+        return $this->hasMany(CarFault::class);
+    }
 }

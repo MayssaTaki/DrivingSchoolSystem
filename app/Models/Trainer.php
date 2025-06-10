@@ -88,4 +88,8 @@ public function scheduleExceptions()
 {
     return $this->hasMany(ScheduleException::class);
 }
+ public function faultReports()
+    {
+        return $this->hasMany(CarFault::class);
+    }
 }
