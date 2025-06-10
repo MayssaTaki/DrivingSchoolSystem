@@ -102,8 +102,9 @@ public function update(StudentUpdateRequest $request, Student $student): JsonRes
         return response()->json([
             'status' => 'success',
             'message' => 'تم تحديث بيانات الطالب بنجاح.',
-            'data' => new StudentResource($updatedStudent)
-        ]);
+'data' => [
+        'user' => new StudentResource($updatedStudent), 
+    ],         ]);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
