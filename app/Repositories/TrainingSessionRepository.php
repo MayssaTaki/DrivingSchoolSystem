@@ -48,6 +48,16 @@ public function updateStatus(int $sessionId, string $status): bool
             ->orderBy('end_time')
             ->get();
     }
+
+    public function getBySchedule(int $scheduleId)
+{
+    return TrainingSession::where('schedule_id', $scheduleId)
+        ->orderBy('session_date')
+        ->orderBy('start_time')
+        ->orderBy('end_time')
+        ->get();
+}
+
 public function existsForDateAndTime($trainerId, $date, $startTime): bool
 {
     return TrainingSession::where('trainer_id', $trainerId)

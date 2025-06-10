@@ -181,6 +181,19 @@ public function getTrainerSessionsGroupedByDate(int $trainerId)
     })->values();
 }
 
+public function getScheduleSessionsGroupedByDate(int $scheduleId)
+{
+    $sessions = $this->repo->getBySchedule($scheduleId);
+
+    return $sessions->groupBy('session_date')->map(function ($sessions, $date) {
+        return (object)[
+            'date' => $date,
+            'sessions' => $sessions->sortBy('start_time')->values()
+        ];
+    })->values();
+}
+
+
 
     
 }

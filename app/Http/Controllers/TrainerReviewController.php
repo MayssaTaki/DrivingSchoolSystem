@@ -65,4 +65,52 @@ class TrainerReviewController extends Controller
         $reviews = $this->service->getTrainerReviews($trainerId);
         return response()->json(TrainerReviewResource::collection($reviews));
     }
+
+     public function getPending(): JsonResponse
+    {
+        $reviews  = $this->service->getPendingReviews();
+
+        return TrainerReviewResource::collection($reviews)
+            ->additional([
+                'status' => 'success',
+                'message' => 'تم استرجاع التقييمات قيد الانتظار'
+            ])
+            ->response();
+    }
+
+    public function getApproved(): JsonResponse
+    {
+        $reviews  = $this->service->getApprovedReviews();
+
+        return TrainerReviewResource::collection($reviews )
+            ->additional([
+                'status' => 'success',
+                'message' => 'تم استرجاع التقييمات الموافق عليها'
+            ])
+            ->response();
+    }
+
+    public function getRejected(): JsonResponse
+    {
+       $reviews  = $this->service->getRejectedReviews();
+
+        return TrainerReviewResource::collection($reviews )
+            ->additional([
+                'status' => 'success',
+                'message' => 'تم استرجاع التقييمات المرفوضة'
+            ])
+            ->response();
+    }
+
+     public function topAndWorst(): JsonResponse
+    {
+        $top = $this->service->getTop5Trainers();
+        $excludedIds = $top->pluck('trainer_id')->toArray();
+            $worst = $this->service->getWorst5Trainers($excludedIds);
+
+        return response()->json([
+            'top_trainers' => $top,
+            'worst_trainers' => $worst,
+        ]);
+    }
 }

@@ -11,6 +11,9 @@ interface TrainerReviewRepositoryInterface
     public function getPending();
     public function approve($id);
     public function reject($id);
+    public function getTopTrainers(int $limit = 5);
+   public function getWorstTrainers(int $limit = 5, array $excludedTrainerIds = []);    public function clearCache();
+    public function findByStatus(string $status): LengthAwarePaginator;
     public function getByTrainerId(int $trainerId): LengthAwarePaginator;
 
 }

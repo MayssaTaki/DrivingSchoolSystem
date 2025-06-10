@@ -12,6 +12,8 @@ use App\Http\Controllers\FeedbackStudentController;
 
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\CarController;
+use App\Http\Controllers\CarFaultController;
+
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ExamController;
 
@@ -162,10 +164,15 @@ Route::get('/trainer/bookings', [BookingController::class, 'getTrainerBookedSess
 
 
 Route::get('/trainer-sessions', [TrainingSessionController::class, 'getTrainerSessions'])->middleware('auth:api');
+Route::get('/trainer-sessions/schedule', [TrainingSessionController::class, 'getScheduleSessions'])->middleware('auth:api');
 
 Route::get('/trainer/{trainerId}/reviews', [TrainerReviewController::class, 'index']);
-
+ Route::get('/pending/reviews', [TrainerReviewController::class, 'getPending'])->middleware('auth:api');
+    Route::get('/approved/reviews', [TrainerReviewController::class, 'getApproved'])->middleware('auth:api');
+    Route::get('/rejected/reviews', [TrainerReviewController::class, 'getRejected'])->middleware('auth:api');
     Route::post('trainer-reviews', [TrainerReviewController::class, 'store'])->middleware('auth:api');
+    Route::get('/trainers/stats', [TrainerReviewController::class, 'topAndWorst'])->middleware('auth:api');
+
   Route::get('trainer-reviews/pending', [TrainerReviewController::class, 'pending']);
         Route::post('trainer-reviews/{id}/approve', [TrainerReviewController::class, 'approve'])->middleware('auth:api');
         Route::post('trainer-reviews/{id}/reject', [TrainerReviewController::class, 'reject'])->middleware('auth:api');
@@ -186,6 +193,8 @@ Route::get('/cars/count', [CarController::class, 'countCars'])->middleware('auth
 Route::post('/car/add', [CarController::class, 'add'])->middleware('auth:api');
 Route::delete('/cars/{id}', [CarController::class, 'destroy'])->middleware('auth:api');
 Route::put('/cars/{car}', [CarController::class, 'update'])->middleware('auth:api');
+
+Route::post('/add', [CarFaultController::class, 'store'])->middleware('auth:api');
 
 
 

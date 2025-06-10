@@ -51,6 +51,7 @@ class TrainerReviewService
                 auth()->user(),
                 'rating'
             );
+              $this->clearReviewCache();
 
             return $review;
         } catch (\Exception $e) {
@@ -82,6 +83,8 @@ if (!auth()->user()->role === 'employee') {
                     auth()->user(),
                     'rating'
                 );
+              $this->clearReviewCache();
+
        return $approve; }catch (\Exception $e) {
           $this->logService->log('error', 'فشل قبول  التقييم ', [
                 'message' => $e->getMessage(),
@@ -106,6 +109,8 @@ if (!auth()->user()->role === 'employee') {
                     auth()->user(),
                     'rating'
                 );
+             $this->clearReviewCache();
+
        return $approve; }catch (\Exception $e) {
           $this->logService->log('error', 'فشل رفض  التقييم ', [
                 'message' => $e->getMessage(),
@@ -118,4 +123,70 @@ if (!auth()->user()->role === 'employee') {
     {
         return $this->repo->getByTrainerId($trainerId);
     }
+
+    public function getPendingReviews(): LengthAwarePaginator
+    {
+        return $this->repo->findByStatus('pending');
+    }
+
+    public function getApprovedReviews(): LengthAwarePaginator
+    {
+        return $this->repo->findByStatus('approved');
+    }
+
+    public function getRejectedReviews(): LengthAwarePaginator
+    {
+        return $this->repo->findByStatus('rejected');
+    }
+    public function clearReviewCache(): void
+    {
+        $this->repo->clearCache();
+
+    }
+
+ public function getTop5Trainers()
+{
+    $trainers = $this->repo->getTopTrainers(5);
+
+    return $trainers->map(function ($item) {
+        $avg = round($item->avg_rating, 1);
+
+        return [
+            'trainer_id' => $item->trainer_id,
+            'average_rating' => number_format($avg, 1),
+            'trainer_name' => $item->trainer->first_name . ' ' . $item->trainer->last_name,
+            'rating_text' => $this->getRatingText($avg),
+        ];
+    });
+}
+
+public function getWorst5Trainers(array $excludedTrainerIds = [])
+{
+    $trainers = $this->repo->getWorstTrainers(5, $excludedTrainerIds);
+
+    return $trainers->map(function ($item) {
+        $avg = round($item->avg_rating, 1);
+
+        return [
+            'trainer_id' => $item->trainer_id,
+            'average_rating' => number_format($avg, 1),
+            'trainer_name' => $item->trainer->first_name . ' ' . $item->trainer->last_name,
+            'rating_text' => $this->getRatingText($avg),
+        ];
+    });
+}
+
+
+private function getRatingText(float $rating): string
+{
+    return match (true) {
+        $rating >= 4.5 => 'ممتاز',
+        $rating >= 3.5 => 'جيد جدًا',
+        $rating >= 2.5 => 'جيد',
+        $rating >= 1.5 => 'مقبول',
+        default        => 'ضعيف',
+    };
+}
+
+
 }
