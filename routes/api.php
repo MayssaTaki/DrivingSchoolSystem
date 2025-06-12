@@ -177,7 +177,11 @@ Route::get('/trainer/{trainerId}/reviews', [TrainerReviewController::class, 'ind
   Route::get('trainer-reviews/pending', [TrainerReviewController::class, 'pending']);
         Route::post('trainer-reviews/{id}/approve', [TrainerReviewController::class, 'approve'])->middleware('auth:api');
         Route::post('trainer-reviews/{id}/reject', [TrainerReviewController::class, 'reject'])->middleware('auth:api');
-    Route::post('/feedback/student', [FeedbackStudentController::class, 'store']);
+        
+    Route::post('/feedback/student', [FeedbackStudentController::class, 'store'])->middleware('auth:api');
+Route::get('/feedback-students', [FeedbackStudentController::class, 'index'])->middleware('auth:api');
+Route::get('/trainer/feedbacks', [FeedbackStudentController::class, 'getTrainerFeedbacks'])->middleware('auth:api');
+Route::get('/feedbacks/all', [FeedbackStudentController::class, 'getAllFeedbacks'])->middleware('auth:api');
 
 
 

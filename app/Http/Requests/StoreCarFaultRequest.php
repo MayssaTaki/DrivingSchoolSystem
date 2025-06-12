@@ -10,6 +10,7 @@ class StoreCarFaultRequest extends FormRequest
         return [
             'car_id' => 'required|exists:cars,id',
             'comment' => 'required|string|max:1000',
+            'booking_id' => 'nullable|exists:bookings,id',
         ];
     }
 }

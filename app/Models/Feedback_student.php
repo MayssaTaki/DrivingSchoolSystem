@@ -6,21 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Feedback_student extends Model
 {
-       protected $fillable = ['session_id', 'student_id', 'trainer_id', 'notes', 'rating', 'number_session'];
+       protected $fillable = ['booking_id', 'level', 'notes'];
 
 
 
-    public function session()
+  public function booking()
 {
-    return $this->belongsTo(TrainingSession::class, 'session_id');
+    return $this->belongsTo(Booking::class);
 }
 
-    public function student() {
-        return $this->belongsTo(Student::class);
-    }
-
-   public function trainer()
-{
-    return $this->belongsTo(Trainer::class);
-}
 }

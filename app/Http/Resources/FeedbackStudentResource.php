@@ -9,13 +9,11 @@ class FeedbackStudentResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
-            'session_id' => $this->session_id,
-            'student_id' => $this->student_id,
-            'trainer_id' => $this->trainer_id,
-            'rating' => $this->rating,
+           'id' => $this->id,
+            'booking_id' => $this->booking_id,
+            'level' => $this->level,
             'notes' => $this->notes,
-            'number_session' => $this->number_session,
+            'created_at' => $this->created_at->toDateTimeString(),
         ];
     }
 }
