@@ -23,8 +23,14 @@ class BookingRepository implements BookingRepositoryInterface
     {
         return $this->booking
             ->where('trainer_id', $trainerId)
-            ->where('status', 'booked')
             ->with(['session', 'student', 'car'])  
+            ->get();
+    }
+     public function getBookedSessionsByStudent(int $studentId)
+    {
+        return $this->booking
+            ->where('student_id', $studentId)
+            ->with(['session', 'trainer', 'car'])  
             ->get();
     }
     
