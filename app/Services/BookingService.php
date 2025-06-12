@@ -301,6 +301,10 @@ public function completeSession(int $bookingId)
     {
         return $this->bookingRepo->getBookedSessionsByTrainer($trainerId);
     }
+ public function getStudentBookedSessions(int $studentId)
+    {
+        return $this->bookingRepo->getBookedSessionsByStudent($studentId);
+    }
 
 
    public function CancelSession(int $bookingId)

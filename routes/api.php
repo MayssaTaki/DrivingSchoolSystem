@@ -160,7 +160,8 @@ Route::get('/bookings/status-logs/export', [BookingStatusLogController::class, '
 Route::get('/booking-status-logs/export-pdf', [BookingStatusLogController::class, 'exportPdf']);
 
 
-Route::get('/trainer/bookings', [BookingController::class, 'getTrainerBookedSessions']);
+Route::get('/trainer/bookings', [BookingController::class, 'getTrainerBookedSessions'])->middleware('auth:api');
+Route::get('/student/bookings', [BookingController::class, 'getStudentBookedSessions'])->middleware('auth:api');
 
 
 Route::get('/trainer-sessions', [TrainingSessionController::class, 'getTrainerSessions'])->middleware('auth:api');
