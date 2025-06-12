@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('car_faults', function (Blueprint $table) {
             $table->id();
              $table->foreignId('car_id')->constrained()->onDelete('cascade');
-            $table->foreignId('trainer_id')->constrained()->onDelete('cascade');
-            $table->text('comment')->nullable();
-
+    $table->foreignId('trainer_id')->constrained('users')->onDelete('cascade');
+    $table->foreignId('booking_id')->nullable()->constrained()->onDelete('set null');
+    
+    $table->text('comment');
+    $table->enum('status', ['new', 'in_progress', 'resolved'])->default('new');
             $table->timestamps();
         });
     }

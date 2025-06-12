@@ -2,8 +2,11 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\FeedbackStudentRepositoryInterface;
-
+use App\Exceptions\BookingNotCompletedException;
+use App\Exceptions\BookingAlreadyFeedbackException;
 use App\Models\Feedback_student;
+use App\Models\Booking;
+
 class FeedbackStudentService
 {
     protected ActivityLoggerService $activityLogger;
@@ -22,31 +25,40 @@ class FeedbackStudentService
 public function giveFeedback(array $data): Feedback_student
 {
     try {
-        $previousCount = Feedback_student::where('student_id', $data['student_id'])->count();
-        $data['number_session'] = $previousCount + 1;
+        $booking = Booking::with(['student', 'trainer', 'session'])->findOrFail($data['booking_id']);
 
-        $feedback = $this->feedbackRepo->create($data);
+        if ($booking->status !== 'completed') {
+            throw new BookingNotCompletedException();
+        }
 
-          $this->activityLogger->log(
-        'تقييم طالب بعد جلسة تدريب',
-        [
-            'student_id' => $data['student_id'],
-            'trainer_id' => $data['trainer_id'],
-            'session_id' => $data['session_id'],
-            'rating' => $data['rating'],
-        ],
-        'feedback_students',
-        $feedback,
-        auth()->user(),
-        'create'
-    );
+        if ($booking->feedback) {
+            throw new BookingAlreadyFeedbackException();
+        }
+
+        $feedback = $this->feedbackRepo->create([
+            'booking_id' => $booking->id,
+            'level' => $data['level'],
+            'notes' => $data['notes'] ?? null,
+        ]);
+
+        $this->activityLogger->log(
+            'تقييم طالب بعد جلسة تدريب',
+            [
+                'student_id' => $booking->student_id,
+                'trainer_id' => $booking->trainer_id,
+                'session_id' => $booking->session_id,
+                'level' => $data['level'],
+            ],
+            'feedback_students',
+            $feedback,
+            auth()->user(),
+            'create'
+        );
+
         return $feedback;
-
     } catch (\Throwable $e) {
         $this->logService->log('error', 'فشل في إنشاء تقييم الطالب', [
-            'student_id' => $data['student_id'] ?? null,
-            'trainer_id' => $data['trainer_id'] ?? null,
-         
+            'booking_id' => $data['booking_id'] ?? null,
             'message' => $e->getMessage(),
             'trace' => $e->getTraceAsString(),
         ], 'feedback_students');
@@ -55,6 +67,19 @@ public function giveFeedback(array $data): Feedback_student
     }
 }
 
+
+   public function getStudentFeedbacks(int $studentId)
+    {
+        return $this->feedbackRepo->getFeedbacksByStudentId($studentId);
+    }
+    public function getTrainerFeedbacks(int $trainerId)
+{
+    return $this->feedbackRepo->getFeedbacksByTrainerId($trainerId);
+}
+public function getAllFeedbacksPaginated(int $perPage = 10)
+{
+    return $this->feedbackRepo->getAllWithPagination($perPage);
+}
 
 }
 

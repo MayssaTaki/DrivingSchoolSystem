@@ -37,5 +37,13 @@ public function statusLogs()
 {
     return $this->hasMany(BookingStatusLog::class);
 }
+public function feedback()
+{
+    return $this->hasOne(Feedback_student::class);
+}
 
+  public function faultReports()
+    {
+        return $this->hasMany(CarFault::class);
+    }
 }

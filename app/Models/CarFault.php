@@ -13,6 +13,8 @@ class CarFault extends Model
         'car_id',
         'trainer_id',
         'comment',
+        'booking_id',
+        'status'
     ];
 
     public function car()
@@ -23,5 +25,9 @@ class CarFault extends Model
     public function trainer()
     {
         return $this->belongsTo(Trainer::class);
+    }
+      public function booking()
+    {
+        return $this->belongsTo(Booking::class);
     }
 }

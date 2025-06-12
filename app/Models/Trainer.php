@@ -80,10 +80,7 @@ public function reviews()
 {
     return $this->hasMany(TrainerReview::class);
 }
-public function feedbacks()
-{
-    return $this->hasMany(Feedback_student::class);
-}
+
 public function scheduleExceptions()
 {
     return $this->hasMany(ScheduleException::class);
