@@ -23,7 +23,8 @@ class BookingRepository implements BookingRepositoryInterface
     {
         return $this->booking
             ->where('trainer_id', $trainerId)
-            ->with(['session', 'student', 'car'])  
+            ->with(['session', 'student', 'car']) 
+             ->orderBy('created_at', 'desc') 
             ->paginate(10);
     }
      public function getBookedSessionsByStudent(int $studentId)
@@ -31,6 +32,7 @@ class BookingRepository implements BookingRepositoryInterface
         return $this->booking
             ->where('student_id', $studentId)
             ->with(['session', 'trainer', 'car'])  
+             ->orderBy('created_at', 'desc')
             ->paginate(10);
     }
     
