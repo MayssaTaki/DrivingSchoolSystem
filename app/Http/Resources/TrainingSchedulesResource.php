@@ -49,6 +49,7 @@ class TrainingSchedulesResource extends JsonResource
  protected function adminOrEmployeeDetails(): array
     {
         return [
+            'id'=>$this->id,
               'start_time' => substr($this->start_time, 0, 5),
             'end_time' => substr($this->end_time, 0, 5),
            'is_recurring' => (bool)$this->is_recurring,
