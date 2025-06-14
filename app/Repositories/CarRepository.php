@@ -95,6 +95,11 @@ public function isCarBook(int $carId): bool
         $car= Car::find($carId);
         return $car && $car->status === 'booked';
     }
+    public function isCarRepair(int $carId): bool
+    {
+        $car= Car::find($carId);
+        return $car && $car->status === 'in_repair';
+    }
 
        public function find(int $id)
 {

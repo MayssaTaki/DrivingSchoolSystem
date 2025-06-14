@@ -200,7 +200,15 @@ Route::delete('/cars/{id}', [CarController::class, 'destroy'])->middleware('auth
 Route::put('/cars/{car}', [CarController::class, 'update'])->middleware('auth:api');
 
 Route::post('/add', [CarFaultController::class, 'store'])->middleware('auth:api');
+Route::get('/car-faults', [CarFaultController::class, 'index'])->middleware('auth:api');
+Route::get('/trainer/car-faults', [CarFaultController::class, 'getTrainerFaults'])->middleware('auth:api');
+Route::post('car-faults/send-to-repair', [CarFaultController::class, 'sendToRepair'])->middleware('auth:api');
+Route::post('car-faults/resolve', [CarFaultController::class, 'sendToResolved'])->middleware('auth:api');
 
-
+ Route::get('/faults-per-car', [CarFaultController::class, 'countFaultsPerCar'])->middleware('auth:api');
+    Route::get('/top-faulted-cars', [CarFaultController::class, 'getTopFaultedCars'])->middleware('auth:api');
+    Route::get('/monthly-faults', [CarFaultController::class, 'getMonthlyFaultsCount'])->middleware('auth:api');
+    Route::get('/average-monthly-faults', [CarFaultController::class, 'getAverageMonthlyFaultsPerCar'])->middleware('auth:api');
+    Route::get('/status-count-per-car', [CarFaultController::class, 'getFaultsStatusCountPerCar'])->middleware('auth:api');
 
 
