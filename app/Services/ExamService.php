@@ -75,9 +75,9 @@ public function createExamWithQuestions(array $data)
         return $this->examRepo->getAllExams();
     }
 
-    public function showExam($id)
+    public function showExam($type)
     {
-        return $this->examRepo->getExamWithQuestions($id);
+        return $this->examRepo->getExamWithQuestions($type);
     }
 
     public function processSubmission($examId, $answers)

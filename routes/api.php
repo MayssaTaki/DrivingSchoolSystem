@@ -105,7 +105,7 @@ Route::prefix('exams')->group(function () {
     Route::post('/{id}/submit', [ExamController::class, 'submit']);
 });
 Route::post('/exams', [ExamController::class, 'store'])->middleware('auth:api');
- Route::get('/exams/{id}', [ExamController::class, 'show'])->middleware('auth:api');
+ Route::get('/exam/type/{type}', [ExamController::class, 'showByType'])->middleware('auth:api');
     Route::get('/exam', [ExamController::class, 'index'])->middleware('auth:api');
 Route::post('/exams/start', [ExamController::class, 'start'])->middleware('auth:api');
 Route::post('/exams/submit', [ExamController::class, 'submitAnswers'])->middleware('auth:api');
