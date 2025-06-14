@@ -7,7 +7,7 @@ interface ExamRepositoryInterface
 {
     public function getAllExams();
     public function hasCompletedSessions(int $trainerId): ?int; 
-    public function getExamWithQuestions($examId);
+    public function getExamWithQuestions($type);
  // public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10);
   //  public function submitExam(array $answers);
   

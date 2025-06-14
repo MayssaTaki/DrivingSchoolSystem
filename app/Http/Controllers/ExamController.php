@@ -46,16 +46,16 @@ $validated['trainer_id'] = $trainerId;
         return response()->json($this->examService->listExams());
     }
 
-   public function show($id)
+ public function showByType($type)
 {
-
-    $exam = $this->examService->showExam($id);
+    $exam = $this->examService->showExam($type);
 
     return response()->json([
         'message' => 'تم جلب بيانات الامتحان بنجاح.',
         'exam' => new ExamResource($exam->load('questions.choices'))
     ]);
 }
+
 
     public function submit(Request $request, $id)
     {

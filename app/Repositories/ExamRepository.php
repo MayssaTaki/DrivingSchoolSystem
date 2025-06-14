@@ -96,11 +96,16 @@ public function createExamWithQuestions(array $data): Exam
     return $trainer->exams()->get();
 }
 
-    public function getExamWithQuestions($examId)
-    {
-      
-        return Exam::with('questions.choices')->findOrFail($examId);
-    }
+   public function getExamWithQuestions($type)
+{
+    $trainerId = auth()->user()->trainer->id; 
+
+    return Exam::with('questions.choices')
+        ->where('trainer_id', $trainerId)
+        ->where('type', $type)
+        ->firstOrFail(); 
+}
+
 
 
 
