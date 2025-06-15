@@ -106,7 +106,18 @@ public function createExamWithQuestions(array $data): Exam
         ->firstOrFail(); 
 }
 
+public function getAllExamsByTrainerId($trainerId)
+    {
+        return Exam::where('trainer_id', $trainerId)->get();
+    }
 
+    public function getExamWithQuestionsByTrainerAndType($trainerId, $type)
+    {
+        return Exam::with('questions.choices')
+                   ->where('trainer_id', $trainerId)
+                   ->where('type', $type)
+                   ->firstOrFail();
+    }
 
 
 public function startExamAttemptById(int $examAttemptId): ExamAttempt

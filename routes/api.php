@@ -96,6 +96,8 @@ Route::get('/employees', [EmployeeController::class, 'getAllEmployes']);
 Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
 Route::put('/employees/{employee}', [EmployeeController::class, 'update']);
 Route::get('/employees/count', [EmployeeController::class, 'countEmployees']);
+Route::get('/exam/{trainerId}/type/{type}', [ExamController::class, 'showByTrainerAndType']);
+    Route::get('/exam/{trainerId}', [ExamController::class, 'indexByTrainer']);
 });
 
 
@@ -110,6 +112,7 @@ Route::post('/exams', [ExamController::class, 'store'])->middleware('auth:api');
 Route::post('/exams/start', [ExamController::class, 'start'])->middleware('auth:api');
 Route::post('/exams/submit', [ExamController::class, 'submitAnswers'])->middleware('auth:api');
 Route::post('/generate', [ExamController::class, 'showRandomQuestions'])->middleware('auth:api');
+
 
 Route::get('/student/evaluation', [ExamController::class, 'evaluate'])->middleware('auth:api');
 Route::get('/certificate/generate/{studentId}', [CertificateController::class, 'generate']);
