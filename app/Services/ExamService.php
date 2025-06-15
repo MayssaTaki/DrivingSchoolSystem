@@ -79,7 +79,15 @@ public function createExamWithQuestions(array $data)
     {
         return $this->examRepo->getExamWithQuestions($type);
     }
+ public function listExamsByTrainer($trainerId)
+    {
+        return $this->examRepo->getAllExamsByTrainerId($trainerId);
+    }
 
+    public function showExamByTrainerAndType($trainerId, $type)
+    {
+        return $this->examRepo->getExamWithQuestionsByTrainerAndType($trainerId, $type);
+    }
     public function processSubmission($examId, $answers)
     {
         return $this->examRepo->submitExam($examId, $answers);
