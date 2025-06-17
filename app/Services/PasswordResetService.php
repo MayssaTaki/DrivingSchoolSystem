@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Repositories\PasswordResetRepository;
+use App\Repositories\Contracts\PasswordResetRepositoryInterface;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -10,24 +10,30 @@ use Carbon\Carbon;
 use App\Exceptions\InvalidResetTokenException;
 use Illuminate\Support\Facades\Http;
 use App\Services\LogService;
+use App\Services\Interfaces\LogServiceInterface;
+
 use App\Services\RateLimitService;
+use App\Services\Interfaces\RateLimitServiceInterface;
+use App\Services\Interfaces\PasswordResetServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
 use App\Traits\LogsActivity;
 
-class PasswordResetService
+class PasswordResetService implements PasswordResetServiceInterface
 {
     use LogsActivity;
 
-    protected PasswordResetRepository $repository;
-    protected LogService $logService;
-    protected RateLimitService $rateLimiter;
-    protected ActivityLoggerService $activityLogger;
+    protected PasswordResetRepositoryInterface $repository;
+    protected LogServiceInterface $logService;
+    protected RateLimitServiceInterface $rateLimiter;
+    protected ActivityLoggerServiceInterface $activityLogger;
 
     public function __construct(
-        PasswordResetRepository $repository,
-        LogService $logService,
-                ActivityLoggerService $activityLogger,
+        PasswordResetRepositoryInterface $repository,
+        LogServiceInterface $logService,
+                ActivityLoggerServiceInterface $activityLogger,
 
-        RateLimitService $rateLimiter
+        RateLimitServiceInterface $rateLimiter
     ) {
         $this->repository = $repository;
         $this->logService = $logService;

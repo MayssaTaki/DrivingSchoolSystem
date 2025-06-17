@@ -6,16 +6,19 @@ use App\Models\Car;
 
 use App\Models\TrainingSession;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
-
+use App\Services\Interfaces\TrainingSessionServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
-class TrainingSessionService
+class TrainingSessionService implements TrainingSessionServiceInterface
 {
     public function __construct( TrainingSessionRepositoryInterface $repo,
-            TransactionService $transactionService,        ActivityLoggerService $activityLogger,
-        LogService $logService,
+            TransactionServiceInterface $transactionService,        ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface $logService,
         CarRepositoryInterface $carRepo,
 
 ) {

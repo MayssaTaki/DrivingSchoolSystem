@@ -3,30 +3,39 @@ namespace App\Services;
 
 use App\Repositories\Contracts\BookingRepositoryInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
+
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Repositories\StudentRepository;
+use App\Repositories\Contracts\StudentRepositoryInterface;
+use App\Services\Interfaces\BookingServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+use App\Services\Interfaces\EmailVerificationServiceInterface;
+
 
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class BookingService
-{ protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
+class BookingService implements BookingServiceInterface
+{ protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface $logService;
+        protected StudentRepositoryInterface $studentRepo;
+
         protected TransactionService $transactionService;
-        protected EmailVreificationService $emailservice;
+        protected EmailVerificationServiceInterface $emailservice;
 
 
 
     public function __construct(
-                EmailVerificationService $emailService,
+                EmailVerificationServiceInterface $emailService,
         protected BookingRepositoryInterface $bookingRepo,
         protected CarRepositoryInterface $carRepo,
-        TransactionService $transactionService,
-        ActivityLoggerService $activityLogger,
-        LogService $logService,
-                StudentRepository $studentRepo,
+        TransactionServiceInterface $transactionService,
+        ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface $logService,
+                StudentRepositoryInterface $studentRepo,
 
         protected TrainingSessionRepositoryInterface $sessionRepo
     ) {

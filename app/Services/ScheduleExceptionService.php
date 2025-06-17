@@ -12,20 +12,24 @@ use App\Repositories\Contracts\ScheduleExceptionRepositoryInterface;
 use App\Models\ScheduleException;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 use App\Repositories\Contracts\TrainerRepositoryInterface;
+use App\Services\Interfaces\ScheduleExceptionServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
 
 
 
-class ScheduleExceptionService
+class ScheduleExceptionService implements ScheduleExceptionServiceInterface
 {
     protected $repository;
-    protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
+    protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface $logService;
 protected TrainerRepositoryInterface $trainerrepo;
 
     public function __construct(ScheduleExceptionRepositoryInterface $exceptionRepo,
      protected TrainingSessionRepositoryInterface $sessionRepo,
-             ActivityLoggerService $activityLogger, LogService $logService,
-                     TransactionService $transactionService,
+             ActivityLoggerServiceInterface $activityLogger, LogServiceInterface $logService,
+                     TransactionServiceInterface $transactionService,
                      TrainerRepositoryInterface $trainerrepo,
 
 

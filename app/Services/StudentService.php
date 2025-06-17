@@ -18,6 +18,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Events\ImageUploaded;
+use App\Services\Interfaces\StudentServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
+use App\Services\Interfaces\EmailVerificationServiceInterface;
+use App\Services\Interfaces\UserServiceInterface;
 
 
 
@@ -25,23 +31,27 @@ use App\Events\ImageUploaded;
 
 
 
-class StudentService
+class StudentService implements StudentServiceInterface
 {
-    use LogsActivity;
 
-    protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
-protected EmailVreificationService $emailservice;
+    protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface  $logService;
+protected EmailVerificationServiceInterface $emailservice;
+protected  $userRepository;
+protected  $transactionService;
+protected  $studentRepository;
+protected  $userService;
+protected  $emailService;
 
 
     public function __construct(
         StudentRepositoryInterface $studentRepository,
-        TransactionService $transactionService,
-        UserService $userService,
+        TransactionServiceInterface $transactionService,
+        UserServiceInterface $userService,
         UserRepositoryInterface $userRepository,
-        ActivityLoggerService $activityLogger,
-        LogService $logService,
-                EmailVerificationService $emailService,
+        ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface  $logService,
+        EmailVerificationServiceInterface $emailService
 
         
 
@@ -97,7 +107,7 @@ protected EmailVreificationService $emailservice;
                 );
                 
 
-                $this->clearstudentCache();
+                $this->clearStudentCache();
 
                 return $student;
             });
@@ -107,7 +117,7 @@ protected EmailVreificationService $emailservice;
                 'data' => $data,
                 'trace' => $e->getTraceAsString()
             ], 'student');
-            throw new StudentRegistrationException('فشل تسجيل الأستاذ والطالب : ' . $e->getMessage());
+            throw new StudentRegistrationException('فشل تسجيل الطالب : ' . $e->getMessage());
         }
     }
 

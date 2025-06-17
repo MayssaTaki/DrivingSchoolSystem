@@ -4,7 +4,7 @@ use App\Http\Requests\GetSessionCountsRequest;
 use App\Http\Requests\RecommendedSessionRequest;
 
 
-use App\Services\TrainingSessionService;
+use App\Services\Interfaces\TrainingSessionServiceInterface;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\TrainerSessionDayResource;
 use App\Http\Requests\GetTrainerSessionsRequest;
@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 
 class TrainingSessionController extends Controller
 {
-    public function __construct(private TrainingSessionService $sessionService) {}
+    public function __construct(private TrainingSessionServiceInterface $sessionService) {}
 
  public function getTrainerSessions(GetTrainerSessionsRequest $request): JsonResponse
 {

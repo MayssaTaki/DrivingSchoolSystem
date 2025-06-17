@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchUserRequest;
 use App\Http\Requests\UpdateUserProfileRequest;
 
-use App\Services\UserService;
+use App\Services\Interfaces\UserServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
@@ -15,7 +15,7 @@ class UserController extends Controller
 {
     protected $userService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserServiceInterface $userService)
     {
         $this->userService = $userService;
     }

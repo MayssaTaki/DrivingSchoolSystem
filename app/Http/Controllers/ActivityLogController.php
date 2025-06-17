@@ -3,14 +3,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Services\ActivityLogService;
+use App\Services\Interfaces\ActivityLogServiceInterface;
+
 use Illuminate\Http\Request;
 use App\Http\Resources\ActivityLogResource;
 
 class ActivityLogController extends Controller
 {
-    protected ActivityLogService $service;
+    protected ActivityLogServiceInterface $service;
 
-    public function __construct(ActivityLogService $service)
+    public function __construct(ActivityLogServiceInterface $service)
     {
         $this->service = $service;
     }

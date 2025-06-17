@@ -6,17 +6,20 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Services\Interfaces\TrainerReviewServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
 
-
-class TrainerReviewService
+class TrainerReviewService implements TrainerReviewServiceInterface
 {
     protected $repo;
-    protected ActivityLoggerService $activityLogger;
+    protected ActivityLoggerServiceInterface $activityLogger;
 
     public function __construct(TrainerReviewRepositoryInterface $repo,
-    ActivityLoggerService $activityLogger,        TransactionService $transactionService,
+    ActivityLoggerServiceInterface $activityLogger,        TransactionServiceInterface $transactionService,
 
-     protected LogService $logService)
+     protected LogServiceInterface $logService)
     {        $this->activityLogger = $activityLogger;
         $this->transactionService = $transactionService;
 

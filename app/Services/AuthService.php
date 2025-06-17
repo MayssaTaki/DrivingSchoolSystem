@@ -8,25 +8,31 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Auth\AuthenticationException;
+use App\Services\Interfaces\AuthServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+
+use App\Services\Interfaces\RateLimitServiceInterface;
 
 use App\Services\RateLimitService;
 
-class AuthService
+class AuthService implements AuthServiceInterface 
 {
     use LogsActivity;
 
     protected RefreshTokenRepositoryInterface $refreshRepo;
-    protected LogService $logService;
-    protected RateLimitService $rateLimiter;
+    protected LogServiceInterface $logService;
+    protected RateLimitServiceInterface $rateLimiter;
 
     public function __construct(
-        RefreshTokenRepositoryInterface $refreshRepo,
-        RateLimitService $rateLimiter
-    ) {
-        $this->rateLimiter = $rateLimiter;
-        $this->refreshRepo = $refreshRepo;
-        $this->logService = app()->make(LogService::class);
-    }
+    RefreshTokenRepositoryInterface $refreshRepo,
+    RateLimitServiceInterface $rateLimiter,
+    LogServiceInterface $logService
+) {
+    $this->rateLimiter = $rateLimiter;
+    $this->refreshRepo = $refreshRepo;
+    $this->logService = $logService;
+}
+
 
     public function login(array $credentials): array
     {

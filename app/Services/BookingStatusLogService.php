@@ -3,8 +3,9 @@ namespace App\Services;
 
 use App\Repositories\Contracts\BookingStatusLogRepositoryInterface;
 use App\Exports\BookingStatusLogsExport;
+use App\Services\Interfaces\BookingStatusLogServiceInterface;
 
-class BookingStatusLogService 
+class BookingStatusLogService implements BookingStatusLogServiceInterface
 {
     protected $statusLogRepo;
 

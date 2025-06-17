@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Repositories;
-use Exception;
-use App\Models\User;
+
 use App\Models\Student;
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\Contracts\StudentRepositoryInterface;

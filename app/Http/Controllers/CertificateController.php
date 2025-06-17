@@ -2,14 +2,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Services\CertificateService;
+use App\Services\Interfaces\CertificateServiceInterface;
 use Illuminate\Http\JsonResponse;
 
 class CertificateController extends Controller
 {
     protected $certificateService;
 
-    public function __construct(CertificateService $certificateService)
+    public function __construct(CertificateServiceInterface $certificateService)
     {
         $this->certificateService = $certificateService;
     }

@@ -4,6 +4,11 @@ namespace App\Services;
 
 use App\Models\Car;
 use App\Repositories\Contracts\CarFaultRepositoryInterface;
+use App\Services\Interfaces\CarFaultServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+
 use App\Repositories\Contracts\CarRepositoryInterface;
 use Illuminate\Validation\ValidationException;
 
@@ -11,20 +16,20 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 
 
-class CarFaultService
+class CarFaultService implements CarFaultServiceInterface
 {
     protected $repo;
-    protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
+    protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface $logService;
     protected CarRepositoryInterface $carRepo;
-    protected TransactionService $transactionService;
+    protected TransactionServiceInterface $transactionService;
 
     public function __construct(
         CarFaultRepositoryInterface $repo,
-        ActivityLoggerService $activityLogger,
-        LogService $logService,
+        ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface $logService,
         CarRepositoryInterface $carRepo,
-        TransactionService $transactionService,
+        TransactionServiceInterface $transactionService,
 
 
     ) {

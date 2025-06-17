@@ -1,14 +1,17 @@
 <?php
 namespace App\Services;
+use App\Services\Interfaces\ActivityLogServiceInterface;
 
 use App\Repositories\ActivityLogRepository;
+use App\Repositories\Contracts\ActivityLogRepositoryInterface;
+
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class ActivityLogService
+class ActivityLogService implements ActivityLogServiceInterface
 {
     protected ActivityLogRepository $repository;
 
-    public function __construct(ActivityLogRepository $repository)
+    public function __construct(ActivityLogRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }

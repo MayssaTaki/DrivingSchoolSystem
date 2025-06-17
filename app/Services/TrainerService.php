@@ -5,12 +5,19 @@ namespace App\Services;
 use App\Models\Trainer;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\LogsActivity;
+use App\Services\Interfaces\LogServiceInterface;
+
 use App\Repositories\UserRepository;
 use App\Repositories\TrainerRepository;
-use App\Services\TransactionService;
-use App\Services\EmailVreificationService;
+use App\Services\Interfaces\TrainerServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
+use App\Services\Interfaces\EmailVerificationServiceInterface;
+use App\Services\Interfaces\UserServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
 
-use App\Services\UserService;
+
+
+
 use App\Exceptions\TrainerRegistrationException;
 use App\Exceptions\TrainerNotFoundException;
 use App\Exceptions\TrainerUpdateException;
@@ -27,22 +34,27 @@ use App\Events\ImageUploaded;
 
 
 
-class TrainerService 
+class TrainerService  implements TrainerServiceInterface
 {
     use LogsActivity;
 
-    protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
-protected EmailVreificationService $emailservice;
+    protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface $logService;
+protected EmailVerificationServiceInterface $emailservice;
+protected   $userRepository;
+protected   $transactionService;
+protected   $trainerRepository;
+protected   $userService;
+
 
     public function __construct(
         TrainerRepositoryInterface $trainerRepository,
-        TransactionService $transactionService,
-        UserService $userService,
+        TransactionServiceInterface $transactionService,
+        UserServiceInterface $userService,
         UserRepositoryInterface $userRepository,
-        ActivityLoggerService $activityLogger,
-        LogService $logService,
-        EmailVerificationService $emailService,
+        ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface $logService,
+        EmailVerificationServiceInterface $emailService
 
 
         

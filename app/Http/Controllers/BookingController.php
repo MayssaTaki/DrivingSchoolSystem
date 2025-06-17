@@ -6,14 +6,14 @@ use App\Http\Requests\BookingRequest;
 use App\Http\Requests\AutoBookRequest;
 use Illuminate\Validation\ValidationException;
 
-use App\Services\BookingService;
+use App\Services\Interfaces\BookingServiceInterface;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\BookingResource;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
-    public function __construct(protected BookingService $bookingService) {}
+    public function __construct(protected BookingServiceInterface $bookingService) {}
 
    public function store(BookingRequest $request): JsonResponse
 {

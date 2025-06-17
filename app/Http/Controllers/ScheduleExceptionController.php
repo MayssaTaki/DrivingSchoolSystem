@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ScheduleExceptionRequest;
-use App\Services\ScheduleExceptionService;
+use App\Services\Interfaces\ScheduleExceptionServiceInterface;
 use App\Models\ScheduleException;
 use App\Http\Resources\ScheduleExceptionResource;
 use App\Http\Requests\GetTrainerExceptionsRequest;
@@ -15,7 +15,7 @@ class ScheduleExceptionController extends Controller
 {
     protected $service;
 
-    public function __construct(ScheduleExceptionService $service)
+    public function __construct(ScheduleExceptionServiceInterface $service)
     {
         $this->service = $service;
     }

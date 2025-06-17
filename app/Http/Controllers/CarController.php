@@ -13,13 +13,13 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Models\Car;
 use Illuminate\Http\Request;
 
-use App\Services\CarService;
+use App\Services\Interfaces\CarServiceInterface;
 
 
 class CarController extends Controller
 {
 
-    public function __construct(carService $carService)
+    public function __construct(carServiceInterface $carService)
     {
         $this->carService = $carService;
     }
