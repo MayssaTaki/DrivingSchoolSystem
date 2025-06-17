@@ -6,15 +6,20 @@ use App\Exceptions\BookingNotCompletedException;
 use App\Exceptions\BookingAlreadyFeedbackException;
 use App\Models\Feedback_student;
 use App\Models\Booking;
+use App\Services\Interfaces\FeedbackStudentServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
 
-class FeedbackStudentService
+
+
+class FeedbackStudentService implements FeedbackStudentServiceInterface
 {
-    protected ActivityLoggerService $activityLogger;
+    protected ActivityLoggerServiceInterface $activityLogger;
 
    public function __construct(
     FeedbackStudentRepositoryInterface $feedbackRepo,
-    ActivityLoggerService $activityLogger,
-    LogService $logService
+    ActivityLoggerServiceInterface $activityLogger,
+    LogServiceInterface $logService
 ) {
     $this->feedbackRepo = $feedbackRepo;
     $this->activityLogger = $activityLogger;

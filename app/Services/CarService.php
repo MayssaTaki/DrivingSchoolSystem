@@ -8,17 +8,20 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Exceptions\CarNotFoundException;
 use App\Events\ImageUploaded;
+use App\Services\Interfaces\CarServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
 
-class CarService
+class CarService implements CarServiceInterface
 {
     
-    protected LogService $logService;
-    protected ActivityLoggerService $activityLogger;
+    protected LogServiceInterface $logService;
+    protected ActivityLoggerServiceInterface $activityLogger;
 
     public function __construct(
        
-        CarRepositoryInterface $carRepository,LogService $logService
-        ,        ActivityLoggerService $activityLogger,
+        CarRepositoryInterface $carRepository,LogServiceInterface $logService
+        ,        ActivityLoggerServiceInterface $activityLogger,
 
         
     ) {

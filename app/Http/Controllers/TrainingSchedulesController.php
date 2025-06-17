@@ -9,6 +9,7 @@ use App\Services\TrainingSchedulesService;
 use App\Http\Resources\TrainingSchedulesResource;
 use App\Http\Requests\StoreTrainingScheduleRequest;
 use App\Http\Requests\UpdateTrainingScheduleRequest;
+use App\Services\Interfaces\TrainingSchedulesServiceInterface;
 
 
 use Illuminate\Auth\Access\AuthorizationException;
@@ -19,7 +20,7 @@ class TrainingSchedulesController extends Controller
 {
     protected $trainingService;
 
-    public function __construct(TrainingSchedulesService $trainingService)
+    public function __construct(TrainingSchedulesServiceInterface $trainingService)
     {
         $this->trainingService = $trainingService;
     }

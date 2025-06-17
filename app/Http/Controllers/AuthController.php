@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\AuthService;
+use App\Services\Interfaces\AuthServiceInterface;
+
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -18,7 +20,7 @@ class AuthController extends Controller
     protected $authService;
   //  protected PasswordResetService $service;
 
-    public function __construct(AuthService $authService)
+    public function __construct(AuthServiceInterface $authService)
     {
         $this->authService = $authService;
        // $this->service = $service;

@@ -1,16 +1,16 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Services\LogService;
+use App\Services\Interfaces\LogServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\LogEntryResource;
 
 class LogController extends Controller
 {
-    protected LogService $logService;
+    protected LogServiceInterface $logService;
 
-    public function __construct(LogService $logService)
+    public function __construct(LogServiceInterface $logService)
     {
        
         $this->logService = $logService;

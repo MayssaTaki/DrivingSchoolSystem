@@ -13,21 +13,26 @@ use Illuminate\Auth\Access\AuthorizationException;
 use App\Exceptions\TrainingScheduleException;
 use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\Log;
+use App\Services\Interfaces\TrainingSchedulesServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
 
-class TrainingSchedulesService
+
+class TrainingSchedulesService implements TrainingSchedulesServiceInterface
 {
     use LogsActivity;
 
-    protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
+    protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface $logService;
     protected TrainingSchedulesRepositoryInterface $trainingRepository;
-    protected TransactionService $transactionService;
+    protected TransactionServiceInterface $transactionService;
 
     public function __construct(
         TrainingSchedulesRepositoryInterface $trainingRepository,
-        TransactionService $transactionService,
-        ActivityLoggerService $activityLogger,
-        LogService $logService
+        TransactionServiceInterface $transactionService,
+        ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface $logService
     ) {
         $this->trainingRepository = $trainingRepository;
         $this->transactionService = $transactionService;

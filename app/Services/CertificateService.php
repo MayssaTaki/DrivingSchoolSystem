@@ -1,23 +1,30 @@
 <?php
 namespace App\Services;
+use App\Services\Interfaces\CertificateServiceInterface;
 
 use App\Repositories\Contracts\CertificateRepositoryInterface;
-use App\Services\ExamServiceInterface;
+use App\Services\Interfaces\ExamServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+
+
+
 use App\Models\Student;
-class CertificateService
+class CertificateService implements CertificateServiceInterface
 {
     protected CertificateRepositoryInterface $certificateRepo;
-    protected ExamService $Service;
-    protected TransactionService $transactionService;
-protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
+    protected ExamServiceInterface $Service;
+    protected TransactionServiceInterface $transactionService;
+protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface $logService;
 
     public function __construct(
         CertificateRepositoryInterface $certificateRepo,
-        ExamService $Service,
-         TransactionService $transactionService,
-        ActivityLoggerService $activityLogger,
-        LogService $logService
+        ExamServiceInterface $Service,
+         TransactionServiceInterface $transactionService,
+        ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface $logService
     ) {
         $this->certificateRepo = $certificateRepo;
         $this->Service = $Service;

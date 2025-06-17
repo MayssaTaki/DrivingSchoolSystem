@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GiveFeedbackStudentRequest;
 use App\Http\Resources\FeedbackStudentResource;
-use App\Services\FeedbackStudentService;
+use App\Services\Interfaces\FeedbackStudentServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class FeedbackStudentController extends Controller
 {
     public function __construct(
-        protected FeedbackStudentService $service
+        protected FeedbackStudentServiceInterface $service
     ) {}
 
     public function store(GiveFeedbackStudentRequest $request): JsonResponse

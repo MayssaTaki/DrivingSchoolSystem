@@ -9,14 +9,14 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Http\Requests\StudentRegisterRequest;
 use App\Http\Requests\UserRegisterRequest;
-use App\Services\StudentService;
+use App\Services\Interfaces\StudentServiceInterface;
 
 
 class StudentController extends Controller
 {
     protected $studentService;
 
-    public function __construct(studentService $studentService)
+    public function __construct(studentServiceInterface $studentService)
     {
         $this->studentService = $studentService;
     }

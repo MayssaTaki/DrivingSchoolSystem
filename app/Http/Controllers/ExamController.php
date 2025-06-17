@@ -9,13 +9,15 @@ use App\Http\Requests\SubmitExamRequest;
 use Illuminate\Support\Arr;
 
 use App\Services\ExamService;
+use App\Services\Interfaces\ExamServiceInterface;
+
 use Illuminate\Http\Request;
 
 class ExamController extends Controller
 {
     protected $examService;
 
-    public function __construct(ExamService $examService)
+    public function __construct(ExamServiceInterface $examService)
     {
         $this->examService = $examService;
     }

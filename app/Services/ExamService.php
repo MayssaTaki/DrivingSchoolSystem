@@ -1,6 +1,6 @@
 <?php
 namespace App\Services;
-use App\Services\TransactionService;
+use App\Services\Interfaces\TransactionServiceInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Models\Exam;
@@ -8,19 +8,24 @@ use App\Models\Question;
 use Carbon\Carbon;
 
 use App\Models\ExamAttemptQuestion;
+use App\Services\Interfaces\ExamServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
 
 use App\Models\ExamAttempt;
 
 use App\Repositories\Contracts\ExamRepositoryInterface;
 
-class ExamService
+class ExamService implements ExamServiceInterface
 {
     protected $examRepo;
-   protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
+        protected $transactionService;
+
+   protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface $logService;
     public function __construct(ExamRepositoryInterface $examRepo,
-    ActivityLoggerService $activityLogger,
-        LogService $logService,        TransactionService $transactionService,
+    ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface $logService,        TransactionServiceInterface $transactionService,
 )
     {
         $this->examRepo = $examRepo;
@@ -201,12 +206,12 @@ public function getExamQuestionsForStudent(int $trainerId, string $type, int $co
 }
 
 
-private function extractQuestionText($text)
+public function extractQuestionText($text)
 {
     return preg_replace('/\(سؤال رقم \d+\)/', '', $text);
 }
 
-private function extractQuestionNumber($text)
+public function extractQuestionNumber($text)
 {
     preg_match('/\(سؤال رقم (\d+)\)/', $text, $matches);
     return $matches[1] ?? null;

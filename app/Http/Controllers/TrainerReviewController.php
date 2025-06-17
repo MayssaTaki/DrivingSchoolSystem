@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Http\Requests\storeTrainerReviewRequest;
-use App\Services\TrainerReviewService;
+use App\Services\Interfaces\TrainerReviewServiceInterface;
 use App\Http\Resources\TrainerReviewResource;
 use Illuminate\Http\JsonResponse;
 
@@ -10,7 +10,7 @@ class TrainerReviewController extends Controller
 {
     protected $service;
 
-    public function __construct(TrainerReviewService $service)
+    public function __construct(TrainerReviewServiceInterface $service)
     {
         $this->service = $service;
     }

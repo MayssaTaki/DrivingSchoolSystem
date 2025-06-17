@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Http\Requests\storeCarFaultRequest;
-use App\Services\CarFaultService;
+use App\Services\Interfaces\CarFaultServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\CarFaultRequest;
@@ -13,7 +13,7 @@ class CarFaultController extends Controller
 {
     protected $service;
 
-    public function __construct(CarFaultService $service)
+    public function __construct(CarFaultServiceInterface $service)
     {
         $this->service = $service;
     }

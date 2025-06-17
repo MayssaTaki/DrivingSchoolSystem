@@ -10,7 +10,7 @@ use App\Models\Trainer;
 use Illuminate\Http\Request;
 use App\Http\Requests\TrainerRegisterRequest;
 use App\Http\Requests\UserRegisterRequest;
-use App\Services\TrainerService;
+use App\Services\Interfaces\TrainerServiceInterface;
 use App\Exceptions\TrainerNotFoundException;
 
 use Illuminate\Auth\Access\AuthorizationException;
@@ -21,7 +21,7 @@ class TrainerController extends Controller
 {
     protected $trainerService;
 
-    public function __construct(trainerService $trainerService)
+    public function __construct(trainerServiceInterface $trainerService)
     {
         $this->trainerService = $trainerService;
     }

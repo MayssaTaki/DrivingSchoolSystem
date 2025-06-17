@@ -10,16 +10,20 @@ use App\Traits\LogsActivity;
 use App\Repositories\UserRepository;
 use App\Exceptions\UserRegistrationException;
 use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Services\Interfaces\UserServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
 
-class UserService
+
+class UserService implements UserServiceInterface
 {
     use LogsActivity;
 
-    protected LogService $logService;
+    protected LogServiceInterface $logService;
+    protected  $userRepository;
 
 
     public function __construct(UserRepositoryInterface $userRepository,
-    LogService $logService
+    LogServiceInterface $logService
     )
     {
         $this->userRepository = $userRepository;

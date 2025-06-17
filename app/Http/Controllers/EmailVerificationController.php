@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Services\EmailVerificationService;
+use App\Services\Interfaces\EmailVerificationServiceInterface;
 use App\Http\Requests\VerifyEmailRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -9,9 +9,9 @@ use App\Http\Requests\ResendVerificationRequest;
 
 class EmailVerificationController extends Controller
 {
-    protected EmailVerificationService $service;
+    protected EmailVerificationServiceInterface $service;
 
-    public function __construct(EmailVerificationService $service)
+    public function __construct(EmailVerificationServiceInterface $service)
     {
         $this->service = $service;
     }

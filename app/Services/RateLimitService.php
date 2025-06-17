@@ -1,11 +1,12 @@
 <?php
 namespace App\Services;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use App\Services\Interfaces\RateLimitServiceInterface;
 
 use App\Repositories\Contracts\RateLimiterInterface;
 use Illuminate\Support\Str;
 
-class RateLimitService
+class RateLimitService implements RateLimitServiceInterface
 {
     protected RateLimiterInterface $limiter;
 

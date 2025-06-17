@@ -8,23 +8,31 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Exceptions\EmployeeRegistrationException;
 use App\Exceptions\EmployeeNotFoundException;
 use App\Exceptions\EmployeeUpdateException;
+use App\Services\Interfaces\EmployeeServiceInterface;
+use App\Services\Interfaces\TransactionServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\UserServiceInterface;
 
-class EmployeeService
+
+
+
+class EmployeeService implements EmployeeServiceInterface
 {
     protected EmployeeRepositoryInterface $employeeRepository;
-    protected TransactionService $transactionService;
-    protected UserService $userService;
+    protected TransactionServiceInterface $transactionService;
+    protected UserServiceInterface $userService;
     protected UserRepositoryInterface $userRepository;
-    protected ActivityLoggerService $activityLogger;
-    protected LogService $logService;
+    protected ActivityLoggerServiceInterface $activityLogger;
+    protected LogServiceInterface $logService;
 
     public function __construct(
         EmployeeRepositoryInterface $employeeRepository,
-        TransactionService $transactionService,
-        UserService $userService,
+        TransactionServiceInterface $transactionService,
+        UserServiceInterface $userService,
         UserRepositoryInterface $userRepository,
-        ActivityLoggerService $activityLogger,
-        LogService $logService
+        ActivityLoggerServiceInterface $activityLogger,
+        LogServiceInterface $logService
     ) {
         $this->employeeRepository = $employeeRepository;
         $this->transactionService = $transactionService;

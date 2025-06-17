@@ -3,8 +3,9 @@ namespace App\Services;
 use App\Models\LogEntry;
 use App\Repositories\Contracts\LogRepositoryInterface;
 use Illuminate\Support\Facades\Gate;
+use App\Services\Interfaces\LogServiceInterface;
 
-class LogService
+class LogService implements LogServiceInterface
 {
     protected LogRepositoryInterface $logRepository;
 

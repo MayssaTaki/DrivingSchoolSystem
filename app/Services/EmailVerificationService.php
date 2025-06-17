@@ -11,23 +11,27 @@ use App\Services\RateLimitService;
 use App\Services\LogService;
 use Request;
 use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Services\Interfaces\EmailVerificationServiceInterface;
+use App\Services\Interfaces\RateLimitServiceInterface;
+use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Services\Interfaces\LogServiceInterface;
 
-class EmailVerificationService
+class EmailVerificationService implements EmailVerificationServiceInterface
 {
     use LogsActivity;
-    protected ActivityLoggerService $activityLogger;
+    protected ActivityLoggerServiceInterface $activityLogger;
 
     protected EmailVerificationRepositoryInterface $repository;
-    protected RateLimitService $rateLimiter;
-    protected LogService $logService;
+    protected RateLimitServiceInterface $rateLimiter;
+    protected LogServiceInterface $logService;
         protected UserRepositoryInterface $userRepository;
 
 
     public function __construct(
         EmailVerificationRepositoryInterface $repository,
-        RateLimitService $rateLimiter,
-        LogService $logService,
-                ActivityLoggerService $activityLogger,
+        RateLimitServiceInterface $rateLimiter,
+        LogServiceInterface $logService,
+                ActivityLoggerServiceInterface $activityLogger,
 
                 UserRepositoryInterface $userRepository
 

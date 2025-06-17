@@ -6,15 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordResetRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\VerifyResetCodeRequest;
-use App\Services\PasswordResetService;
+use App\Services\Interfaces\PasswordResetServiceInterface;
 use App\Exceptions\InvalidResetTokenException;
 use Illuminate\Http\JsonResponse;
 
 class PasswordResetController extends Controller
 {
-    protected PasswordResetService $passwordResetService;
+    protected PasswordResetServiceInterface $passwordResetService;
 
-    public function __construct(PasswordResetService $passwordResetService)
+    public function __construct(PasswordResetServiceInterface $passwordResetService)
     {
         $this->passwordResetService = $passwordResetService;
     }

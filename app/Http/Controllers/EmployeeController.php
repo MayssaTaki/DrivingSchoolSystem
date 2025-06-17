@@ -10,13 +10,15 @@ use Illuminate\Http\Request;
 use App\Http\Requests\EmployeeRegisterRequest;
 use App\Http\Requests\UserRegisterRequest;
 use App\Services\EmployeeService;
+use App\Services\Interfaces\EmployeeServiceInterface;
+
 
 
 class EmployeeController extends Controller
 {
     protected $employeeService;
 
-    public function __construct(employeeService $employeeService)
+    public function __construct(EmployeeServiceInterface $employeeService)
     {
         $this->employeeService = $employeeService;
     }
