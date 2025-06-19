@@ -17,6 +17,7 @@ class Student extends Model
          'phone_number',
           'image',
            'gender',
+           'left_hand_disabled'
         
     ];
     public function bookings()

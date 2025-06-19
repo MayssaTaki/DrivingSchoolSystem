@@ -33,7 +33,7 @@ class TrainerRegisterRequest extends FormRequest
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
 'license_number' => [
     'required',
-    'regex:/^\d{7}$/',
+    'regex:/^\d{6}$/',
     'unique:trainers,license_number'
 ],
         'license_expiry_date' => 'required|date|after_or_equal:today',
@@ -55,7 +55,7 @@ class TrainerRegisterRequest extends FormRequest
             'password.min' => 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
             'password.max' => 'يجب ألا تتجاوز كلمة المرور 30 حرفاً.',
             'password.regex' => 'يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم واحد على الأقل.',
-            'license_number.regex' => 'يجب أن يتكون رقم الرخصة من 7 أرقام.',
+            'license_number.regex' => 'يجب أن يتكون رقم الرخصة من 6 أرقام.',
 
             'address.required' => 'العنوان مطلوب.',
             'address.max' => 'يجب ألا يتجاوز العنوان 255 حرفاً.',

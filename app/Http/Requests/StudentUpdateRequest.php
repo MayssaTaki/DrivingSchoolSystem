@@ -53,7 +53,8 @@ public function rules(): array
         'date_of_Birth' =>'sometimes|date|before_or_equal:today',
         'gender' => 'sometimes|in:female,male',
         'address' => 'sometimes|string|max:100',
-            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+     'left_hand_disabled' => 'sometimes|boolean',
+        'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
     ];
 
     return $rules;

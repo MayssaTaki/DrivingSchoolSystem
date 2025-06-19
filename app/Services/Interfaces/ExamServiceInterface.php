@@ -11,8 +11,7 @@ interface ExamServiceInterface
     public function showExamByTrainerAndType($trainerId, $type);
     public function processSubmission($examId, $answers);
     public function startExamByAttemptId(int $examAttemptId);
-    public function getExamQuestionsForStudent(int $trainerId, string $type, int $count = 10, int $studentId);
-    public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10);
+public function getExamQuestionsForStudent(string $type, int $count = 10, int $studentId);    public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10);
     public function extractQuestionText($text);
     public function extractQuestionNumber($text);
     public function submitExam(int $attemptId, array $answers);

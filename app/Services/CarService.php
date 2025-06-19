@@ -71,6 +71,7 @@ class CarService implements CarServiceInterface
                   'is_for_special_needs' => $data['is_for_special_needs'],
 
                     'image' => $data['image']?? null,
+                    
                 ]);
 
                 $this->activityLogger->log(

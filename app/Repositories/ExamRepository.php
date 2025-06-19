@@ -71,14 +71,16 @@ public function createExamWithQuestions(array $data): Exam
 
 
 
-    public function hasCompletedSessions(int $trainerId): ?int
-    {
-        $session = Booking::where('trainer_id', $trainerId)
-                          ->where('status', 'completed')
-                          ->first();
+   public function hasCompletedSessions(int $studentId): ?int
+{
+    $session = Booking::where('student_id', $studentId)
+                      ->where('status', 'completed')
+                      ->orderBy('created_at', 'desc')
+                      ->first();
 
-        return $session?->trainer_id;
-    }
+    return $session?->trainer_id;
+}
+
 
 
 
@@ -103,7 +105,7 @@ public function createExamWithQuestions(array $data): Exam
     return Exam::with('questions.choices')
         ->where('trainer_id', $trainerId)
         ->where('type', $type)
-        ->firstOrFail(); 
+         ->first(); 
 }
 
 public function getAllExamsByTrainerId($trainerId)

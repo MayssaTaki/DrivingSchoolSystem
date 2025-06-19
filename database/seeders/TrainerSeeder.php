@@ -17,7 +17,6 @@ class TrainerSeeder extends Seeder
 
         foreach ($users as $user) {
 
-            // توليد رقم رخصة فريد
             do {
                 $licenseNumber = $faker->unique()->numerify('#######'); // 7 أرقام
             } while (Trainer::where('license_number', $licenseNumber)->exists());
