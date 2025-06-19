@@ -6,6 +6,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use App\Models\Exam;
 use App\Models\Question;
 use Carbon\Carbon;
+use App\Events\ImageUploaded;
+use App\Exceptions\ExamException;
 
 use App\Models\ExamAttemptQuestion;
 use App\Services\Interfaces\ExamServiceInterface;
@@ -35,15 +37,27 @@ class ExamService implements ExamServiceInterface
 
     }
 
-
+    protected function checkTrainerApproval($trainer)
+{
+    if ($trainer->status !== 'approved') {
+        throw new ExamException("لا يمكن إنشاء امتحان  لأن حالة حسابك غير معتمدة.", 403);
+    }
+}
 
 
 public function createExamWithQuestions(array $data)
-{
+{ 
+    $trainer = auth()->user()->trainer;
     try {
-        return $this->transactionService->run(function () use ($data) {
+        return $this->transactionService->run(function () use ($data, $trainer) {
+                        $this->checkTrainerApproval($trainer);
             $exam = $this->examRepo->createExamWithQuestions($data);
-
+     foreach ($exam->questions as $question) {
+                if ($question->image_path) {
+                    $fullPath = storage_path('app/public/' . $question->image_path);
+                    event(new ImageUploaded($fullPath));
+                }
+            }
             $this->activityLogger->log(
                 'تم إنشاء امتحان جديد',
                 [
@@ -143,9 +157,10 @@ public function startExamByAttemptId(int $examAttemptId)
 
 
 
-public function getExamQuestionsForStudent(int $trainerId, string $type, int $count = 10, int $studentId)
+public function getExamQuestionsForStudent(string $type, int $count = 10, int $studentId)
 {
-    $trainerId = $this->examRepo->hasCompletedSessions($trainerId);
+    $trainerId = $this->examRepo->hasCompletedSessions($studentId);
+
     if (!$trainerId) {
         return null;
     }
@@ -162,6 +177,7 @@ public function getExamQuestionsForStudent(int $trainerId, string $type, int $co
         'exam_data' => $examData
     ];
 }
+
 
 
     public function getRandomQuestionsForTrainer(int $trainerId, string $type, int $count = 10)

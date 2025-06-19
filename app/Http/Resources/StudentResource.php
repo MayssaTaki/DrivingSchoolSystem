@@ -25,6 +25,8 @@ class StudentResource extends JsonResource
                 'gender' => $student->gender,
                 'address' => $student->address,
                 'image' => $student->image,
+                 'left_hand_disabled' => $student->left_hand_disabled,
+
                 'created_at' => $student->created_at,
                 'updated_at' => $student->updated_at,
             ]

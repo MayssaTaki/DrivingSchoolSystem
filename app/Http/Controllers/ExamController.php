@@ -48,15 +48,24 @@ $validated['trainer_id'] = $trainerId;
         return response()->json($this->examService->listExams());
     }
 
- public function showByType($type)
+public function showByType($type)
 {
     $exam = $this->examService->showExam($type);
 
+    if (!$exam) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'المدرب لا يملك امتحان لهذا النوع'
+        ], 404);
+    }
+
     return response()->json([
+        'status' => 'success',
         'message' => 'تم جلب بيانات الامتحان بنجاح.',
         'exam' => new ExamResource($exam->load('questions.choices'))
     ]);
 }
+
   public function indexByTrainer($trainerId)
     {
         $exams = $this->examService->listExamsByTrainer($trainerId);
@@ -103,9 +112,9 @@ public function start(StartExamRequest $request)
 public function showRandomQuestions(ShowRandomQuestionsRequest $request)
 {
     $validated = $request->validated();
-    $userId = $request->user()->student->id;
+    $studentId = $request->user()->student->id;
 
-    $questions = $this->examService->getExamQuestionsForStudent($userId, $validated['type'], 10, $userId);
+    $questions = $this->examService->getExamQuestionsForStudent($validated['type'], 10, $studentId);
 
     if (!$questions) {
         return response()->json([
@@ -117,6 +126,7 @@ public function showRandomQuestions(ShowRandomQuestionsRequest $request)
         'questions' => $questions
     ]);
 }
+
 
 
 

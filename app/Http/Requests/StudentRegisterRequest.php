@@ -31,7 +31,7 @@ class StudentRegisterRequest extends FormRequest
             'role' => 'required|in:trainer,student,employee',
             'gender' => 'required|in:female,male',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-
+'left_hand_disabled'=>'required|boolean', 
 
         ];
     }
@@ -57,6 +57,8 @@ class StudentRegisterRequest extends FormRequest
             'role.required' => 'الدور مطلوب.',
             'role.in' => 'يجب أن يكون الدور أحد: trainer أو student أو employee.',
             'gender.required' => 'الجنس مطلوب.',
+             'left_hand_disabled.boolean' => 'حقل ازا تملك اعاقة باليد اليسرى يجب أن يكون نعم أو لا.',
+            'left_hand_disabled.required'=>'حقل ازا تملك اعاقة باليد اليسرى مطلوب.',
             'gender.in' => 'يجب أن يكون الجنس أحد: female أو male ',
         ];
     }

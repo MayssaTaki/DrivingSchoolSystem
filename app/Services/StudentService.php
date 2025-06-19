@@ -91,6 +91,7 @@ protected  $emailService;
                     'gender' => $data['gender'],
                     'date_of_Birth'=>$data['date_of_Birth'],
                     'image' => $data['image'] ?? null,
+                    'left_hand_disabled'=>$data['left_hand_disabled']
 
                 ];
 
@@ -192,7 +193,8 @@ protected  $emailService;
                 'phone_number' => $data['phone_number'] ?? $student->phone_number,
                 'address' => $data['address'] ?? $student->address,
                 'gender' => $data['gender'] ?? $student->gender,
-    'image' => $data['image'] ?? $student->getRawOriginal('image'), // هُنا استخدام القيمة الأصلية فقط
+                'left_hand_disabled'=>$data['left_hand_disabled']??$student->left_hand_disabled,
+    'image' => $data['image'] ?? $student->getRawOriginal('image'), 
                 'date_of_Birth' => $data['date_of_Birth'] ?? $student->date_of_Birth,
             ];
 

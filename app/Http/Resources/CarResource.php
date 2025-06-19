@@ -25,7 +25,7 @@ class CarResource extends JsonResource
             'transmission'=>$this->transmission,
            'is_for_special_needs' => (bool) $this->is_for_special_needs,     
           'display_type' => $this->car_type, 
-                      'status' => $this->status,
+'status' => $this->status ?? 'available',
 
         ];}
 }
