@@ -11,6 +11,7 @@ class FeedbackStudentResource extends JsonResource
         return [
            'id' => $this->id,
             'booking_id' => $this->booking_id,
+'session_id' => $this->booking->session->id,
             'level' => $this->level,
             'notes' => $this->notes,
             'created_at' => $this->created_at->toDateTimeString(),

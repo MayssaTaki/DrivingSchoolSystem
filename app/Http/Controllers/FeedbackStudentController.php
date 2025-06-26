@@ -24,26 +24,25 @@ class FeedbackStudentController extends Controller
         return response()->json(new FeedbackStudentResource($feedback), 201);
     }
 
-    public function index(): JsonResponse
+    public function index()
     {
         $studentId = Auth::user()->student->id; 
 
         $feedbacks = $this->service->getStudentFeedbacks($studentId);
 
-        return response()->json([
-            'data' => $feedbacks,
-            'message' => 'تم جلب التقييمات بنجاح',
-        ]);
-    }
-    public function getTrainerFeedbacks(): JsonResponse
+     return  FeedbackStudentResource::collection($feedbacks)->additional([
+       
+        'message' => 'تم جلب جميع التقييمات بنجاح.',
+    ]);}
+    public function getTrainerFeedbacks()
 {
     $trainerId = Auth::user()->trainer->id;
 
     $feedbacks = $this->service->getTrainerFeedbacks($trainerId);
 
-    return response()->json([
-        'data' => $feedbacks,
-        'message' => 'تم جلب تقييمات الجلسات التي قمت بها كمدرب بنجاح.',
+    return  FeedbackStudentResource::collection($feedbacks)->additional([
+       
+        'message' => 'تم جلب جميع التقييمات بنجاح.',
     ]);
 }
 public function getAllFeedbacks(Request $request): AnonymousResourceCollection

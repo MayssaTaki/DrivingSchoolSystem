@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\CarSeeder::class,
             \Database\Seeders\TrainingScheduleSeeder::class,
          \Database\Seeders\ExamSeeder::class,
+        \Database\Seeders\LicenseSeeder::class,
         \Database\Seeders\TrainerReviewSeeder::class,
         \Database\Seeders\TrainingSessionSeeder::class,
         

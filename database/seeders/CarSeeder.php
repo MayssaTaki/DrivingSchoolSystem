@@ -42,7 +42,7 @@ class CarSeeder extends Seeder
                 'model' => 'Focus',
                 'color' => 'Black',
                 'year' => 2019,
-                'transmission'=>'manual',
+                'transmission'=>'automatic',
     'is_for_special_needs' => true,
 
             ],
@@ -52,7 +52,7 @@ class CarSeeder extends Seeder
                 'model' => 'Focus',
                 'color' => 'Black',
                 'year' => 2019,
-                'transmission'=>'manual',
+                'transmission'=>'automatic',
     'is_for_special_needs' => true,
 
             ],

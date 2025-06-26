@@ -54,6 +54,8 @@ public function rules(): array
         'gender' => 'sometimes|in:female,male',
         'address' => 'sometimes|string|max:100',
      'left_hand_disabled' => 'sometimes|boolean',
+     'nationality' => 'sometimes|string|max:255',
+'is_military' => 'sometimes|boolean',
         'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
     ];
 
@@ -81,7 +83,8 @@ public function rules(): array
             'date_of_Birth.date' => 'يجب إدخال تاريخ صحيح.',
             'date_of_Birth.before_or_equal' => 'يجب أن يكون تاريخ الولادة في الماضي أو اليوم.',
 
-           
+           'nationality.max' => 'يجب ألا تتجاوز الجنسية 255 حرفاً.',
+           'is_military.boolean' => 'حقل الخدمة العسكرية يجب أن يكون نعم أو لا.',
 
             'gender.in' => 'يجب أن يكون الجنس إما "أنثى" أو "ذكر".',
 
