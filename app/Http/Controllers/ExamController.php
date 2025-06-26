@@ -158,7 +158,6 @@ public function submitAnswers(SubmitExamRequest $request)
             'message' => $e->getMessage()
         ], $e->getStatusCode());
     } catch (\Exception $e) {
-        // 👇 أضف هنا
         dd($e->getMessage());
 
         return response()->json([

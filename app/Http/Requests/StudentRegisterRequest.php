@@ -27,6 +27,8 @@ class StudentRegisterRequest extends FormRequest
             'date_of_Birth' => 'required|date|before_or_equal:today',
         'phone_number' => 'required|string|digits:10|unique:students,phone_number',
             'address' => 'required|string|max:255', 
+'nationality' => 'nullable|string|max:255',
+'is_military' => 'required|boolean',
 
             'role' => 'required|in:trainer,student,employee',
             'gender' => 'required|in:female,male',
@@ -57,6 +59,11 @@ class StudentRegisterRequest extends FormRequest
             'role.required' => 'الدور مطلوب.',
             'role.in' => 'يجب أن يكون الدور أحد: trainer أو student أو employee.',
             'gender.required' => 'الجنس مطلوب.',
+            'nationality.string' => 'يجب أن تكون الجنسية نصاً.',
+'nationality.max' => 'يجب ألا تتجاوز الجنسية 255 حرفاً.',
+'is_military.required' => 'مطلوب تحديد هل هو مطلوب للخدمة العسكرية.',
+'is_military.boolean' => 'حقل الخدمة العسكرية يجب أن يكون نعم أو لا.',
+
              'left_hand_disabled.boolean' => 'حقل ازا تملك اعاقة باليد اليسرى يجب أن يكون نعم أو لا.',
             'left_hand_disabled.required'=>'حقل ازا تملك اعاقة باليد اليسرى مطلوب.',
             'gender.in' => 'يجب أن يكون الجنس أحد: female أو male ',

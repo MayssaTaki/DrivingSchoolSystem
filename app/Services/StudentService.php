@@ -91,8 +91,9 @@ protected  $emailService;
                     'gender' => $data['gender'],
                     'date_of_Birth'=>$data['date_of_Birth'],
                     'image' => $data['image'] ?? null,
-                    'left_hand_disabled'=>$data['left_hand_disabled']
-
+                    'left_hand_disabled'=>$data['left_hand_disabled'],
+                 'nationality'=>$data['nationality'] ?? 'syrian', 
+                 'is_military'=>$data['is_military']
                 ];
 
                 $student = $this->studentRepository->create($studentData);
@@ -192,7 +193,9 @@ protected  $emailService;
                 'last_name' => $data['last_name'] ?? $student->last_name,
                 'phone_number' => $data['phone_number'] ?? $student->phone_number,
                 'address' => $data['address'] ?? $student->address,
+                'nationality' => $data['nationality'] ?? $student->nationality,
                 'gender' => $data['gender'] ?? $student->gender,
+                'is_military' => $data['is_military'] ?? $student->is_military,
                 'left_hand_disabled'=>$data['left_hand_disabled']??$student->left_hand_disabled,
     'image' => $data['image'] ?? $student->getRawOriginal('image'), 
                 'date_of_Birth' => $data['date_of_Birth'] ?? $student->date_of_Birth,

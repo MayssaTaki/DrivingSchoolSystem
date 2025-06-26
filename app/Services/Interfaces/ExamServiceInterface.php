@@ -15,5 +15,5 @@ public function getExamQuestionsForStudent(string $type, int $count = 10, int $s
     public function extractQuestionText($text);
     public function extractQuestionNumber($text);
     public function submitExam(int $attemptId, array $answers);
-    public function evaluateStudent(int $studentId, float $passPercentage = 60.0): array;
+    public function evaluateStudent(int $studentId, float $passPercentage = 50.0): array;
 }

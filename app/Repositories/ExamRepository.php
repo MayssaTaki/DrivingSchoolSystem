@@ -135,6 +135,21 @@ public function startExamAttemptById(int $examAttemptId): ExamAttempt
 }
 
 
+public function findById(int $id): ExamAttempt
+{
+    return ExamAttempt::findOrFail($id);
+}
+
+public function hasStudentPassedExam(int $studentId, int $examId, int $minScore = 5, ?int $excludeAttemptId = null): bool
+{
+    return ExamAttempt::where('student_id', $studentId)
+        ->where('exam_id', $examId)
+        ->whereNotNull('finished_at')
+        ->where('score', '>=', $minScore)
+        ->when($excludeAttemptId, fn($q) => $q->where('id', '!=', $excludeAttemptId))
+        ->exists();
+}
+
 
 public function createExamAttempt(int $examId, int $studentId): ExamAttempt
 {
@@ -159,6 +174,7 @@ public function attachQuestionsToAttempt(int $examAttemptId, array $questionIds)
 
     DB::table('exam_attempt_questions')->insert($data);
 }
+
 
 
 

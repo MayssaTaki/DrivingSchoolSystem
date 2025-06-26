@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Carbon;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +18,8 @@ class Student extends Model
          'phone_number',
           'image',
            'gender',
+           'nationality',
+           'is_military',
            'left_hand_disabled'
         
     ];
@@ -60,5 +63,17 @@ public function reviews()
 {
     return $this->hasMany(TrainerReview::class);
 }
+ 
+public function licenseRequests()
+{
+    return $this->hasMany(LicenseRequest::class);
+}
+  public function calculateAge(): int
+    {
+        if (!$this->date_of_Birth) {
+            throw new \Exception('تاريخ الميلاد غير موجود في سجل الطالب.');
+        }
 
+        return Carbon::parse($this->date_of_Birth)->age;
+    }
 }

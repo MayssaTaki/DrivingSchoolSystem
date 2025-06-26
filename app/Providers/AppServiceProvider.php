@@ -30,6 +30,8 @@ use App\Repositories\FeedbackStudentRepository;
 use App\Repositories\ExamRepository;
 use App\Repositories\CertificateRepository;
 use App\Repositories\BookingStatusLogRepository;
+use App\Repositories\LicenseRepository;
+use App\Repositories\LicenseRequestRepository;
 
 // Repository Interfaces
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -53,6 +55,8 @@ use App\Repositories\Contracts\FeedbackStudentRepositoryInterface;
 use App\Repositories\Contracts\ExamRepositoryInterface;
 use App\Repositories\Contracts\CertificateRepositoryInterface;
 use App\Repositories\Contracts\BookingStatusLogRepositoryInterface;
+use App\Repositories\Contracts\LicenseRepositoryInterface;
+use App\Repositories\Contracts\LicenseRequestRepositoryInterface;
 
 // Services & Interfaces
 use App\Services\ExamService;
@@ -78,6 +82,8 @@ use App\Services\CarService;
 use App\Services\BookingStatusLogService;
 use App\Services\BookingService;
 use App\Services\EmployeeService;
+use App\Services\LicenseService;
+use App\Services\LicenseRequestService;
 
 
 use App\Services\Interfaces\ExamServiceInterface;
@@ -103,6 +109,8 @@ use App\Services\Interfaces\CarServiceInterface;
 use App\Services\Interfaces\BookingStatusLogServiceInterface;
 use App\Services\Interfaces\BookingServiceInterface;
 use App\Services\Interfaces\EmployeeServiceInterface;
+use App\Services\Interfaces\LicenseServiceInterface;
+use App\Services\Interfaces\LicenseRequestServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -133,8 +141,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FeedbackStudentRepositoryInterface::class, FeedbackStudentRepository::class);
         $this->app->bind(ExamRepositoryInterface::class, ExamRepository::class);
         $this->app->bind(CertificateRepositoryInterface::class, CertificateRepository::class);
+        $this->app->bind(LicenseRepositoryInterface::class, LicenseRepository::class);
+        $this->app->bind(LicenseRequestRepositoryInterface::class, LicenseRequestRepository::class);
 
-        
 
         $this->app->bind(LogServiceInterface::class, LogService::class);
         $this->app->bind(ActivityLoggerServiceInterface::class, ActivityLoggerService::class);
@@ -159,7 +168,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CarFaultServiceInterface::class, CarFaultService::class);
         $this->app->bind(BookingStatusLogServiceInterface::class, BookingStatusLogService::class);
         $this->app->bind(BookingServiceInterface::class, BookingService::class);
-   
+        $this->app->bind(LicenseServiceInterface::class , LicenseService::class);
+        $this->app->bind(LicenseRequestServiceInterface::class , LicenseRequestService::class);
 
 
     }

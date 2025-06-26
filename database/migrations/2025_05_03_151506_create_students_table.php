@@ -21,6 +21,8 @@ return new class extends Migration
             $table->enum('gender', ['female', 'male']);
             $table->date('date_of_Birth');
             $table->string('image')->nullable();
+            $table->string('nationality')->default('syrian');
+            $table->boolean('is_military')->default(false);
             $table->boolean('left_hand_disabled')->default(false);
             $table->timestamps();
         });

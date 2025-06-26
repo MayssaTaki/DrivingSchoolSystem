@@ -116,10 +116,12 @@ public function createExamWithQuestions(array $data)
 
 
 
-public function startExamByAttemptId(int $examAttemptId)
+public function startExamByAttemptId(int $examAttemptId): ExamAttempt
 {
     try {
         return $this->transactionService->run(function () use ($examAttemptId) {
+
+
             $examAttempt = $this->examRepo->startExamAttemptById($examAttemptId);
 
             $this->activityLogger->log(
@@ -142,8 +144,8 @@ public function startExamByAttemptId(int $examAttemptId)
             'error',
             'فشل بدء محاولة الامتحان',
             [
-                'message' => $e->getMessage(),
                 'exam_attempt_id' => $examAttemptId,
+                'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ],
             'exam_attempts'
@@ -164,7 +166,18 @@ public function getExamQuestionsForStudent(string $type, int $count = 10, int $s
     if (!$trainerId) {
         return null;
     }
+     $exam = Exam::where('trainer_id', $trainerId)
+                ->where('type', $type)
+                ->firstOrFail();
+  $hasPassed = $this->examRepo->hasStudentPassedExam(
+                $studentId,
+        $exam->id,
+        5
+            );
 
+            if ($hasPassed) {
+                throw new \Exception('❌   لا يمكنك بدء هذا الامتحان لأنك اجتزته مسبقًا.بنسبة كافية ');
+            }
     $examData = $this->getRandomQuestionsForTrainer($trainerId, $type, $count);
 
     $examAttempt = $this->examRepo->createExamAttempt($examData['exam_info']['exam_id'], $studentId);
@@ -340,7 +353,7 @@ $isTimeOver = $endTime->copy()->addSeconds(5)->lt(now());
 
 
 
-public function evaluateStudent(int $studentId, float $passPercentage = 60.0): array
+public function evaluateStudent(int $studentId, float $passPercentage = 50.0): array
 {
     $requiredTypes = Exam::distinct()->pluck('type')->toArray();
 

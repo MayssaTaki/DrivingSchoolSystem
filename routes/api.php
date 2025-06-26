@@ -13,6 +13,8 @@ use App\Http\Controllers\FeedbackStudentController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarFaultController;
+use App\Http\Controllers\LicenseController;
+use App\Http\Controllers\LicenseRequestController;
 
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ExamController;
@@ -62,10 +64,25 @@ Route::get('/test-email', function () {
 
 
 
+Route::get('/licenses', [LicenseController::class, 'index'])->middleware('auth:api');
+Route::post('/licenses/create', [LicenseController::class, 'store'])->middleware('auth:api');
+Route::put('/licenses/{license}', [LicenseController::class, 'update'])->middleware('auth:api');
+Route::get('/count', [LicenseController::class, 'countLicenses'])->middleware('auth:api');
 
-
-
-
+Route::post('/license-request', [LicenseRequestController::class, 'store'])->middleware('auth:api');
+Route::get('/license-requests', [LicenseRequestController::class, 'index'])->middleware('auth:api');
+Route::get('/license-requests/my', [LicenseRequestController::class, 'myRequests'])->middleware('auth:api');
+Route::post('/license-requests/{id}/approve', [LicenseRequestController::class, 'approve'])->middleware('auth:api');
+Route::post('/license-requests/{id}/reject', [LicenseRequestController::class, 'reject'])->middleware('auth:api');
+Route::get('/license-requests/pending', [LicenseRequestController::class, 'getPending'])->middleware('auth:api');
+Route::get('/license-requests/approved', [LicenseRequestController::class, 'getApproved'])->middleware('auth:api');
+Route::get('/license-requests/rejected', [LicenseRequestController::class, 'getRejected'])->middleware('auth:api');
+Route::get('/count/approve', [LicenseRequestController::class, 'countApproved'])->middleware('auth:api');
+Route::get('/count/pending', [LicenseRequestController::class, 'countPending'])->middleware('auth:api');
+Route::get('/count/reject', [LicenseRequestController::class, 'countRejected'])->middleware('auth:api');
+Route::get('/monthly',[LicenseRequestController::class, 'monthly'])->middleware('auth:api');
+Route::get('/type',[LicenseRequestController::class, 'typeStats'])->middleware('auth:api');
+Route::get('/mostRequest',[LicenseRequestController::class, 'mostRequestedLicenses'])->middleware('auth:api');
 
 
 

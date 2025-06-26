@@ -14,6 +14,7 @@
         "laravel/jetstream": "^5.3",
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^3.1",
+        "mostafaznv/pdf-optimizer": "*",
         "mpdf/mpdf": "*",
         "predis/predis": "^2.3",
         "spatie/laravel-activitylog": "^4.10",
