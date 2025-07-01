@@ -5,6 +5,8 @@ use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\LikeController;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
@@ -62,6 +64,11 @@ Route::get('/test-email', function () {
 
 
 
+Route::get('/posts', [PostController::class,'index'])->middleware('auth:api');
+Route::post('/posts/create', [PostController::class, 'store'])->middleware('auth:api');
+Route::put('/posts/{id}', [PostController::class, 'update'])->middleware('auth:api');
+Route::delete('/posts/delete/{id}', [PostController::class, 'destroy'])->middleware('auth:api');
+Route::post('/posts/{postId}/like', [LikeController::class, 'toggle'])->middleware('auth:api');
 
 
 Route::get('/licenses', [LicenseController::class, 'index'])->middleware('auth:api');

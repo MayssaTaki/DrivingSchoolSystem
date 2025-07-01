@@ -28,6 +28,8 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Exam::class => \App\Policies\ExamPolicy::class,
         \App\Models\License::class => \App\Policies\LicensePolicy::class,
         \App\Models\LicenseRequest::class => \App\Policies\LicenseRequestPolicy::class,
+                \App\Models\Post::class => \App\Policies\PostPolicy::class,
+
 
 
     ];

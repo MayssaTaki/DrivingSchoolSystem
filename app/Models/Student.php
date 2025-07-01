@@ -76,4 +76,10 @@ public function licenseRequests()
 
         return Carbon::parse($this->date_of_Birth)->age;
     }
+
+
+    public function likes()
+{
+    return $this->hasMany(Like::class);
+}
 }
