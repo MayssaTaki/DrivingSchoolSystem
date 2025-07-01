@@ -40,7 +40,7 @@ class TrainerUpdateRequest extends FormRequest
             'address' => 'sometimes|string|max:100',
                    'license_number' => [
     'sometimes',
-    'regex:/^\d{7}$/',
+    'regex:/^\d{6}$/',
     'unique:trainers,license_number'
 ],
             'date_of_Birth' =>'sometimes|date|before_or_equal:today',
@@ -80,7 +80,7 @@ class TrainerUpdateRequest extends FormRequest
             'date_of_Birth.before_or_equal' => 'يجب أن يكون تاريخ الولادة في الماضي أو اليوم.',
             'image.image' => 'يجب أن يكون الملف المرفوع صورة.',
             'image.mimes' => 'يجب أن تكون الصورة من نوع: jpeg, png, jpg, gif, svg.',
-            'license_number.regex' => 'يجب أن يتكون رقم الرخصة من 7 أرقام.',
+            'license_number.regex' => 'يجب أن يتكون رقم الرخصة من 6 أرقام.',
 
             'image.max' => 'يجب ألا تتجاوز حجم الصورة 2 ميجابايت.',
         ];
