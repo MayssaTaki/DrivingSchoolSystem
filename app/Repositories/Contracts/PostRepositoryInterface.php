@@ -10,5 +10,7 @@ interface PostRepositoryInterface
 public function updatePost(int $id, array $data): Post;
     public function deletePost(int $id): bool;
     public function findById(int $id): Post;
+        public function countPosts(): int;
+
 
 }

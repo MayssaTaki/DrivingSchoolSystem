@@ -7,6 +7,8 @@ use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\TransactionServiceInterface;
 use App\Models\Post;
+use App\Models\Student;
+
 
 class LikeService implements LikeServiceInterface
 {
@@ -46,5 +48,13 @@ class LikeService implements LikeServiceInterface
 
             throw $e;
         });
+    }
+
+      public function getStudentsWhoLiked(int $postId)
+    {
+        $studentIds = $this->likeRepo->getStudentIdsByPost($postId);
+        return Student::whereIn('id', $studentIds)
+                      ->with('user')
+                      ->get();
     }
 }

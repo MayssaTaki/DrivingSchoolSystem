@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\PracticalExamController;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
@@ -62,13 +63,20 @@ Route::get('/test-email', function () {
 });
 
 
-
+Route::post('exam-schedules', [PracticalExamController::class, 'store'])
+     ->middleware(['auth:api']);
+Route::get('practical-exams', [PracticalExamController::class, 'index'])
+     ->middleware(['auth:api']);
+Route::get('practical-exams/my', [PracticalExamController::class, 'mySchedules'])
+     ->middleware(['auth:api']);
 
 Route::get('/posts', [PostController::class,'index'])->middleware('auth:api');
 Route::post('/posts/create', [PostController::class, 'store'])->middleware('auth:api');
 Route::put('/posts/{id}', [PostController::class, 'update'])->middleware('auth:api');
 Route::delete('/posts/delete/{id}', [PostController::class, 'destroy'])->middleware('auth:api');
 Route::post('/posts/{postId}/like', [LikeController::class, 'toggle'])->middleware('auth:api');
+Route::get('/posts/{post}/liked-students', [LikeController::class, 'studentsByPost']) ->middleware('auth:api');
+Route::get('/posts/count', [PostController::class, 'countPosts'])->middleware('auth:api');
 
 
 Route::get('/licenses', [LicenseController::class, 'index'])->middleware('auth:api');

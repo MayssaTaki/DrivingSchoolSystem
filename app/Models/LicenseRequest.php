@@ -29,5 +29,10 @@ protected $casts = [
     {
         return $this->belongsTo(License::class);
     }
+    public function practicalExamSchedules()
+{
+    return $this->hasMany(PracticalExamSchedule::class);
+}
+
 
 }
