@@ -181,4 +181,9 @@ public function store(array $data, array $files)
             throw $e;
         });
     }
+
+    public function countPosts(): int
+    {
+        return $this->postRepo->countPosts();
+    }
 }

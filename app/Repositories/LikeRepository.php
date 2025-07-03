@@ -21,4 +21,9 @@ class LikeRepository implements LikeRepositoryInterface
             return true; 
         }
     }
+    public function getStudentIdsByPost(int $postId)
+    {
+        return Like::where('post_id', $postId)
+                   ->pluck('student_id');
+    }
 }

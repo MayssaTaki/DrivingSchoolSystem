@@ -68,4 +68,10 @@ public function updatePost(int $id, array $data): Post
 
         return $post->delete();
     }
+
+     public function countPosts(): int
+    {
+            return Post::count();
+        }
+    
 }

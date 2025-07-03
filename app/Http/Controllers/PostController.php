@@ -55,4 +55,23 @@ class PostController extends Controller
         $this->posts->destroy($id);
         return response()->json(['success'=>true,'message'=>'تم الحذف بنجاح'], 200);
     }
+
+    public function countPosts(): JsonResponse
+{
+    try {
+        $postCount = $this->posts->countPosts();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم جلب عدد البوستات  بنجاح.',
+            'data' => [
+                'post_count' => $postCount
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 403);
+    }
+}
 }

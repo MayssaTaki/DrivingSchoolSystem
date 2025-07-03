@@ -34,6 +34,7 @@ use App\Repositories\LicenseRepository;
 use App\Repositories\LicenseRequestRepository;
 use App\Repositories\PostRepository;
 use App\Repositories\LikeRepository;
+use App\Repositories\PracticalExamRepository;
 
 // Repository Interfaces
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -61,6 +62,7 @@ use App\Repositories\Contracts\LicenseRepositoryInterface;
 use App\Repositories\Contracts\LicenseRequestRepositoryInterface;
 use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Repositories\Contracts\LikeRepositoryInterface;
+use App\Repositories\Contracts\PracticalExamRepositoryInterface;
 
 // Services & Interfaces
 use App\Services\ExamService;
@@ -90,6 +92,7 @@ use App\Services\LicenseService;
 use App\Services\LicenseRequestService;
 use App\Services\PostService;
 use App\Services\LikeService;
+use App\Services\PracticalExamService;
 
 
 use App\Services\Interfaces\ExamServiceInterface;
@@ -119,6 +122,7 @@ use App\Services\Interfaces\LicenseServiceInterface;
 use App\Services\Interfaces\LicenseRequestServiceInterface;
 use App\Services\Interfaces\PostServiceInterface;
 use App\Services\Interfaces\LikeServiceInterface;
+use App\Services\Interfaces\PracticalExamServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -153,6 +157,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(LicenseRequestRepositoryInterface::class, LicenseRequestRepository::class);
         $this->app->bind(PostRepositoryInterface::class, PostRepository::class);
         $this->app->bind(LikeRepositoryInterface::class, LikeRepository::class);
+        $this->app->bind(PracticalExamRepositoryInterface::class, PracticalExamRepository::class);
 
 
         $this->app->bind(LogServiceInterface::class, LogService::class);
@@ -182,6 +187,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(LicenseRequestServiceInterface::class , LicenseRequestService::class);
         $this->app->bind(PostServiceInterface::class, PostService::class);
         $this->app->bind(LikeServiceInterface::class, LikeService::class);
+        $this->app->bind(PracticalExamServiceInterface::class, PracticalExamService::class);
 
 
     }

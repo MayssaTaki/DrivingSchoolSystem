@@ -29,6 +29,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\License::class => \App\Policies\LicensePolicy::class,
         \App\Models\LicenseRequest::class => \App\Policies\LicenseRequestPolicy::class,
                 \App\Models\Post::class => \App\Policies\PostPolicy::class,
+                \App\Models\PracticalExamSchedule::class => \App\Policies\PracticalExamSchedulePolicy::class,
 
 
 
