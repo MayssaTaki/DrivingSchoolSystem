@@ -43,4 +43,49 @@ class PracticalExamController extends Controller
             'data' => $schedules,
         ]);
     }
+
+    public function markAsPassed($id): JsonResponse
+{
+    $this->practical->markAsPassed($id);
+    return response()->json(['message' => 'تم تعيين الحالة: ناجح']);
+}
+
+public function markAsFailed($id): JsonResponse
+{
+    $this->practical->markAsFailed($id);
+    return response()->json(['message' => 'تم تعيين الحالة: راسب']);
+}
+
+public function markAsAbsent($id): JsonResponse
+{
+    $this->practical->markAsAbsent($id);
+    return response()->json(['message' => 'تم تعيين الحالة: غائب']);
+}
+
+ public function countByStatus(Request $req)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $this->practical->getCountByStatus($req->only(['from','to']))
+        ]);
+    }
+
+    public function failedOrAbsentStudents(Request $req)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $this->practical->getFailedOrAbsentStudents($req->only(['from','to']))
+        ]);
+    }
+
+    public function successRatio(Request $req)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'success_ratio' => $this->practical->getSuccessRatio($req->only(['from','to'])),
+            ],
+        ]);
+    }
+
 }

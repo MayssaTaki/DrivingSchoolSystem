@@ -11,6 +11,7 @@ use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Models\PracticalExamSchedule;
 use App\Models\LicenseRequest;
+use Illuminate\Support\Facades\Gate;
 
 use App\Services\Interfaces\TransactionServiceInterface;
 use Illuminate\Validation\ValidationException;
@@ -115,5 +116,77 @@ public function listAll(int $perPage = 10): LengthAwarePaginator
     {
         $studentId = auth()->user()->student->id;
         return $this->practRepo->getStudentSchedules($studentId, $perPage);
+    }
+
+    public function markAsPassed(int $id): bool
+{
+    return $this->updateStatusWithLogging($id, 'passed');
+}
+
+public function markAsFailed(int $id): bool
+{
+    return $this->updateStatusWithLogging($id, 'failed');
+}
+
+public function markAsAbsent(int $id): bool
+{
+    return $this->updateStatusWithLogging($id, 'absent');
+}
+
+protected function updateStatusWithLogging(int $id, string $status): bool
+{
+    try {
+
+        $exam = $this->practRepo->findById($id);
+ if (Gate::denies('update', $exam)) {
+            throw new AuthorizationException('ليس لديك صلاحية تعديل حالة الفحص العملي.');
+        }
+        $updated = $this->practRepo->updateStatus($id, $status);
+
+        if ($updated) {
+            $this->activityLogger->log(
+                "تحديث حالة الفحص العملي إلى: $status",
+                ['id' => $id],
+                'practical_exam_schedules',
+                $exam,
+                auth()->user(),
+                "mark_$status"
+            );
+        }
+
+        return $updated;
+    } catch (\Throwable $e) {
+        $this->logService->log('error', "فشل في تعيين حالة $status", [
+            'id' => $id,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 'practical_exam_schedules');
+        throw $e;
+    }
+}
+
+ public function getCountByStatus(array $filters): array
+    {
+        [$from, $to] = $this->parseDates($filters);
+        return $this->practRepo->countByStatus($from, $to);
+    }
+
+    public function getFailedOrAbsentStudents(array $filters): array
+    {
+        [$from, $to] = $this->parseDates($filters);
+        return $this->practRepo->failedOrAbsentStudents($from, $to);
+    }
+
+    public function getSuccessRatio(array $filters): float
+    {
+        [$from, $to] = $this->parseDates($filters);
+        return $this->practRepo->successRatio($from, $to);
+    }
+
+    private function parseDates(array $filters): array
+    {
+        $from = $filters['from'] ?? Carbon::now()->startOfMonth()->toDateString();
+        $to = $filters['to'] ?? Carbon::now()->endOfMonth()->toDateString();
+        return [$from, $to];
     }
 }

@@ -69,6 +69,16 @@ Route::get('practical-exams', [PracticalExamController::class, 'index'])
      ->middleware(['auth:api']);
 Route::get('practical-exams/my', [PracticalExamController::class, 'mySchedules'])
      ->middleware(['auth:api']);
+Route::put('{id}/mark-passed', [PracticalExamController::class, 'markAsPassed'])->middleware(['auth:api']);
+Route::put('{id}/mark-failed', [PracticalExamController::class, 'markAsFailed'])->middleware(['auth:api']);
+Route::put('{id}/mark-absent', [PracticalExamController::class, 'markAsAbsent'])->middleware(['auth:api']);
+Route::get('stats/count', [PracticalExamController::class, 'countByStatus'])->middleware(['auth:api']);
+Route::get('stats/failed-absent', [PracticalExamController::class, 'failedOrAbsentStudents'])->middleware(['auth:api']);
+Route::get('stats/success-ratio', [PracticalExamController::class, 'successRatio'])->middleware(['auth:api']);
+
+
+
+
 
 Route::get('/posts', [PostController::class,'index'])->middleware('auth:api');
 Route::post('/posts/create', [PostController::class, 'store'])->middleware('auth:api');
