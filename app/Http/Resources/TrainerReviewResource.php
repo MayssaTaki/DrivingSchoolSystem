@@ -19,7 +19,6 @@ class TrainerReviewResource extends JsonResource
             }
         }
 
-        // البيانات الأساسية المشتركة
         $data = [
             'id' => $this->id,
             'student_id' => $this->student_id,

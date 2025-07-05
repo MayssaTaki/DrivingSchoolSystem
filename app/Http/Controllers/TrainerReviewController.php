@@ -60,11 +60,24 @@ class TrainerReviewController extends Controller
         return response()->json(['message' => 'تم رفض التقييم.']);
     }
 
-      public function index(int $trainerId): JsonResponse
-    {
-        $reviews = $this->service->getTrainerReviews($trainerId);
-        return response()->json(TrainerReviewResource::collection($reviews));
-    }
+    public function index(int $trainerId): JsonResponse
+{
+    $reviews = $this->service->getTrainerReviews($trainerId);
+    $hasReview = $reviews->total() > 0;
+
+    return response()->json([
+        'has_review' => $hasReview,
+        'data' => TrainerReviewResource::collection($reviews),
+          'meta' => [
+                'current_page' => $reviews->currentPage(),
+                'last_page' => $reviews->lastPage(),
+                'per_page' => $reviews->perPage(),
+                'total' => $reviews->total(),
+            ],
+    ]);
+    
+}
+
 
      public function getPending(): JsonResponse
     {

@@ -30,6 +30,8 @@ class BookingResource extends JsonResource
                 'end_time' => $this->session->end_time,
             ],
             'created_at' => $this->created_at->toDateTimeString(),
+            'is_rated' => $this->feedback !== null,
+
         ];
     }
 }
