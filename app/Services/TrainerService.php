@@ -6,6 +6,7 @@ use App\Models\Trainer;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\LogsActivity;
 use App\Services\Interfaces\LogServiceInterface;
+use App\Events\TrainerApproved;
 
 use App\Repositories\UserRepository;
 use App\Repositories\TrainerRepository;
@@ -104,6 +105,9 @@ protected   $userService;
 
                 $trainer = $this->trainerRepository->create($trainerData);
                 $this->emailService->sendVerificationCode($user);
+                logger('📣 سيتم إطلاق الحدث TrainerRegistered للمدرب:', ['id' => $trainer->id]);
+
+event(new \App\Events\TrainerRegistered($trainer));
 
                 $this->activityLogger->log(
                     'تم تسجيل موظف جديد',
@@ -266,6 +270,7 @@ public function clearTrainerCache(): void
         }
 
         $approvedTrainer = $this->trainerRepository->approve($trainer);
+event(new TrainerApproved($trainer));
 
         $this->activityLogger->log(
             'تمت الموافقة على المدرب',

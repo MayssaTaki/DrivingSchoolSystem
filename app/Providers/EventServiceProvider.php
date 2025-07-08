@@ -20,6 +20,12 @@ class EventServiceProvider extends ServiceProvider
      \App\Events\ScheduleNeedsSessionGeneration::class => [
         \App\Listeners\DispatchGenerateJobForSchedule::class,
     ],
+    \App\Events\TrainerRegistered::class => [
+        \App\Listeners\SendTrainerRegisteredNotification::class,
+    ],
+     \App\Events\TrainerApproved::class => [
+        \App\Listeners\SendTrainerApprovedNotification::class,
+     ],
     ];
 
     public function boot(): void

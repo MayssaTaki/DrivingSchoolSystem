@@ -4,7 +4,6 @@ namespace App\Repositories;
 use App\Repositories\Contracts\CertificateRepositoryInterface;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Student;
-use Mpdf\Mpdf;
 
 use Illuminate\Support\Facades\Storage;
 

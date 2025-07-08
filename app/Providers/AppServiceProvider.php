@@ -93,6 +93,7 @@ use App\Services\LicenseRequestService;
 use App\Services\PostService;
 use App\Services\LikeService;
 use App\Services\PracticalExamService;
+use App\Services\FirebaseService;
 
 
 use App\Services\Interfaces\ExamServiceInterface;
@@ -123,6 +124,7 @@ use App\Services\Interfaces\LicenseRequestServiceInterface;
 use App\Services\Interfaces\PostServiceInterface;
 use App\Services\Interfaces\LikeServiceInterface;
 use App\Services\Interfaces\PracticalExamServiceInterface;
+use App\Services\Interfaces\FirebaseServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -188,6 +190,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PostServiceInterface::class, PostService::class);
         $this->app->bind(LikeServiceInterface::class, LikeService::class);
         $this->app->bind(PracticalExamServiceInterface::class, PracticalExamService::class);
+        $this->app->bind(FirebaseServiceInterface::class, FirebaseService::class);
 
 
     }

@@ -38,6 +38,25 @@ use App\Http\Controllers\CertificateController;
 use Illuminate\Support\Facades\Http;
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
+
+
+Route::post('/save-fcm-token', function (Request $request) {
+    $request->validate(['token' => 'required|string']);
+    $user = $request->user();
+    $user->fcm_token = $request->token;
+    $user->save();
+    return response()->json(['message' => 'Token saved']);
+});
+
+
+
+Route::middleware('auth:api')->prefix('notifications')->controller(\App\Http\Controllers\NotificationController::class)->group(function () {
+    Route::get('/', 'index');
+    Route::post('{id}/mark-read', 'markAsRead');
+});
+
 
 
 

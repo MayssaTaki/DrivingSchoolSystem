@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Certificate of Completion</title>
+    <title>Certificate of Completion </title>
     <style>
         body {
 
@@ -86,7 +86,7 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            margin-top: -20px; /* لتقريب الستامبات من الخط */
+            margin-top: -20px; 
         }
 
         .seal {
@@ -128,7 +128,6 @@
         <img src="{{ public_path('images/logo.jpg') }}" class="logo" alt="Logo">
         <h1>CERTIFICATE OF COMPLETION</h1>
         <h2>This certificate is awarded to</h2>
-
         <p class="recipient-name">{{ $name }}</p>
 
         <p>For successfully passing all seven theoretical driving tests,</p>

@@ -23,9 +23,16 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'role',
+        'fcm_token'
         
     ];
     
+
+ public function routeNotificationForFcm()
+    {
+        return $this->fcm_token;
+    }
+
 public function posts()
 {
     return $this->hasMany(Post::class);
