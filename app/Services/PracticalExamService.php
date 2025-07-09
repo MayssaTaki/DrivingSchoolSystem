@@ -12,7 +12,10 @@ use Illuminate\Auth\Access\AuthorizationException;
 use App\Models\PracticalExamSchedule;
 use App\Models\LicenseRequest;
 use Illuminate\Support\Facades\Gate;
-
+use App\Events\PracticalExamScheduled;
+use App\Events\PracticalExamPassed;
+use App\Events\PracticalExamFailed;
+use App\Events\PracticalExamMarkedAbsent;
 use App\Services\Interfaces\TransactionServiceInterface;
 use Illuminate\Validation\ValidationException;
 
@@ -70,6 +73,9 @@ protected function ensureLicenseRequestIsApproved($license_request)
             'exam_date' => $data['exam_date'],
             'exam_time' => $data['exam_time'],
         ]);
+        $schedule->load('licenseRequest.student.user');
+
+event(new PracticalExamScheduled($schedule));
 
         $this->activityLogger->log(
             'تم جدولة امتحان عملي',
@@ -118,20 +124,44 @@ public function listAll(int $perPage = 10): LengthAwarePaginator
         return $this->practRepo->getStudentSchedules($studentId, $perPage);
     }
 
-    public function markAsPassed(int $id): bool
+public function markAsPassed(int $id): bool
 {
-    return $this->updateStatusWithLogging($id, 'passed');
+    $result = $this->updateStatusWithLogging($id, 'passed');
+
+    if ($result) {
+        $schedule = PracticalExamSchedule::with('licenseRequest.student.user')->findOrFail($id);
+        event(new PracticalExamPassed($schedule));
+    }
+
+    return $result;
 }
+
 
 public function markAsFailed(int $id): bool
 {
-    return $this->updateStatusWithLogging($id, 'failed');
+    $result = $this->updateStatusWithLogging($id, 'failed');
+
+    if ($result) {
+        $schedule = PracticalExamSchedule::with('licenseRequest.student.user')->findOrFail($id);
+        event(new PracticalExamFailed($schedule));
+    }
+
+    return $result;
 }
+
 
 public function markAsAbsent(int $id): bool
 {
-    return $this->updateStatusWithLogging($id, 'absent');
+    $result = $this->updateStatusWithLogging($id, 'absent');
+
+    if ($result) {
+        $schedule = PracticalExamSchedule::with('licenseRequest.student.user')->findOrFail($id);
+        event(new PracticalExamMarkedAbsent($schedule));
+    }
+
+    return $result;
 }
+
 
 protected function updateStatusWithLogging(int $id, string $status): bool
 {

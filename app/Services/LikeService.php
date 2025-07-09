@@ -8,7 +8,7 @@ use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\TransactionServiceInterface;
 use App\Models\Post;
 use App\Models\Student;
-
+use App\Events\PostLiked;
 
 class LikeService implements LikeServiceInterface
 {
@@ -28,6 +28,9 @@ class LikeService implements LikeServiceInterface
             $liked = $this->likeRepo->toggleLike($postId, $student->id);
 
             $action = $liked ? 'أُعجب بالمنشور' : 'أزال الإعجاب من المنشور';
+if ($liked) {
+    event(new PostLiked($post, $student));
+}
 
             $this->activityLogger->log(
                 $action,

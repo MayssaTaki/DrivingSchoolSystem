@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Post;
 use App\Models\PostFile;
-
+use App\Events\PostCreated;
 use App\Services\Interfaces\TransactionServiceInterface;
 
 class PostService implements PostServiceInterface
@@ -65,6 +65,7 @@ public function store(array $data, array $files)
             }
 
             $post = $this->postRepo->createPost($data, $storedFiles);
+event(new PostCreated($post));
 
             $this->activityLogger->log(
                 'تم إضافة بوست جديد',
