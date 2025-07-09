@@ -5,6 +5,9 @@ use App\Services\TransactionService;
 use Illuminate\Support\Collection;
 use App\Models\Trainer;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Events\TrainerExceptionCreated;
+use App\Events\ExceptionApproved;
+use App\Events\ExceptionRejected;
 
 
 use App\Models\User;
@@ -61,7 +64,11 @@ protected TrainerRepositoryInterface $trainerrepo;
 
                 $created[] = $exception;
             }
-          
+          $trainer = \App\Models\Trainer::findOrFail($trainerId); 
+$count = count($created);
+
+event(new TrainerExceptionCreated($trainer, $count, $reason));
+
                 $this->activityLogger->log(
                     'تم تسجيل اجازة جديدة',
                     ['reason' => $reason],
@@ -105,6 +112,7 @@ protected TrainerRepositoryInterface $trainerrepo;
             $exception->save();
 
             $this->sessionRepo->cancelSessionsForDate($exception->trainer_id, $exception->exception_date);
+event(new ExceptionApproved($exception));
 
             $this->activityLogger->log(
                 'تم الموافقة على الاجازة',
@@ -145,6 +153,7 @@ public function rejectException(int $exceptionId): ?ScheduleException
 
             $exception->status = 'rejected';
             $exception->save();
+event(new ExceptionRejected($exception));
 
             $this->activityLogger->log(
                 'تم رفض الإجازة',

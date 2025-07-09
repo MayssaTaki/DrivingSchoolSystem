@@ -7,6 +7,11 @@ use App\Repositories\Contracts\TrainingSchedulesRepositoryInterface;
 use App\Services\TransactionService;
 use App\Events\TrainingScheduleUpdated;
 use App\Events\ScheduleNeedsSessionGeneration;
+use App\Events\TrainingSchedulesCreated;
+use App\Events\TrainingScheduleActivated;
+use App\Events\TrainingScheduleDeactivated;
+
+
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 
@@ -90,6 +95,9 @@ public function createMany(array $schedules)
                 $createdSchedule = $this->trainingRepository->create($data);
                 $created[] = $createdSchedule;
 
+$count = count($created);
+
+event(new TrainingSchedulesCreated($trainer, $count));
 
                 $this->activityLogger->log(
                     'إضافة جدول تدريب',
@@ -132,6 +140,7 @@ public function createMany(array $schedules)
             }
             $updatedSchedule = $this->changeStatusWithCheck($id, 'active');
                 event(new TrainingScheduleCreated($updatedSchedule));
+event(new TrainingScheduleActivated($updatedSchedule));
 
             $this->clearTrainingCache($schedule->trainer_id);
 
@@ -167,6 +176,8 @@ public function createMany(array $schedules)
                 throw new AuthorizationException('ليس لديك صلاحية عدم تفعيل جدول التدريب.');
             }
             $updatedSchedule = $this->changeStatusWithCheck($id, 'inactive');
+           event(new TrainingScheduleDeactivated($updatedSchedule));
+
             $this->clearTrainingCache($schedule->trainer_id);
 
             $this->activityLogger->log(

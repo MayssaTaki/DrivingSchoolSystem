@@ -10,6 +10,9 @@ use App\Services\Interfaces\TrainerReviewServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\TransactionServiceInterface;
+use App\Events\TrainerReviewed;
+use App\Events\ReviewApproved;
+use App\Events\ReviewRejected;
 
 class TrainerReviewService implements TrainerReviewServiceInterface
 {
@@ -45,6 +48,7 @@ class TrainerReviewService implements TrainerReviewServiceInterface
 
         try {
             $review = $this->repo->create($data);
+event(new TrainerReviewed($review));
 
             $this->activityLogger->log(
                 'تم تقييم المدرب',
@@ -78,6 +82,8 @@ if (!auth()->user()->role === 'employee') {
     throw new AuthorizationException('ليس لديك صلاحية الموافقة على التقييم.');
 }
        $approve=  $this->repo->approve($id);
+       event(new ReviewApproved($approve));
+
          $this->activityLogger->log(
                     'تم قبول التقييم',
                       ['rating' => $approve->rating],
@@ -104,6 +110,8 @@ if (!auth()->user()->role === 'employee') {
     throw new AuthorizationException('ليس لديك صلاحية الموافقة على التقييم.');
 }
        $approve=  $this->repo->reject($id);
+       event(new ReviewRejected($approve));
+
          $this->activityLogger->log(
                     'تم رفض التقييم',
                       ['rating' => $approve->rating],
