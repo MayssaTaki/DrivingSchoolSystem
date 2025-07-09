@@ -98,6 +98,7 @@ protected  $emailService;
 
                 $student = $this->studentRepository->create($studentData);
                 $this->emailService->sendVerificationCode($user);
+event(new \App\Events\StudentRegistered($student));
 
                 $this->activityLogger->log(
                     'تم تسجيل طالب جديد',

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Traits\LogsActivity;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Events\TrainerApproved;
+use App\Events\TrainerRejected;
 
 use App\Repositories\UserRepository;
 use App\Repositories\TrainerRepository;
@@ -299,6 +300,7 @@ public function rejectTrainer($id)
         }
 
         $rejectedTrainer = $this->trainerRepository->reject($trainer);
+event(new TrainerRejected($trainer));
 
         $this->activityLogger->log(
             'تم رفض المدرب',

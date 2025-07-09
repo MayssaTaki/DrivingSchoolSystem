@@ -8,6 +8,10 @@ use App\Services\Interfaces\CarFaultServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\TransactionServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
+use App\Events\CarFaultSubmitted;
+use App\Events\CarMarkedAsInRepair;
+use App\Events\CarMarkedAsResolved;
+
 
 use App\Repositories\Contracts\CarRepositoryInterface;
 use Illuminate\Validation\ValidationException;
@@ -44,6 +48,8 @@ class CarFaultService implements CarFaultServiceInterface
     {
         try {
             $fault = $this->repo->create($data);
+            event(new CarFaultSubmitted($fault));
+
         $this->clearFaultCache();
 
             $this->activityLogger->log(
@@ -96,6 +102,8 @@ public function getFaultsByTrainer($trainerId)
 
             $this->carRepo->updateStatus($car->id, 'in_repair');
             $this->repo->updateStatus($fault->id, 'in_progress');
+            event(new CarMarkedAsInRepair($fault, $car));
+
         $this->clearFaultCache();
         $this->carRepo->clearCache();
 
@@ -171,6 +179,8 @@ public function markCarAsResolvedByFault(int $faultId)
          $this->ensureFaultIsProgress($fault->id);
             $this->carRepo->updateStatus($car->id, 'available');
             $this->repo->updateStatus($fault->id, 'resolved');
+            event(new CarMarkedAsResolved($fault, $car));
+
         $this->clearFaultCache();
         $this->carRepo->clearCache();
 

@@ -34,70 +34,80 @@ class AuthService implements AuthServiceInterface
 }
 
 
-    public function login(array $credentials): array
-    {
-        $email = $credentials['email'];
-        $remember = $credentials['remember_me'] ?? false;
+   public function login(array $credentials): array
+{
+    $email = $credentials['email'];
+    $remember = $credentials['remember_me'] ?? false;
 
-        
-        $this->rateLimiter->check($email, 'login');
+    $this->rateLimiter->check($email, 'login');
 
-        auth()->factory()->setTTL($remember ? 60 * 24 * 15 : 60);
+    auth()->factory()->setTTL($remember ? 60 * 24 * 15 : 60);
 
-        try {
-            if (!$token = JWTAuth::attempt($credentials)) {
-                $this->logService->log('error', 'فشل تسجيل الدخول - بيانات غير صحيحة', [
-                    'email' => $email,
-                    'ip' => request()->ip(),
-                    'agent' => request()->userAgent(),
-                ], 'auth');
+    try {
+        // ✅ فقط email و password
+        $authCredentials = [
+            'email' => $credentials['email'],
+            'password' => $credentials['password'],
+        ];
 
-                throw new AuthenticationException("بيانات الدخول غير صحيحة");
-            }
-        } catch (\Throwable $e) {
-            $this->logService->log('error', 'حدث خطأ أثناء تسجيل الدخول', [
+        if (!$token = JWTAuth::attempt($authCredentials)) {
+            $this->logService->log('error', 'فشل تسجيل الدخول - بيانات غير صحيحة', [
                 'email' => $email,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'ip' => request()->ip(),
+                'agent' => request()->userAgent(),
             ], 'auth');
-            throw $e;
+
+            throw new AuthenticationException("بيانات الدخول غير صحيحة");
         }
+    } catch (\Throwable $e) {
+        $this->logService->log('error', 'حدث خطأ أثناء تسجيل الدخول', [
+            'email' => $email,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 'auth');
+        throw $e;
+    }
 
-       
-        $this->rateLimiter->clear($email, 'login');
+    $this->rateLimiter->clear($email, 'login');
 
-        $user = auth()->user();
-        $role = $user->role;
- if (in_array($role, ['trainer', 'employee', 'student'])) {
+    $user = auth()->user();
+    $role = $user->role;
+
+    if (in_array($role, ['trainer', 'employee', 'student'])) {
         $user->load($role);
     }
-        $refreshToken = Str::random(64);
 
-        $this->refreshRepo->create([
-            'user_id' => $user->id,
-            'token' => hash('sha256', $refreshToken),
-            'expires_at' => now()->addDays($remember ? 15 : 1),
-            'role' => $role
-        ]);
-
-        $this->logActivity('تم تسجيل الدخول', ['remember_me' => $remember], 'auth', $user, $user, 'login');
-
-        $this->logService->log('info', 'تم تسجيل الدخول بنجاح', [
-          
-            'email' => $user->email,
-            'ip' => request()->ip(),
-            'remember_me' => $remember,
-        ], 'auth');
-
-        return [
-            'user' => $user,
-            'token' => $token,
-            'token_type' => 'bearer',
-            'refresh_token' => $refreshToken,
-            'expires_in' => auth()->factory()->getTTL() * 60,
-            'role' => $role
-        ];
+    if (isset($credentials['fcm_token'])) {
+        $user->fcm_token = $credentials['fcm_token'];
+        $user->save();
     }
+
+    $refreshToken = Str::random(64);
+
+    $this->refreshRepo->create([
+        'user_id' => $user->id,
+        'token' => hash('sha256', $refreshToken),
+        'expires_at' => now()->addDays($remember ? 15 : 1),
+        'role' => $role
+    ]);
+
+    $this->logActivity('تم تسجيل الدخول', ['remember_me' => $remember], 'auth', $user, $user, 'login');
+
+    $this->logService->log('info', 'تم تسجيل الدخول بنجاح', [
+        'email' => $user->email,
+        'ip' => request()->ip(),
+        'remember_me' => $remember,
+    ], 'auth');
+
+    return [
+        'user' => $user,
+        'token' => $token,
+        'token_type' => 'bearer',
+        'refresh_token' => $refreshToken,
+        'expires_in' => auth()->factory()->getTTL() * 60,
+        'role' => $role
+    ];
+}
 
     public function refreshToken(): array
     {

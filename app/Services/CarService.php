@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Exceptions\CarNotFoundException;
 use App\Events\ImageUploaded;
+use App\Events\CarAdded;
+
 use App\Services\Interfaces\CarServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
@@ -73,6 +75,7 @@ class CarService implements CarServiceInterface
                     'image' => $data['image']?? null,
                     
                 ]);
+event(new CarAdded($car));
 
                 $this->activityLogger->log(
                     'تم اضافة سيارة جديد',

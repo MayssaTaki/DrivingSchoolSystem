@@ -10,7 +10,7 @@ use App\Services\Interfaces\FeedbackStudentServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
 
-
+use App\Events\FeedbackGiven;
 
 class FeedbackStudentService implements FeedbackStudentServiceInterface
 {
@@ -45,6 +45,7 @@ public function giveFeedback(array $data): Feedback_student
             'level' => $data['level'],
             'notes' => $data['notes'] ?? null,
         ]);
+event(new FeedbackGiven($feedback));
 
         $this->activityLogger->log(
             'تقييم طالب بعد جلسة تدريب',

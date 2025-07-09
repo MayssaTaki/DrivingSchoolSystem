@@ -7,6 +7,7 @@ use App\Models\License;
 use App\Repositories\Contracts\LicenseRepositoryInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use App\Models\LicenseCreated;
 
 class LicenseService implements LicenseServiceInterface
 {
@@ -35,6 +36,8 @@ public function createLicense(array $data)
     }
 
     $license = $this->licenseRepository->create($data);
+    event(new LicenseCreated($license));
+
  $this->activityLogger->log(
                     'تم اضافة رخصة جديدة',
                     ['code' => $license->code ],
