@@ -13,8 +13,11 @@ use App\Services\Interfaces\TransactionServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\EmailVerificationServiceInterface;
-
-
+use App\Events\SessionBooked;
+use App\Events\SessionAutoBooked;
+use App\Events\SessionStarted;
+use App\Events\SessionCompleted;
+use App\Events\SessionCancelled;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 use Illuminate\Validation\ValidationException;
 
@@ -107,6 +110,8 @@ $car = $this->carRepo->findWithLock($carId);
 
             $this->sessionRepo->updateStatus($session->id, 'booked');
             $this->carRepo->updateStatus($car->id, 'booked');
+$booking->load('session.trainer.user');
+event(new SessionBooked($booking));
 
             $this->activityLogger->log(
                 'حجز جلسة تدريب',
@@ -166,7 +171,8 @@ public function autoBookSession(int $studentId, int $sessionId, string $transmis
 
             $this->sessionRepo->updateStatus($session->id, 'booked');
             $this->carRepo->updateStatus($availableCar->id, 'booked');
-
+$booking->load('session.trainer.user');
+event(new SessionAutoBooked($booking));
             $this->activityLogger->log(
                 'تم حجز جلسة تدريب تلقائيًا',
                 [
@@ -227,6 +233,8 @@ public function completeSession(int $bookingId)
             $this->sessionRepo->updateStatus($booking->session_id, 'completed');
             $this->carRepo->updateStatus($booking->car_id, 'available');
 
+$booking->load('session');
+event(new SessionCompleted($booking));
 
             $this->activityLogger->log(
                 'إنهاء جلسة تدريب',
@@ -275,6 +283,8 @@ public function completeSession(int $bookingId)
                 }
 
                 $this->bookingRepo->updateStatus($booking->id, 'started'); // أو حالة خاصة لو تريدها مثل "started"
+$booking->load('session'); 
+event(new SessionStarted($booking));
 
                 $this->activityLogger->log(
                     'بدء جلسة تدريب',
@@ -331,6 +341,12 @@ public function completeSession(int $bookingId)
             $this->bookingRepo->updateStatus($booking->id, 'cancelled');
             $this->sessionRepo->updateStatus($session->id, 'cancelled');
             $this->carRepo->updateStatus($car->id, 'available');
+$currentUser = auth()->user();
+$isStudent = ($currentUser->role === 'student');
+
+$booking->load('student.user', 'session.trainer.user');
+
+event(new SessionCancelled($booking, $session, $isStudent));
 
             $this->activityLogger->log(
                 'الغاء جلسة تدريب',
@@ -346,7 +362,12 @@ public function completeSession(int $bookingId)
                 'book'
             );
             $this->sendSessionCancellationEmail($booking, $session);
+$currentUser = auth()->user();
+$isStudent = ($currentUser->role === 'student');
 
+$booking->load('student.user', 'session.trainer.user');
+
+event(new SessionCancelled($booking, $session, $isStudent));
             return $booking;
         });
     } catch (\Exception $e) {

@@ -11,6 +11,9 @@ use App\Services\Interfaces\TransactionServiceInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use App\Events\ImageUploaded;
+use App\Events\LicenseRequested;
+use App\Events\LicenseRequestApproved;
+use App\Events\LicenseRequestRejected;
 
 class LicenseRequestService implements LicenseRequestServiceInterface
 {
@@ -56,6 +59,7 @@ public function requestLicense(array $data)
        
 
         $licenseRequest = $this->licenseRepository->create($data);
+event(new LicenseRequested($student, $license));
 
         $this->activityLogger->log(
             'تم إضافة طلب رخصة جديدة',
@@ -121,6 +125,7 @@ public function approveRequest(int $requestId): bool
         }
 
         $this->licenseRepository->updateStatus($requestId, 'approved');
+event(new LicenseRequestApproved($licenseRequest));
 
         $this->activityLogger->log(
             'تمت الموافقة على طلب رخصة',
@@ -157,6 +162,7 @@ public function rejectRequest(int $requestId, string $reason): bool
         }
 
         $this->licenseRepository->updateStatus($requestId, 'rejected', $reason);
+event(new LicenseRequestRejected($licenseRequest, $reason));
 
         $this->activityLogger->log(
             'تم رفض طلب رخصة',

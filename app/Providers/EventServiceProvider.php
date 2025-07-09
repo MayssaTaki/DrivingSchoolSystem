@@ -74,6 +74,45 @@ class EventServiceProvider extends ServiceProvider
       \App\Events\LicenseCreated::class => [
         \App\Listeners\SendLicenseCreatedNotification::class,
     ],
+      \App\Events\LicenseRequested::class => [
+        \App\Listeners\SendLicenseRequestedNotification::class,
+    ],
+      \App\Events\LicenseRequestApproved::class => [
+        \App\Listeners\SendLicenseRequestApprovedNotification::class,
+    ],
+        \App\Events\LicenseRequestRejected::class => [
+        \App\Listeners\SendLicenseRequestRejectedNotification::class,
+    ],
+     \App\Events\PracticalExamScheduled::class => [
+        \App\Listeners\SendPracticalExamScheduledNotification::class,
+    ],
+      \App\Events\PracticalExamPassed::class => [
+        \App\Listeners\SendPracticalExamPassedNotification::class,
+    ],
+      \App\Events\PracticalExamFailed::class => [
+        \App\Listeners\SendPracticalExamFailedNotification::class,
+    ],
+       \App\Events\PracticalExamMarkedAbsent::class => [
+        \App\Listeners\SendPracticalExamMarkedAbsentNotification::class,
+    ],
+      \App\Events\SessionBooked::class => [
+        \App\Listeners\SendSessionBookedNotification::class,
+    ],
+      \App\Events\SessionAutoBooked::class => [
+        \App\Listeners\SendSessionAutoBookedNotification::class,
+    ],
+      \App\Events\SessionStarted::class => [
+        \App\Listeners\SendSessionStartedNotification::class,
+    ],
+      \App\Events\SessionCompleted::class => [
+        \App\Listeners\SendSessionCompletedNotification::class,
+    ],
+       \App\Events\SessionCancelled::class => [
+        \App\Listeners\SendSessionCancelledNotification::class,
+    ],
+     \App\Events\PostLiked::class => [
+        \App\Listeners\SendPostLikedNotification::class,
+    ],
     ];
 
     public function boot(): void
