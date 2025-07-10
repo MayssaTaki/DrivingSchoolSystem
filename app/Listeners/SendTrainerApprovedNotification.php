@@ -46,7 +46,7 @@ class SendTrainerApprovedNotification implements ShouldQueue
                 $user->fcm_token,
                 'تهانينا! تم قبولك',
                 "مبروك {$trainer->first_name} {$trainer->last_name}, تم قبولك كمدرب.",
-                ['trainer_id' => $trainer->id]
+                ['trainer_id' => (string) $trainer->id]
             );
         }
     }

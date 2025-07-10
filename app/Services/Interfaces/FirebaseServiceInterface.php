@@ -6,7 +6,7 @@ namespace App\Services\Interfaces;
 interface FirebaseServiceInterface
 {
 
- public function getAccessToken();
-public function sendNotification($fcmToken, $title, $body, $data = []);
-
+    public function getAccessToken(): string;
+    public function sendNotification($deviceToken, $title, $body): array;
+    
 }

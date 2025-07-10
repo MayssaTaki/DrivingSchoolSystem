@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
+use App\Services\FirebaseService;
 class NotificationController extends Controller
 {
     public function index(Request $request)
@@ -27,5 +27,30 @@ class NotificationController extends Controller
         $notification = $request->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
         return response()->json(['message' => 'Marked as read']);
+    }
+
+
+    public function sendFakeNotification()
+    {
+        $deviceToken = 'fgooU4_YSMeF2xVyAJxJaj:APA91bHOp5P9qhMI4AQ5h1C3RTF_F8YA-KOV0_q_ZzS0061Gb3NQO34wO5WpwyqR6sw4-o-GEUKWl3imeeRKD8xWfx-aRNDBOYe1bIrgU_413zmXvTv7bIM';
+
+        try {
+            $result = app(FirebaseService::class)->sendNotification(
+                $deviceToken,
+                'كارما',
+                'حبيت زكرك فيا',
+                ['test' => 'true'] 
+            );
+
+            return response()->json([
+                'message' => 'تم إرسال الإشعار بنجاح!',
+                'fcm_response' => $result
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'فشل في إرسال الإشعار',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
