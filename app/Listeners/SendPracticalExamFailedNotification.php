@@ -38,22 +38,7 @@ class SendPracticalExamFailedNotification implements ShouldQueue
 
         $user->notify(new PracticalExamFailedNotification($schedule));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار فشل الامتحان...', [
-                'to_user_id' => $user->id,
-                'schedule_id' => $schedule->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '❌ لم تنجح في الامتحان العملي',
-                "نأسف! لم تنجح في الامتحان العملي الذي كان بتاريخ {$schedule->exam_date} في الساعة {$schedule->exam_time}. يمكنك إعادة المحاولة لاحقًا.",
-                [
-                    'schedule_id' => $schedule->id,
-                    'exam_date' => $schedule->exam_date,
-                    'exam_time' => $schedule->exam_time
-                ]
-            );
-        }
+        
+        
     }
 }

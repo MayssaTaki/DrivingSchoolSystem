@@ -38,18 +38,6 @@ class SendExceptionApprovedNotification implements ShouldQueue
 
         $user->notify(new ExceptionApprovedNotification($exception));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار الموافقة على الإجازة...', [
-                'to_user_id' => $user->id,
-                'exception_id' => $exception->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '✅ تمت الموافقة على طلب الإجازة',
-                "تمت الموافقة على إجازتك بتاريخ {$exception->exception_date}" . ($exception->reason ? "، السبب: {$exception->reason}" : ''),
-                ['exception_id' => $exception->id, 'date' => $exception->exception_date]
-            );
-        }
+        
     }
 }

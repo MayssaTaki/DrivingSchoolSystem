@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Events\PracticalExamScheduled;
 use App\Events\PracticalExamPassed;
 use App\Events\PracticalExamFailed;
+use App\Models\User;
 use App\Events\PracticalExamMarkedAbsent;
 use App\Services\Interfaces\TransactionServiceInterface;
 use Illuminate\Validation\ValidationException;

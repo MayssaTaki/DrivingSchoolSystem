@@ -72,17 +72,7 @@ public function store(array $data, array $files)
             $post = $this->postRepo->createPost($data, $storedFiles);
 
             event(new PostCreated($post));
-
-            $this->activityLogger->log(
-                'تم إضافة بوست جديد',
-                ['title' => $post->title],
-                'posts',
-                $post,
-                auth()->user(),
-                'create_post'
-            );
-
-            $students = User::where('role', 'student')
+$students = User::where('role', 'student')
                 ->whereNotNull('fcm_token')
                 ->get();
 
@@ -93,6 +83,16 @@ public function store(array $data, array $files)
                     "تم نشر منشور جديد بعنوان: {$post->title}"
                 );
             }
+            $this->activityLogger->log(
+                'تم إضافة بوست جديد',
+                ['title' => $post->title],
+                'posts',
+                $post,
+                auth()->user(),
+                'create_post'
+            );
+
+            
 
             return $post;
 

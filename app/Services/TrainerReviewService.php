@@ -13,7 +13,7 @@ use App\Services\Interfaces\TransactionServiceInterface;
 use App\Events\TrainerReviewed;
 use App\Events\ReviewApproved;
 use App\Events\ReviewRejected;
-
+use App\Models\User;
 class TrainerReviewService implements TrainerReviewServiceInterface
 {
     protected $repo;
@@ -54,7 +54,17 @@ protected FirebaseServiceInterface $firebaseservice;
         try {
             $review = $this->repo->create($data);
 event(new TrainerReviewed($review));
+$users = User::whereIn('role', ['employee', 'admin'])
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                  '⭐ تقييم جديد للمدرب',
+                    "تم إضافة تقييم جديد للمدرب : {$review->trainer->first_name} {$review->trainer->last_name}  بتقييم: {$review->rating}",
+                );
+            }
             $this->activityLogger->log(
                 'تم تقييم المدرب',
                 ['rating' => $data['rating']],

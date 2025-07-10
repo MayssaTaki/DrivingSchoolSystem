@@ -11,7 +11,7 @@ use App\Services\Interfaces\LogServiceInterface;
 use App\Events\CarFaultSubmitted;
 use App\Events\CarMarkedAsInRepair;
 use App\Events\CarMarkedAsResolved;
-
+use App\Models\User;
 
 use App\Repositories\Contracts\CarRepositoryInterface;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +27,7 @@ class CarFaultService implements CarFaultServiceInterface
     protected LogServiceInterface $logService;
     protected CarRepositoryInterface $carRepo;
     protected TransactionServiceInterface $transactionService;
+protected FirebaseServiceInterface $firebaseservice;
 
     public function __construct(
         CarFaultRepositoryInterface $repo,
@@ -34,9 +35,11 @@ class CarFaultService implements CarFaultServiceInterface
         LogServiceInterface $logService,
         CarRepositoryInterface $carRepo,
         TransactionServiceInterface $transactionService,
+            FirebaseService $firebaseService
 
 
-    ) {
+    ) {                    $this->firebaseService = $firebaseService;
+
         $this->repo = $repo;
          $this->transactionService = $transactionService;
         $this->carRepo = $carRepo;
@@ -49,7 +52,17 @@ class CarFaultService implements CarFaultServiceInterface
         try {
             $fault = $this->repo->create($data);
             event(new CarFaultSubmitted($fault));
+$users = User::whereIn('role', ['employee', 'admin'])
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                  '🚨 تم تسجيل عطل جديد',
+                    "تم تسجيل عطل جديد للسيارة : {$fault->car->make} {$fault->car->model}  ",
+                );
+            }
         $this->clearFaultCache();
 
             $this->activityLogger->log(
@@ -103,7 +116,17 @@ public function getFaultsByTrainer($trainerId)
             $this->carRepo->updateStatus($car->id, 'in_repair');
             $this->repo->updateStatus($fault->id, 'in_progress');
             event(new CarMarkedAsInRepair($fault, $car));
+ $users= User::where('role', 'admin')
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                  '🚗 السيارة قيد الإصلاح',
+                    "السيارة {$car->make} {$car->model} تحولت لوضع الإصلاح بسبب العطل ",
+                );
+            }
         $this->clearFaultCache();
         $this->carRepo->clearCache();
 
@@ -180,7 +203,17 @@ public function markCarAsResolvedByFault(int $faultId)
             $this->carRepo->updateStatus($car->id, 'available');
             $this->repo->updateStatus($fault->id, 'resolved');
             event(new CarMarkedAsResolved($fault, $car));
+ $users= User::where('role', 'admin')
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                 '✅ السيارة أصبحت متاحة',
+                    "تم الانتهاء من تصليح السيارة {$car->make} {$car->model}",
+                );
+            }
         $this->clearFaultCache();
         $this->carRepo->clearCache();
 

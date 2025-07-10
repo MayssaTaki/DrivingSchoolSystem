@@ -37,20 +37,7 @@ class SendLicenseRequestedNotification implements ShouldQueue
 
             $user->notify(new LicenseRequestedNotification($student, $license));
 
-            if ($user->fcm_token) {
-                logger('🚀 إرسال FCM إشعار طلب رخصة جديدة...', [
-                    'to_user_id' => $user->id,
-                    'student_id' => $student->id,
-                    'license_id' => $license->id,
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    '📄 طلب رخصة جديد',
-                    "{$student->first_name} {$student->last_name} قدم طلبًا للحصول على رخصة بالكود: {$license->code}",
-                    ['student_id' => $student->id, 'license_id' => $license->id, 'license_code' => $license->code]
-                );
-            }
+           
         }
     }
 }

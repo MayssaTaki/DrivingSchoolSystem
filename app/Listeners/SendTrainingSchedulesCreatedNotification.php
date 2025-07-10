@@ -37,20 +37,7 @@ class SendTrainingSchedulesCreatedNotification implements ShouldQueue
 
             $user->notify(new TrainingSchedulesCreatedNotification($trainer, $count));
 
-            if ($user->fcm_token) {
-                logger('🚀 إرسال FCM إشعار إضافة جداول تدريب...', [
-                    'to_user_id' => $user->id,
-                    'trainer_id' => $trainer->id,
-                    'count' => $count,
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    '📅 جداول تدريب جديدة',
-                    "{$trainer->first_name} {$trainer->last_name} أضاف {$count} جدول تدريب جديد.",
-                    ['trainer_id' => $trainer->id, 'count' => $count]
-                );
-            }
+           
         }
     }
 }

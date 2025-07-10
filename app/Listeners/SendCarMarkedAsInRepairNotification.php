@@ -36,20 +36,7 @@ class SendCarMarkedAsInRepairNotification implements ShouldQueue
 
             $admin->notify(new CarMarkedAsInRepairNotification($fault, $car));
 
-            if ($admin->fcm_token) {
-                logger('🚀 إرسال FCM إشعار تحويل السيارة للتصليح...', [
-                    'to_admin_id' => $admin->id,
-                    'car_id' => $car->id,
-                    'fault_id' => $fault->id,
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $admin->fcm_token,
-                    '🚗 السيارة قيد الإصلاح',
-                    "السيارة {$car->make} {$car->model} تحولت لوضع الإصلاح بسبب العطل ID: {$fault->id}",
-                    ['car_id' => $car->id, 'fault_id' => $fault->id]
-                );
-            }
+            
         }
     }
 }

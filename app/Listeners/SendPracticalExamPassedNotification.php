@@ -38,22 +38,6 @@ class SendPracticalExamPassedNotification implements ShouldQueue
 
         $user->notify(new PracticalExamPassedNotification($schedule));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار نجاح الامتحان...', [
-                'to_user_id' => $user->id,
-                'schedule_id' => $schedule->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '🎉 تهانينا! لقد نجحت في الامتحان العملي',
-                "تم تسجيل نجاحك في الامتحان العملي بتاريخ {$schedule->exam_date} الساعة {$schedule->exam_time}.",
-                [
-                    'schedule_id' => $schedule->id,
-                    'exam_date' => $schedule->exam_date,
-                    'exam_time' => $schedule->exam_time
-                ]
-            );
-        }
+       
     }
 }

@@ -35,19 +35,7 @@ class SendLicenseCreatedNotification implements ShouldQueue
 
             $admin->notify(new LicenseCreatedNotification($license));
 
-            if ($admin->fcm_token) {
-                logger('🚀 إرسال FCM إشعار إضافة رخصة جديدة...', [
-                    'to_admin_id' => $admin->id,
-                    'license_id' => $license->id,
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $admin->fcm_token,
-                    '📄 تم إضافة رخصة جديدة',
-                    "تمت إضافة رخصة جديدة بالكود: {$license->code}",
-                    ['license_id' => $license->id, 'code' => $license->code]
-                );
-            }
+            
         }
     }
 }

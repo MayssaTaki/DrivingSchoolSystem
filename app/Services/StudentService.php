@@ -24,7 +24,7 @@ use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\TransactionServiceInterface;
 use App\Services\Interfaces\EmailVerificationServiceInterface;
 use App\Services\Interfaces\UserServiceInterface;
-
+use App\Models\User;
 
 
 
@@ -99,7 +99,17 @@ protected  $emailService;
                 $student = $this->studentRepository->create($studentData);
                 $this->emailService->sendVerificationCode($user);
 event(new \App\Events\StudentRegistered($student));
+   $users = User::whereIn('role', ['employee', 'admin'])
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '📢 طالب جديد',
+                    " {$student->first_name} {$student->last_name}"
+                );
+            }
                 $this->activityLogger->log(
                     'تم تسجيل طالب جديد',
                     ['name' => $student->first_name . ' ' . $student->last_name],

@@ -9,7 +9,7 @@ use App\Models\Booking;
 use App\Services\Interfaces\FeedbackStudentServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
-
+use App\Models\User;
 use App\Events\FeedbackGiven;
 
 class FeedbackStudentService implements FeedbackStudentServiceInterface

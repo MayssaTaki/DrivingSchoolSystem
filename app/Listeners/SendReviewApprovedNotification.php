@@ -38,18 +38,6 @@ class SendReviewApprovedNotification implements ShouldQueue
 
         $user->notify(new ReviewApprovedNotification($review));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار قبول التقييم...', [
-                'to_user_id' => $user->id,
-                'review_id' => $review->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '✅ تم قبول تقييمك',
-                "تمت الموافقة على تقييمك للمدرب ID: {$review->trainer_id} بتقييم: {$review->rating}",
-                ['review_id' => $review->id, 'trainer_id' => $review->trainer_id, 'rating' => $review->rating]
-            );
-        }
+       
     }
 }

@@ -39,19 +39,7 @@ class SendStudentRegisteredNotification implements ShouldQueue
 
             $user->notify(new StudentRegisteredNotification($event->student));
 
-            if ($user->fcm_token) {
-                logger('🚀 إرسال FCM...', [
-                    'to_user_id' => $user->id,
-                    'student_id' => $studentId
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    'طالب جديد',
-                    "{$event->student->first_name} {$event->student->last_name} ",
-                    ['student_id' => $studentId]
-                );
-            }
+           
         }
     }
 }

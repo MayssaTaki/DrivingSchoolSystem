@@ -38,18 +38,6 @@ class SendTrainingScheduleActivatedNotification implements ShouldQueue
 
         $user->notify(new TrainingScheduleActivatedNotification($schedule));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار تفعيل الجدول...', [
-                'to_user_id' => $user->id,
-                'schedule_id' => $schedule->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '✅ تم تفعيل جدول التدريب',
-                "تم تفعيل جدول التدريب ليوم {$schedule->day_of_week} من {$schedule->start_time} حتى {$schedule->end_time}.",
-                ['schedule_id' => $schedule->id]
-            );
-        }
+        
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use App\Exceptions\CarNotFoundException;
 use App\Events\ImageUploaded;
 use App\Events\CarAdded;
-
+use App\Models\User;
 use App\Services\Interfaces\CarServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
@@ -19,17 +19,20 @@ class CarService implements CarServiceInterface
     
     protected LogServiceInterface $logService;
     protected ActivityLoggerServiceInterface $activityLogger;
+protected FirebaseServiceInterface $firebaseservice;
 
     public function __construct(
        
         CarRepositoryInterface $carRepository,LogServiceInterface $logService
         ,        ActivityLoggerServiceInterface $activityLogger,
+            FirebaseService $firebaseService
 
         
     ) {
         $this->carRepository = $carRepository;
         $this->logService = $logService;
         $this->activityLogger = $activityLogger;
+                    $this->firebaseService = $firebaseService;
 
 
         
@@ -76,7 +79,17 @@ class CarService implements CarServiceInterface
                     
                 ]);
 event(new CarAdded($car));
+ $users= User::where('role', 'admin')
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                   '🚗 تمت إضافة سيارة جديدة',
+                    "{$car->make} {$car->model} تمت إضافتها للنظام.",
+                );
+            }
                 $this->activityLogger->log(
                     'تم اضافة سيارة جديد',
                     ['make' => $car->make ],

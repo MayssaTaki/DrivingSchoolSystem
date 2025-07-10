@@ -39,22 +39,6 @@ class SendSessionAutoBookedNotification implements ShouldQueue
      
         $user->notify(new SessionAutoBookedNotification($booking));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار حجز تلقائي...', [
-                'to_user_id' => $user->id,
-                'booking_id' => $booking->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '⚙️ تم حجز جلسة تدريب تلقائيًا',
-                "تم حجز جلسة تدريب بتاريخ {$booking->session->day_of_week} الساعة {$booking->session->start_time} تلقائيًا.",
-                [
-                    'booking_id' => $booking->id,
-                    'session_id' => $booking->session_id,
-                    'student_id' => $booking->student_id
-                ]
-            );
-        }
+       
     }
 }
