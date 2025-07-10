@@ -21,14 +21,19 @@ protected LicenseRequestRepositoryInterface $licenseRepository;
 protected LogServiceInterface $logService;
 protected ActivityLoggerServiceInterface $activityLogger;
 protected  TransactionServiceInterface $transactionService;
+protected FirebaseServiceInterface $firebaseservice;
 
     public function __construct(LicenseRequestRepositoryInterface $licenseRepository
      ,LogServiceInterface $logService
-        ,ActivityLoggerServiceInterface $activityLogger,TransactionServiceInterface $transactionService,)
+        ,ActivityLoggerServiceInterface $activityLogger,TransactionServiceInterface $transactionService,
+            FirebaseService $firebaseService
+)
     {
         $this->licenseRepository = $licenseRepository;
            $this->logService = $logService;
         $this->activityLogger = $activityLogger;
+                    $this->firebaseService = $firebaseService;
+
     }
 
 public function requestLicense(array $data)
@@ -125,7 +130,19 @@ public function approveRequest(int $requestId): bool
         }
 
         $this->licenseRepository->updateStatus($requestId, 'approved');
-event(new LicenseRequestApproved($licenseRequest));
+
+        event(new LicenseRequestApproved($licenseRequest));
+
+        $student = $licenseRequest->student;
+        $user = $student->user;
+
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                '✅ تمت الموافقة على طلب الرخصة',
+                "تمت الموافقة على طلبك للرخصة بالكود: {$licenseRequest->license->code}"
+            );
+        }
 
         $this->activityLogger->log(
             'تمت الموافقة على طلب رخصة',
@@ -163,7 +180,16 @@ public function rejectRequest(int $requestId, string $reason): bool
 
         $this->licenseRepository->updateStatus($requestId, 'rejected', $reason);
 event(new LicenseRequestRejected($licenseRequest, $reason));
+  $student = $licenseRequest->student;
+        $user = $student->user;
 
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+               '❌ تم رفض طلب الرخصة',
+                "تمت رفض   طلبك للرخصة بالكود: {$licenseRequest->license->code}"
+            );
+        }
         $this->activityLogger->log(
             'تم رفض طلب رخصة',
             ['request_id' => $licenseRequest->id, 'reason' => $reason],

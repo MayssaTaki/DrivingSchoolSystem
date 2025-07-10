@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Post;
+use App\Models\User;
 use App\Models\PostFile;
 use App\Events\PostCreated;
 use App\Services\Interfaces\TransactionServiceInterface;
@@ -20,17 +21,21 @@ class PostService implements PostServiceInterface
     protected PostRepositoryInterface $postRepo;
 protected LogServiceInterface $logService;
     protected TransactionServiceInterface $transactionService;
+protected FirebaseServiceInterface $firebaseservice;
 
     protected ActivityLoggerServiceInterface $activityLogger;
     public function __construct(PostRepositoryInterface $postRepo,LogServiceInterface $logService
         ,        ActivityLoggerServiceInterface $activityLogger,
-                TransactionServiceInterface $transactionService
+                TransactionServiceInterface $transactionService,            FirebaseService $firebaseService
+
 )
     {
         $this->postRepo = $postRepo;
          $this->logService = $logService;
         $this->activityLogger = $activityLogger;
                 $this->transactionService = $transactionService;
+                                    $this->firebaseService = $firebaseService;
+
 
     }
 
@@ -65,7 +70,8 @@ public function store(array $data, array $files)
             }
 
             $post = $this->postRepo->createPost($data, $storedFiles);
-event(new PostCreated($post));
+
+            event(new PostCreated($post));
 
             $this->activityLogger->log(
                 'تم إضافة بوست جديد',
@@ -75,6 +81,18 @@ event(new PostCreated($post));
                 auth()->user(),
                 'create_post'
             );
+
+            $students = User::where('role', 'student')
+                ->whereNotNull('fcm_token')
+                ->get();
+
+            foreach ($students as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '📢 منشور جديد',
+                    "تم نشر منشور جديد بعنوان: {$post->title}"
+                );
+            }
 
             return $post;
 
@@ -97,6 +115,7 @@ event(new PostCreated($post));
         throw $e;
     }
 }
+
 
      public function update(int $id, array $data, array $files): Post
     {

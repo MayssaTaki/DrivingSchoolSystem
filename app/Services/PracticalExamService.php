@@ -26,17 +26,20 @@ protected LogServiceInterface $logService;
 protected TransactionServiceInterface $transactionService;
 protected ActivityLoggerServiceInterface $activityLogger;
      protected EmailVerificationServiceInterface $emailservice;
+protected FirebaseServiceInterface $firebaseservice;
 
 public function __construct(PracticalExamRepositoryInterface $practRepo,LogServiceInterface $logService
         ,        ActivityLoggerServiceInterface $activityLogger,
                 TransactionServiceInterface $transactionService,
-                                EmailVerificationServiceInterface $emailService,
+                                EmailVerificationServiceInterface $emailService,             FirebaseService $firebaseService
+
 
 )
     {
         $this->practRepo = $practRepo;
          $this->logService = $logService;
                          $this->emailService=$emailService;
+        $this->firebaseService = $firebaseService;
 
         $this->activityLogger = $activityLogger;
                 $this->transactionService = $transactionService;
@@ -73,9 +76,21 @@ protected function ensureLicenseRequestIsApproved($license_request)
             'exam_date' => $data['exam_date'],
             'exam_time' => $data['exam_time'],
         ]);
+        
         $schedule->load('licenseRequest.student.user');
 
-event(new PracticalExamScheduled($schedule));
+        event(new PracticalExamScheduled($schedule));
+
+        $student = $schedule->licenseRequest->student;
+        $user = $student->user;
+
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                '📅 تم جدولة الامتحان العملي',
+                "تم تحديد موعد امتحانك العملي بتاريخ {$schedule->exam_date} في الساعة {$schedule->exam_time}. نتمنى لك التوفيق!"
+            );
+        }
 
         $this->activityLogger->log(
             'تم جدولة امتحان عملي',
@@ -86,10 +101,9 @@ event(new PracticalExamScheduled($schedule));
             'schedule_exam'
         );
 
-        $user = $licenseRequest->student->user;
         $subject = '📅 تم تحديد موعد الامتحان العملي';
         $htmlContent = "
-            <h2>مرحبا {$user->name},</h2>
+            <h2>مرحباً {$user->name},</h2>
             <p>تم جدولة موعد الامتحان العملي الخاص بك.</p>
             <ul>
                 <li><strong>التاريخ:</strong> {$data['exam_date']}</li>
@@ -130,11 +144,24 @@ public function markAsPassed(int $id): bool
 
     if ($result) {
         $schedule = PracticalExamSchedule::with('licenseRequest.student.user')->findOrFail($id);
+
         event(new PracticalExamPassed($schedule));
+
+        $student = $schedule->licenseRequest->student;
+        $user = $student->user;
+
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                '🎉 تهانينا! لقد نجحت في الامتحان العملي',
+                "تم تسجيل نجاحك في الامتحان العملي بتاريخ {$schedule->exam_date} الساعة {$schedule->exam_time}."
+            );
+        }
     }
 
     return $result;
 }
+
 
 
 public function markAsFailed(int $id): bool
@@ -144,6 +171,16 @@ public function markAsFailed(int $id): bool
     if ($result) {
         $schedule = PracticalExamSchedule::with('licenseRequest.student.user')->findOrFail($id);
         event(new PracticalExamFailed($schedule));
+         $student = $schedule->licenseRequest->student;
+        $user = $student->user;
+
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                   '❌ لم تنجح في الامتحان العملي',
+                "نأسف لم تنجح في الامتحان العملي الذي كان  بتاريخ {$schedule->exam_date} الساعة {$schedule->exam_time}يمكنك إعادة المحاولة لاحقًا ."
+            );
+        }
     }
 
     return $result;
@@ -157,6 +194,16 @@ public function markAsAbsent(int $id): bool
     if ($result) {
         $schedule = PracticalExamSchedule::with('licenseRequest.student.user')->findOrFail($id);
         event(new PracticalExamMarkedAbsent($schedule));
+           $student = $schedule->licenseRequest->student;
+        $user = $student->user;
+
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+              '⚠️ تم تسجيل غيابك عن الامتحان العملي',
+                "لقد تم تسجيل غيابك عن الامتحان العملي الذي كان  بتاريخ {$schedule->exam_date} الساعة {$schedule->exam_time}يمكنك إعادة المحاولة لاحقًا ."
+            );
+        }
     }
 
     return $result;

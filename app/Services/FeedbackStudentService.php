@@ -15,22 +15,26 @@ use App\Events\FeedbackGiven;
 class FeedbackStudentService implements FeedbackStudentServiceInterface
 {
     protected ActivityLoggerServiceInterface $activityLogger;
+protected FirebaseServiceInterface $firebaseservice;
 
    public function __construct(
     FeedbackStudentRepositoryInterface $feedbackRepo,
     ActivityLoggerServiceInterface $activityLogger,
-    LogServiceInterface $logService
+    LogServiceInterface $logService,
+    FirebaseService $firebaseService
 ) {
     $this->feedbackRepo = $feedbackRepo;
     $this->activityLogger = $activityLogger;
     $this->logService = $logService;
+            $this->firebaseService = $firebaseService;
+
 }
 
 
 public function giveFeedback(array $data): Feedback_student
 {
     try {
-        $booking = Booking::with(['student', 'trainer', 'session'])->findOrFail($data['booking_id']);
+        $booking = Booking::with(['student.user', 'trainer', 'session'])->findOrFail($data['booking_id']);
 
         if ($booking->status !== 'completed') {
             throw new BookingNotCompletedException();
@@ -45,7 +49,19 @@ public function giveFeedback(array $data): Feedback_student
             'level' => $data['level'],
             'notes' => $data['notes'] ?? null,
         ]);
-event(new FeedbackGiven($feedback));
+
+        event(new FeedbackGiven($feedback));
+
+        $student = $booking->student;
+        $user = $student->user;
+
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                '📝 تقييم جديد من المدرب',
+                "تمت إضافة تقييم جديد لك بعد الجلسة. المستوى: {$feedback->level}" . ($feedback->notes ? "، ملاحظات: {$feedback->notes}" : '')
+            );
+        }
 
         $this->activityLogger->log(
             'تقييم طالب بعد جلسة تدريب',
@@ -72,6 +88,7 @@ event(new FeedbackGiven($feedback));
         throw $e;
     }
 }
+
 
 
    public function getStudentFeedbacks(int $studentId)

@@ -32,17 +32,22 @@ class TrainingSchedulesService implements TrainingSchedulesServiceInterface
     protected LogServiceInterface $logService;
     protected TrainingSchedulesRepositoryInterface $trainingRepository;
     protected TransactionServiceInterface $transactionService;
+protected FirebaseServiceInterface $firebaseservice;
 
     public function __construct(
         TrainingSchedulesRepositoryInterface $trainingRepository,
         TransactionServiceInterface $transactionService,
         ActivityLoggerServiceInterface $activityLogger,
-        LogServiceInterface $logService
+        LogServiceInterface $logService,
+        FirebaseService $firebaseService
+
     ) {
         $this->trainingRepository = $trainingRepository;
         $this->transactionService = $transactionService;
         $this->activityLogger = $activityLogger;
         $this->logService = $logService;
+        $this->firebaseService = $firebaseService;
+
     }
 
     public function getTrainerSchedules($trainerId)
@@ -128,29 +133,41 @@ event(new TrainingSchedulesCreated($trainer, $count));
 
 
  
-
-    public function activate(int $id)
+public function activate(int $id)
 {
     try {
         return $this->transactionService->run(function () use ($id) {
             $schedule = $this->trainingRepository->findById($id);
 
-  if (Gate::denies('active', $schedule)) {
+            if (Gate::denies('active', $schedule)) {
                 throw new AuthorizationException('ليس لديك صلاحية تفعيل جدول التدريب.');
             }
-            $updatedSchedule = $this->changeStatusWithCheck($id, 'active');
-                event(new TrainingScheduleCreated($updatedSchedule));
-event(new TrainingScheduleActivated($updatedSchedule));
 
-            $this->clearTrainingCache($schedule->trainer_id);
+            $updatedSchedule = $this->changeStatusWithCheck($id, 'active');
+
+            event(new TrainingScheduleCreated($updatedSchedule));
+            event(new TrainingScheduleActivated($updatedSchedule));
+
+            $trainer = $updatedSchedule->trainer;
+            $user = $trainer->user;
+
+            if ($user && $user->fcm_token) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '✅ تم تفعيل جدول التدريب',
+                    "تم تفعيل جدول التدريب ليوم {$updatedSchedule->day_of_week} من {$updatedSchedule->start_time} حتى {$updatedSchedule->end_time}."
+                );
+            }
+
+            $this->clearTrainingCache($updatedSchedule->trainer_id);
 
             $this->activityLogger->log(
                 'تفعيل جدول تدريب',
-                ['day' => $schedule->day_of_week, 'start' => $schedule->start_time],
+                ['day' => $updatedSchedule->day_of_week, 'start' => $updatedSchedule->start_time],
                 'training_schedules',
-                $schedule,
+                $updatedSchedule,
                 auth()->user(),
-                'activate  '
+                'activate'
             );
 
             return $updatedSchedule;
@@ -167,6 +184,7 @@ event(new TrainingScheduleActivated($updatedSchedule));
 }
 
 
+
     public function deactivate(int $id)
 {
     try {
@@ -177,7 +195,16 @@ event(new TrainingScheduleActivated($updatedSchedule));
             }
             $updatedSchedule = $this->changeStatusWithCheck($id, 'inactive');
            event(new TrainingScheduleDeactivated($updatedSchedule));
+$trainer = $updatedSchedule->trainer;
+            $user = $trainer->user;
 
+            if ($user && $user->fcm_token) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '⚠️ تم تعطيل جدول التدريب',
+                "تم تعطيل جدول التدريب الخاص بك ليوم {$updatedSchedule->day_of_week} من {$updatedSchedule->start_time} حتى {$updatedSchedule->end_time}.",
+                );
+            }
             $this->clearTrainingCache($schedule->trainer_id);
 
             $this->activityLogger->log(
