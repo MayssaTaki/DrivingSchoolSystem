@@ -276,11 +276,12 @@ public function clearTrainerCache(): void
 
         $user = $trainer->user;
         if ($user && $user->fcm_token) {
-            $this->firebaseService->sendNotification(
-                $user->fcm_token,
-                '  ✅ تهانينا!  تمت الموافقة عليك كمدرب ',
-                'مبروك! تم قبولك كمدرب: {$this->trainer->first_name} {$this->trainer->last_name}.'
-            );
+         $this->firebaseService->sendNotification(
+    $user->fcm_token,
+    '✅ تهانينا! تمت الموافقة عليك كمدرب',
+    'مبروك! تم قبولك كمدرب: ' . $trainer->first_name . ' ' . $trainer->last_name . '.'
+);
+
         }
 
         event(new TrainerApproved($trainer));
@@ -312,6 +313,15 @@ public function rejectTrainer($id)
         }
 
         $rejectedTrainer = $this->trainerRepository->reject($trainer);
+        
+        $user = $trainer->user;
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                ' ⚠️ تم رفضك  كمدرب',
+    'للاسف! تم رفضك كمدرب: ' . $trainer->first_name . ' ' . $trainer->last_name . '.'
+            );
+        }
 event(new TrainerRejected($trainer));
 
         $this->activityLogger->log(

@@ -18,13 +18,18 @@ class TrainerReviewService implements TrainerReviewServiceInterface
 {
     protected $repo;
     protected ActivityLoggerServiceInterface $activityLogger;
+protected FirebaseServiceInterface $firebaseservice;
 
     public function __construct(TrainerReviewRepositoryInterface $repo,
     ActivityLoggerServiceInterface $activityLogger,        TransactionServiceInterface $transactionService,
 
-     protected LogServiceInterface $logService)
+     protected LogServiceInterface $logService
+     ,
+             FirebaseService $firebaseService
+)
     {        $this->activityLogger = $activityLogger;
         $this->transactionService = $transactionService;
+        $this->firebaseService = $firebaseService;
 
         $this->repo = $repo;
     }
@@ -75,61 +80,94 @@ event(new TrainerReviewed($review));
         return $this->repo->getPending();
     }
 
-    public function approveReview($id)
-    {   try { 
+  public function approveReview($id)
+{
+    try {
+        if (auth()->user()->role !== 'employee') {
+            throw new AuthorizationException('ليس لديك صلاحية الموافقة على التقييم.');
+        }
 
-if (!auth()->user()->role === 'employee') {
-    throw new AuthorizationException('ليس لديك صلاحية الموافقة على التقييم.');
+        $review = $this->repo->approve($id);
+
+        event(new ReviewApproved($review));
+
+        $student = $review->student; 
+        $user = $student->user;
+
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                '✅ تم قبول تقييمك',
+                "تمت الموافقة على تقييمك للمدرب  بتقييم: {$review->rating} نجوم."
+            );
+        }
+
+        $this->activityLogger->log(
+            'تم قبول التقييم',
+            ['rating' => $review->rating],
+            'rating',
+            $review,
+            auth()->user(),
+            'rating'
+        );
+
+        $this->clearReviewCache();
+
+        return $review;
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل قبول التقييم', [
+            'message' => $e->getMessage(),
+        ], 'trainer_reviews');
+
+        throw new \Exception('فشل قبول التقييم: ' . $e->getMessage());
+    }
 }
-       $approve=  $this->repo->approve($id);
-       event(new ReviewApproved($approve));
 
-         $this->activityLogger->log(
-                    'تم قبول التقييم',
-                      ['rating' => $approve->rating],
-                    'rating',
-                    $approve, 
-                    auth()->user(),
-                    'rating'
-                );
-              $this->clearReviewCache();
 
-       return $approve; }catch (\Exception $e) {
-          $this->logService->log('error', 'فشل قبول  التقييم ', [
-                'message' => $e->getMessage(),
-            ], 'trainer_reviews');
+  public function rejectReview($id)
+{
+    try {
+        if (auth()->user()->role !== 'employee') {
+            throw new AuthorizationException('ليس لديك صلاحية رفض التقييم.');
+        }
 
-        throw new \Exception('فشل قبول التقييم : ' . $e->getMessage());
+        $review = $this->repo->reject($id); // تأكد أن هذه الدالة تُرجع كائن التقييم
+
+        event(new ReviewRejected($review));
+
+        $student = $review->student; // تأكد أن العلاقة student موجودة في نموذج Review
+        $user = $student->user;
+
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                '❌ تم رفض تقييمك',
+                "تم رفض تقييمك للمدرب بتقييم: {$review->rating} نجوم."
+            );
+        }
+
+        $this->activityLogger->log(
+            'تم رفض التقييم',
+            ['rating' => $review->rating],
+            'rating',
+            $review,
+            auth()->user(),
+            'reject rating'
+        );
+
+        $this->clearReviewCache();
+
+        return $review;
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل رفض التقييم', [
+            'message' => $e->getMessage(),
+        ], 'trainer_reviews');
+
+        throw new \Exception('فشل رفض التقييم: ' . $e->getMessage());
     }
-    }
-
-     public function RejectReview($id)
-    {   try { 
-
-if (!auth()->user()->role === 'employee') {
-    throw new AuthorizationException('ليس لديك صلاحية الموافقة على التقييم.');
 }
-       $approve=  $this->repo->reject($id);
-       event(new ReviewRejected($approve));
 
-         $this->activityLogger->log(
-                    'تم رفض التقييم',
-                      ['rating' => $approve->rating],
-                    'rating',
-                    $approve, 
-                    auth()->user(),
-                    'rating'
-                );
-             $this->clearReviewCache();
-
-       return $approve; }catch (\Exception $e) {
-          $this->logService->log('error', 'فشل رفض  التقييم ', [
-                'message' => $e->getMessage(),
-            ], 'trainer_reviews');
-
-        throw new \Exception('فشل رفض التقييم : ' . $e->getMessage());
-    }
-    }
+    
       public function getTrainerReviews(int $trainerId): LengthAwarePaginator
     {
         return $this->repo->getByTrainerId($trainerId);

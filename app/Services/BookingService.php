@@ -28,6 +28,7 @@ class BookingService implements BookingServiceInterface
 
         protected TransactionService $transactionService;
         protected EmailVerificationServiceInterface $emailservice;
+protected FirebaseServiceInterface $firebaseservice;
 
 
 
@@ -40,11 +41,14 @@ class BookingService implements BookingServiceInterface
         LogServiceInterface $logService,
                 StudentRepositoryInterface $studentRepo,
 
-        protected TrainingSessionRepositoryInterface $sessionRepo
+        protected TrainingSessionRepositoryInterface $sessionRepo,
+                FirebaseService $firebaseService
+
     ) {
         $this->transactionService = $transactionService;
         $this->activityLogger = $activityLogger;
                 $this->studentRepo = $studentRepo;
+        $this->firebaseService = $firebaseService;
 
         $this->logService = $logService;
                 $this->emailService=$emailService;
@@ -93,25 +97,37 @@ protected function ensureCarIsAvailable(int $carId)
 {
     try {
         return $this->transactionService->run(function () use ($studentId, $sessionId, $carId) {
-             $this->ensureSessionIsAvailable($sessionId);
+            $this->ensureSessionIsAvailable($sessionId);
             $this->ensureCarIsAvailable($carId);
 
             $session = $this->sessionRepo->findWithLock($sessionId);
-$car = $this->carRepo->findWithLock($carId);
-
+            $car = $this->carRepo->findWithLock($carId);
 
             $booking = $this->bookingRepo->create([
                 'student_id' => $studentId,
                 'session_id' => $session->id,
-                'trainer_id' => $session->trainer_id, 
+                'trainer_id' => $session->trainer_id,
                 'car_id' => $carId,
                 'status' => 'booked',
             ]);
 
             $this->sessionRepo->updateStatus($session->id, 'booked');
             $this->carRepo->updateStatus($car->id, 'booked');
-$booking->load('session.trainer.user');
-event(new SessionBooked($booking));
+
+            $booking->load('session.trainer.user');
+
+            event(new SessionBooked($booking));
+
+            $trainer = $booking->session->trainer;
+            $user = $trainer->user;
+
+            if ($user && $user->fcm_token) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '📅 تم حجز جلسة تدريب جديدة',
+                    "تم حجز جلسة تدريب بتاريخ {$booking->session->day_of_week} الساعة {$booking->session->start_time}."
+                );
+            }
 
             $this->activityLogger->log(
                 'حجز جلسة تدريب',
@@ -142,6 +158,7 @@ event(new SessionBooked($booking));
     }
 }
 
+
 public function autoBookSession(int $studentId, int $sessionId, string $transmission, bool $isForSpecialNeeds)
 {
     try {
@@ -171,8 +188,22 @@ public function autoBookSession(int $studentId, int $sessionId, string $transmis
 
             $this->sessionRepo->updateStatus($session->id, 'booked');
             $this->carRepo->updateStatus($availableCar->id, 'booked');
-$booking->load('session.trainer.user');
-event(new SessionAutoBooked($booking));
+
+            $booking->load('session.trainer.user');
+
+            event(new SessionAutoBooked($booking));
+
+            $trainer = $booking->session->trainer;
+            $user = $trainer->user;
+
+            if ($user && $user->fcm_token) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '⚙️ تم حجز جلسة تدريب تلقائيًا',
+                    "تم حجز جلسة تدريب بتاريخ {$booking->session->day_of_week} الساعة {$booking->session->start_time} تلقائيًا."
+                );
+            }
+
             $this->activityLogger->log(
                 'تم حجز جلسة تدريب تلقائيًا',
                 [
@@ -201,6 +232,7 @@ event(new SessionAutoBooked($booking));
         throw $e;
     }
 }
+
 
 
 
@@ -326,12 +358,11 @@ event(new SessionStarted($booking));
     }
 
 
-   public function CancelSession(int $bookingId)
+ public function CancelSession(int $bookingId)
 {
     try {
         return $this->transactionService->run(function () use ($bookingId) {
             $booking = $this->bookingRepo->getBySessionIdWithLock($bookingId);
-
             $session = $this->sessionRepo->findWithLock($booking->session_id);
             $car = $this->carRepo->findWithLock($booking->car_id);
 
@@ -341,12 +372,6 @@ event(new SessionStarted($booking));
             $this->bookingRepo->updateStatus($booking->id, 'cancelled');
             $this->sessionRepo->updateStatus($session->id, 'cancelled');
             $this->carRepo->updateStatus($car->id, 'available');
-$currentUser = auth()->user();
-$isStudent = ($currentUser->role === 'student');
-
-$booking->load('student.user', 'session.trainer.user');
-
-event(new SessionCancelled($booking, $session, $isStudent));
 
             $this->activityLogger->log(
                 'الغاء جلسة تدريب',
@@ -361,13 +386,30 @@ event(new SessionCancelled($booking, $session, $isStudent));
                 auth()->user(),
                 'book'
             );
+
             $this->sendSessionCancellationEmail($booking, $session);
-$currentUser = auth()->user();
-$isStudent = ($currentUser->role === 'student');
 
-$booking->load('student.user', 'session.trainer.user');
+            $currentUser = auth()->user();
+            $isStudent = ($currentUser->role === 'student');
 
-event(new SessionCancelled($booking, $session, $isStudent));
+            $booking->load('student.user', 'session.trainer.user');
+
+            event(new SessionCancelled($booking, $session, $isStudent));
+
+            // إرسال إشعار Firebase للطرف الآخر
+            $recipient = $isStudent ? $booking->session->trainer?->user : $booking->student?->user;
+
+            if ($recipient && $recipient->fcm_token) {
+                $who = $isStudent ? 'الطالب' : 'المدرب';
+
+                $this->firebaseService->sendNotification(
+                    $recipient->fcm_token,
+                    '⚠️ تم إلغاء جلسة تدريب',
+                    "قام {$who} بإلغاء جلسة التدريب بتاريخ {$session->session_date} الساعة {$session->start_time}.",
+                  
+                );
+            }
+
             return $booking;
         });
     } catch (\Exception $e) {
@@ -380,6 +422,7 @@ event(new SessionCancelled($booking, $session, $isStudent));
         throw $e;
     }
 }
+
 protected function sendSessionCancellationEmail($booking, $session)
 {
     $currentUser = auth()->user();

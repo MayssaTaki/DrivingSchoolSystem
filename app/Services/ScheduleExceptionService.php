@@ -28,12 +28,14 @@ class ScheduleExceptionService implements ScheduleExceptionServiceInterface
     protected ActivityLoggerServiceInterface $activityLogger;
     protected LogServiceInterface $logService;
 protected TrainerRepositoryInterface $trainerrepo;
+protected FirebaseServiceInterface $firebaseservice;
 
     public function __construct(ScheduleExceptionRepositoryInterface $exceptionRepo,
      protected TrainingSessionRepositoryInterface $sessionRepo,
              ActivityLoggerServiceInterface $activityLogger, LogServiceInterface $logService,
                      TransactionServiceInterface $transactionService,
                      TrainerRepositoryInterface $trainerrepo,
+        FirebaseService $firebaseService
 
 
 )
@@ -44,6 +46,7 @@ protected TrainerRepositoryInterface $trainerrepo;
                 $this->sessionRepo = $sessionRepo;
         $this->activityLogger = $activityLogger;
         $this->transactionService = $transactionService;
+        $this->firebaseService = $firebaseService;
 
 
     }
@@ -94,7 +97,7 @@ event(new TrainerExceptionCreated($trainer, $count, $reason));
     }
 }
 
-    public function approveException(int $exceptionId): ?ScheduleException
+   public function approveException(int $exceptionId): ?ScheduleException
 {
     try {
         return $this->transactionService->run(function () use ($exceptionId) {
@@ -112,7 +115,20 @@ event(new TrainerExceptionCreated($trainer, $count, $reason));
             $exception->save();
 
             $this->sessionRepo->cancelSessionsForDate($exception->trainer_id, $exception->exception_date);
-event(new ExceptionApproved($exception));
+
+            event(new ExceptionApproved($exception));
+
+            $trainer = $exception->trainer;
+            $user = $trainer->user;
+
+            if ($user && $user->fcm_token) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '✅ تمت الموافقة على طلب الإجازة',
+                    "تمت الموافقة على إجازتك بتاريخ {$exception->exception_date}" . 
+                    ($exception->reason ? "، السبب: {$exception->reason}" : '')
+                );
+            }
 
             $this->activityLogger->log(
                 'تم الموافقة على الاجازة',
@@ -122,6 +138,7 @@ event(new ExceptionApproved($exception));
                 auth()->user(),
                 'approve exception'
             );
+
             $this->clearExceptionCache();
 
             return $exception;
@@ -136,6 +153,7 @@ event(new ExceptionApproved($exception));
         throw $e;
     }
 }
+
 
 public function rejectException(int $exceptionId): ?ScheduleException
 {
@@ -154,7 +172,17 @@ public function rejectException(int $exceptionId): ?ScheduleException
             $exception->status = 'rejected';
             $exception->save();
 event(new ExceptionRejected($exception));
+ $trainer = $exception->trainer;
+            $user = $trainer->user;
 
+            if ($user && $user->fcm_token) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '❌ تم رفض طلب الإجازة',
+                    "تمت رفض  إجازتك بتاريخ {$exception->exception_date}" . 
+                    ($exception->reason ? "، السبب: {$exception->reason}" : '')
+                );
+            }
             $this->activityLogger->log(
                 'تم رفض الإجازة',
                 ['exception_id' => $exception->id],
