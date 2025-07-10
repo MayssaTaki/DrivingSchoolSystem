@@ -38,22 +38,7 @@ class SendLicenseRequestApprovedNotification implements ShouldQueue
 
         $user->notify(new LicenseRequestApprovedNotification($licenseRequest));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار الموافقة...', [
-                'to_user_id' => $user->id,
-                'license_request_id' => $licenseRequest->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '✅ تمت الموافقة على طلب الرخصة',
-                "تمت الموافقة على طلبك للرخصة بالكود: {$licenseRequest->license->code}",
-                [
-                    'license_request_id' => $licenseRequest->id,
-                    'license_id' => $licenseRequest->license_id,
-                    'license_code' => $licenseRequest->license->code,
-                ]
-            );
+        
         }
     }
-}
+

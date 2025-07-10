@@ -36,17 +36,7 @@ class SendPostLikedNotification implements ShouldQueue
 
             $user->notify(new PostLikedNotification($post, $student));
 
-            if ($user->fcm_token) {
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    '❤️ إعجاب جديد بمنشور',
-                    "{$student->user->name} أُعجب بمنشور ID: {$post->id}",
-                    [
-                        'post_id' => $post->id,
-                        'student_id' => $student->id
-                    ]
-                );
-            }
+           
         }
     }
 }

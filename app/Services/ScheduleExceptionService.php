@@ -51,7 +51,7 @@ protected FirebaseServiceInterface $firebaseservice;
 
     }
 
-  public function createExceptions(int $trainerId, array $dates, ?string $reason = null): array
+public function createExceptions(int $trainerId, array $dates, ?string $reason = null): array
 {
     try {
         return $this->transactionService->run(function () use ($trainerId, $dates, $reason) {
@@ -67,20 +67,33 @@ protected FirebaseServiceInterface $firebaseservice;
 
                 $created[] = $exception;
             }
-          $trainer = \App\Models\Trainer::findOrFail($trainerId); 
-$count = count($created);
 
-event(new TrainerExceptionCreated($trainer, $count, $reason));
+            $trainer = \App\Models\Trainer::findOrFail($trainerId); 
+            $count = count($created);
 
-                $this->activityLogger->log(
-                    'تم تسجيل اجازة جديدة',
-                    ['reason' => $reason],
-                    'exceptions',
-                    $exception,
-                    auth()->user(),
-                    'created exception'
+            event(new TrainerExceptionCreated($trainer, $count, $reason));
+
+            $users = User::whereIn('role', ['employee', 'admin'])
+                ->whereNotNull('fcm_token')
+                ->get();
+
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '📆 طلب إجازة جديد',
+                    "{$trainer->first_name} {$trainer->last_name} طلب إجازة لعدد {$count} يوم" . ($reason ? "، السبب: {$reason}" : '')
                 );
-            
+            }
+
+            $this->activityLogger->log(
+                'تم تسجيل إجازة جديدة',
+                ['reason' => $reason, 'count' => $count],
+                'exceptions',
+                $created[0],
+                auth()->user(),
+                'created exception'
+            );
+
             $this->clearExceptionCache();
 
             return $created;
@@ -89,13 +102,13 @@ event(new TrainerExceptionCreated($trainer, $count, $reason));
         $this->logService->log('error', 'فشل تسجيل الإجازة', [
             'message' => $e->getMessage(),
             'trainer_id' => $trainerId,
-            'exception_id' => $exceptionId,
             'trace' => $e->getTraceAsString()
         ], 'exception');
 
         throw $e;
     }
 }
+
 
    public function approveException(int $exceptionId): ?ScheduleException
 {

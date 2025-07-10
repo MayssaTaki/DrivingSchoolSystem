@@ -36,18 +36,6 @@ class SendTrainerApprovedNotification implements ShouldQueue
 
         $user->notify(new TrainerApprovedNotification($trainer));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار قبول...', [
-                'to_user_id' => $user->id,
-                'trainer_id' => $trainer->id
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                'تهانينا! تم قبولك',
-                "مبروك {$trainer->first_name} {$trainer->last_name}, تم قبولك كمدرب.",
-                ['trainer_id' => (string) $trainer->id]
-            );
-        }
+       
     }
 }

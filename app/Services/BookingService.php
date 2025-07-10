@@ -18,6 +18,7 @@ use App\Events\SessionAutoBooked;
 use App\Events\SessionStarted;
 use App\Events\SessionCompleted;
 use App\Events\SessionCancelled;
+use App\Models\User;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 use Illuminate\Validation\ValidationException;
 
@@ -267,7 +268,17 @@ public function completeSession(int $bookingId)
 
 $booking->load('session');
 event(new SessionCompleted($booking));
+$users= User::where('role', 'employee')
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                '✅ تم إنهاء جلسة تدريب',
+                    "تم إنهاء جلسة تدريب بتاريخ {$booking->session->day_of_week} الساعة {$booking->session->start_time} من قبل المدرب : {$booking->trainer->first_name} {$booking->trainer->last_name}.",
+                );
+            }
             $this->activityLogger->log(
                 'إنهاء جلسة تدريب',
                 [
@@ -317,7 +328,17 @@ event(new SessionCompleted($booking));
                 $this->bookingRepo->updateStatus($booking->id, 'started'); // أو حالة خاصة لو تريدها مثل "started"
 $booking->load('session'); 
 event(new SessionStarted($booking));
+$users= User::where('role', 'employee')
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                '🚀 تم بدء جلسة تدريب',
+                    "تم بدء جلسة تدريب بتاريخ {$booking->session->day_of_week} الساعة {$booking->session->start_time} بواسطة المدرب : {$booking->trainer->first_name} {$booking->trainer->last_name}.",
+                );
+            }
                 $this->activityLogger->log(
                     'بدء جلسة تدريب',
                     [
@@ -396,7 +417,6 @@ event(new SessionStarted($booking));
 
             event(new SessionCancelled($booking, $session, $isStudent));
 
-            // إرسال إشعار Firebase للطرف الآخر
             $recipient = $isStudent ? $booking->session->trainer?->user : $booking->student?->user;
 
             if ($recipient && $recipient->fcm_token) {

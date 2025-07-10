@@ -41,18 +41,6 @@ class SendExceptionRejectedNotification implements ShouldQueue
         $user->notify(new ExceptionRejectedNotification($exception));
 
         
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار رفض الإجازة...', [
-                'to_user_id' => $user->id,
-                'exception_id' => $exception->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '❌ تم رفض طلب الإجازة',
-                "تم رفض طلب إجازتك بتاريخ {$exception->exception_date}" . ($exception->reason ? "، السبب: {$exception->reason}" : ''),
-                ['exception_id' => $exception->id, 'date' => $exception->exception_date]
-            );
-        }
+       
     }
 }

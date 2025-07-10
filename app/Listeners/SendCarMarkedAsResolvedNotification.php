@@ -36,20 +36,7 @@ class SendCarMarkedAsResolvedNotification implements ShouldQueue
 
             $admin->notify(new CarMarkedAsResolvedNotification($fault, $car));
 
-            if ($admin->fcm_token) {
-                logger('🚀 إرسال FCM إشعار انتهاء التصليح...', [
-                    'to_admin_id' => $admin->id,
-                    'car_id' => $car->id,
-                    'fault_id' => $fault->id,
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $admin->fcm_token,
-                    '✅ السيارة أصبحت متاحة',
-                    "تم الانتهاء من تصليح السيارة {$car->make} {$car->model}، العطل ID: {$fault->id}",
-                    ['car_id' => $car->id, 'fault_id' => $fault->id]
-                );
-            }
+           
         }
     }
 }

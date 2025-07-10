@@ -39,19 +39,7 @@ class SendTrainerRegisteredNotification implements ShouldQueue
 
             $user->notify(new TrainerRegisteredNotification($event->trainer));
 
-            if ($user->fcm_token) {
-                logger('🚀 إرسال FCM...', [
-                    'to_user_id' => $user->id,
-                    'trainer_id' => $trainerId
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    'مدرب جديد انتظر موافقتك',
-                    "{$event->trainer->first_name} {$event->trainer->last_name} بانتظار قبولك",
-                    ['trainer_id' => $trainerId]
-                );
-            }
+           
         }
     }
 }

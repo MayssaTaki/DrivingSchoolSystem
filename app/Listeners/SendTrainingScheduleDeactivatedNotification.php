@@ -38,18 +38,6 @@ class SendTrainingScheduleDeactivatedNotification implements ShouldQueue
 
         $user->notify(new TrainingScheduleDeactivatedNotification($schedule));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار تعطيل الجدول التدريبي...', [
-                'to_user_id' => $user->id,
-                'schedule_id' => $schedule->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '⚠️ تم تعطيل جدول التدريب',
-                "تم تعطيل جدول التدريب الخاص بك ليوم {$schedule->day_of_week} من {$schedule->start_time} حتى {$schedule->end_time}.",
-                ['schedule_id' => $schedule->id]
-            );
-        }
+      
     }
 }

@@ -42,23 +42,6 @@ class SendSessionCancelledNotification implements ShouldQueue
 
         $recipientUser->notify(new SessionCancelledNotification($booking, $session, $cancelledByStudent));
 
-        if ($recipientUser->fcm_token) {
-            $who = $cancelledByStudent ? 'الطالب' : 'المدرب';
-            logger('🚀 إرسال FCM إشعار إلغاء الجلسة...', [
-                'to_user_id' => $recipientUser->id,
-                'booking_id' => $booking->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $recipientUser->fcm_token,
-                '⚠️ تم إلغاء جلسة تدريب',
-                "قام {$who} بإلغاء جلسة التدريب بتاريخ {$session->session_date} الساعة {$session->start_time}.",
-                [
-                    'booking_id' => $booking->id,
-                    'session_id' => $session->id,
-                    'cancelled_by_student' => $cancelledByStudent
-                ]
-            );
-        }
+       
     }
 }

@@ -11,10 +11,9 @@ use App\Events\TrainingSchedulesCreated;
 use App\Events\TrainingScheduleActivated;
 use App\Events\TrainingScheduleDeactivated;
 
-
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
-
 use App\Exceptions\TrainingScheduleException;
 use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\Log;
@@ -103,7 +102,17 @@ public function createMany(array $schedules)
 $count = count($created);
 
 event(new TrainingSchedulesCreated($trainer, $count));
+  $users = User::whereIn('role', ['employee', 'admin'])
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '📅 جداول تدريب جديدة',
+                    "{$trainer->first_name} {$trainer->last_name} أضاف {$count} جدول تدريب جديد.",
+                );
+            }
                 $this->activityLogger->log(
                     'إضافة جدول تدريب',
                     ['day' => $data['day_of_week'], 'start' => $data['start_time']],

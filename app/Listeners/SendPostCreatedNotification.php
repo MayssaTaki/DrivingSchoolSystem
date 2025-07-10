@@ -33,17 +33,7 @@ class SendPostCreatedNotification implements ShouldQueue
 
             $user->notify(new PostCreatedNotification($post));
 
-            if ($user->fcm_token) {
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    '📢 منشور جديد',
-                    "تم نشر منشور جديد بعنوان: {$post->title}",
-                    [
-                        'post_id' =>(string) $post->id,
-                        'creator' => $post->user?->name ?? 'موظف'
-                    ]
-                );
-            }
+          
         }
     }
 }

@@ -39,23 +39,7 @@ class SendLicenseRequestRejectedNotification implements ShouldQueue
 
         $user->notify(new LicenseRequestRejectedNotification($licenseRequest, $reason));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار رفض طلب الرخصة...', [
-                'to_user_id' => $user->id,
-                'license_request_id' => $licenseRequest->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '❌ تم رفض طلب الرخصة',
-                "تم رفض طلبك للرخصة بالكود: {$licenseRequest->license->code}. السبب: {$reason}",
-                [
-                    'license_request_id' => $licenseRequest->id,
-                    'license_id' => $licenseRequest->license_id,
-                    'license_code' => $licenseRequest->license->code,
-                    'reason' => $reason
-                ]
-            );
-        }
+       
+        
     }
 }

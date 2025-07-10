@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Events\ImageUploaded;
-
+use App\Models\User;
 
 
 
@@ -75,66 +75,79 @@ $this->firebaseService = $firebaseService;
     }
 
     public function register(array $data): Trainer
-    {
-        try {
-            return $this->transactionService->run(function () use ($data) {
-                $data['role'] = 'trainer';
-                $user = $this->userService->register($data);
-                $data['user_id'] = $user->id;
-              if (isset($data['image'])) {
-    $data['image'] = $data['image']->store('ImageTrainers', 'public');
+{
+    try {
+        return $this->transactionService->run(function () use ($data) {
+            $data['role'] = 'trainer';
 
-    $fullPath = storage_path("app/public/{$data['image']}");
-    event(new ImageUploaded($fullPath));
+            $user = $this->userService->register($data);
+            $data['user_id'] = $user->id;
+
+            if (isset($data['image'])) {
+                $data['image'] = $data['image']->store('ImageTrainers', 'public');
+
+                $fullPath = storage_path("app/public/{$data['image']}");
+                event(new ImageUploaded($fullPath));
+            }
+
+            $trainerData = [
+                'user_id' => $user->id,
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'phone_number' => $data['phone_number'],
+                'address' => $data['address'],
+                'gender' => $data['gender'],
+                'license_number' => $data['license_number'],
+                'license_expiry_date' => $data['license_expiry_date'],
+                'training_type' => $data['training_type'],
+                'experience' => $data['experience'],
+                'image' => $data['image'] ?? null,
+                'date_of_Birth' => $data['date_of_Birth'],
+            ];
+
+            $trainer = $this->trainerRepository->create($trainerData);
+
+            $this->emailService->sendVerificationCode($user);
+
+            logger('📣 سيتم إطلاق الحدث TrainerRegistered للمدرب:', ['id' => $trainer->id]);
+            event(new \App\Events\TrainerRegistered($trainer));
+
+            $users = User::whereIn('role', ['employee', 'admin'])
+                ->whereNotNull('fcm_token')
+                ->get();
+
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                    '📢 مدرب جديد انتظر موافقتك',
+                    "بانتظار قبولك: {$trainer->first_name} {$trainer->last_name}"
+                );
+            }
+
+            $this->activityLogger->log(
+                'تم تسجيل موظف جديد',
+                ['name' => $trainer->first_name . ' ' . $trainer->last_name],
+                'trainers',
+                $trainer, 
+                auth()->user(),
+                'created'
+            );
+
+            $this->cleartrainerCache();
+
+            return $trainer;
+        });
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل تسجيل المدرب', [
+            'message' => $e->getMessage(),
+            'data' => $data,
+            'trace' => $e->getTraceAsString()
+        ], 'trainer');
+
+        throw new TrainerRegistrationException('فشل تسجيل الأستاذ والمدرب: ' . $e->getMessage());
+    }
 }
 
-                $trainerData = [
-                    'user_id' => $user->id,
-                    'first_name' => $data['first_name'],
-                    'last_name' => $data['last_name'],
-                    'phone_number' => $data['phone_number'],
-                    'address' => $data['address'],
-                    'gender' => $data['gender'],
-                 'license_number' => $data['license_number'],
-                 'license_expiry_date' => $data['license_expiry_date'],
-                    'training_type' => $data['training_type'],
-                    'experience' => $data['experience'],
-
-                    'image' => $data['image'] ?? null,
-                    'date_of_Birth'=>$data['date_of_Birth'],
-
-                   
-                ];
-
-                $trainer = $this->trainerRepository->create($trainerData);
-                $this->emailService->sendVerificationCode($user);
-                logger('📣 سيتم إطلاق الحدث TrainerRegistered للمدرب:', ['id' => $trainer->id]);
-
-event(new \App\Events\TrainerRegistered($trainer));
-
-                $this->activityLogger->log(
-                    'تم تسجيل موظف جديد',
-                    ['name' => $trainer->first_name . ' ' . $trainer->last_name],
-                    'trainers',
-                    $trainer, 
-                    auth()->user(),
-                    'created'
-                );
-                
-
-                $this->cleartrainerCache();
-
-                return $trainer;
-            });
-        } catch (\Exception $e) {
-            $this->logService->log('error', 'فشل تسجيل المدرب', [
-                'message' => $e->getMessage(),
-                'data' => $data,
-                'trace' => $e->getTraceAsString()
-            ], 'trainer');
-            throw new TrainerRegistrationException('فشل تسجيل الأستاذ واالمدرب : ' . $e->getMessage());
-        }
-    }
 
     public function getAllTrainers(?string $name)
     {

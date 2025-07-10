@@ -14,7 +14,11 @@ class FirebaseService
 
     public function __construct(LogServiceInterface $logService)
     {
-        $path = storage_path('app/private/driving-school-project-c7918-firebase-adminsdk-fbsvc-45122c7f99.json');
+$path = storage_path('app/private/driving_school_project_c7918_firebase_adminsdk_fbsvc_45122c7f99.json');
+
+        if (!file_exists($path)) {
+        throw new \Exception("🔴 الملف غير موجود: $path");
+    }
         $this->serviceAccount = json_decode(file_get_contents($path), true);
         $this->projectId = $this->serviceAccount['project_id'];
         $this->logService = $logService;

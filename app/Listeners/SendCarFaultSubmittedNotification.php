@@ -35,19 +35,7 @@ class SendCarFaultSubmittedNotification implements ShouldQueue
 
             $user->notify(new CarFaultSubmittedNotification($fault));
 
-            if ($user->fcm_token) {
-                logger('🚀 إرسال FCM إشعار تسجيل عطل جديد...', [
-                    'to_user_id' => $user->id,
-                    'fault_id' => $fault->id
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    '🚨 تم تسجيل عطل جديد',
-                    "تم تسجيل عطل للسيارة ID: {$fault->car_id}",
-                    ['fault_id' => $fault->id, 'car_id' => $fault->car_id]
-                );
-            }
+           
         }
     }
 }

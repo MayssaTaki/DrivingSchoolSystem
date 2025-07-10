@@ -8,20 +8,25 @@ use App\Repositories\Contracts\LicenseRepositoryInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Models\LicenseCreated;
+use App\Models\User;
 
 class LicenseService implements LicenseServiceInterface
 {
 protected LicenseRepositoryInterface $licenseRepository;
 protected LogServiceInterface $logService;
 protected ActivityLoggerServiceInterface $activityLogger;
+    protected FirebaseServiceInterface $firebaseservice;
 
     public function __construct(LicenseRepositoryInterface $licenseRepository
     ,LogServiceInterface $logService
-        ,ActivityLoggerServiceInterface $activityLogger)
+        ,ActivityLoggerServiceInterface $activityLogger,
+                            FirebaseService $firebaseService
+)
     {
         $this->licenseRepository = $licenseRepository;
          $this->logService = $logService;
         $this->activityLogger = $activityLogger;
+         $this->firebaseService = $firebaseService;
     }
 
     public function listLicenses(?string $code = null)
@@ -37,7 +42,17 @@ public function createLicense(array $data)
 
     $license = $this->licenseRepository->create($data);
     event(new LicenseCreated($license));
+ $users= User::where('role', 'admin')
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                '📄 تم إضافة رخصة جديدة',
+                    "تمت إضافة رخصة جديدة بالكود: {$license->code}",
+                );
+            }
  $this->activityLogger->log(
                     'تم اضافة رخصة جديدة',
                     ['code' => $license->code ],

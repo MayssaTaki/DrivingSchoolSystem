@@ -37,23 +37,7 @@ class SendSessionStartedNotification implements ShouldQueue
             $user->notify(new SessionStartedNotification($booking));
 
           
-            if ($user->fcm_token) {
-                logger('🚀 إرسال FCM إشعار بدء الجلسة...', [
-                    'to_user_id' => $user->id,
-                    'booking_id' => $booking->id,
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    '🚀 تم بدء جلسة تدريب',
-                    "تم بدء جلسة تدريب بتاريخ {$booking->session->day_of_week} الساعة {$booking->session->start_time} بواسطة المدرب ID: {$booking->trainer_id}.",
-                    [
-                        'booking_id' => $booking->id,
-                        'session_id' => $booking->session_id,
-                        'trainer_id' => $booking->trainer_id
-                    ]
-                );
-            }
+           
         }
     }
 }

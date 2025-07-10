@@ -14,7 +14,7 @@ use App\Events\ImageUploaded;
 use App\Events\LicenseRequested;
 use App\Events\LicenseRequestApproved;
 use App\Events\LicenseRequestRejected;
-
+use App\Models\User;
 class LicenseRequestService implements LicenseRequestServiceInterface
 {
 protected LicenseRequestRepositoryInterface $licenseRepository;
@@ -65,7 +65,17 @@ public function requestLicense(array $data)
 
         $licenseRequest = $this->licenseRepository->create($data);
 event(new LicenseRequested($student, $license));
+$users = User::whereIn('role', ['employee', 'admin'])
+                ->whereNotNull('fcm_token')
+                ->get();
 
+            foreach ($users as $user) {
+                $this->firebaseService->sendNotification(
+                    $user->fcm_token,
+                  '📄 تم إضافة طلب  رخصة جديدة',
+                    "تمت إضافة طلب  رخصة جديدة بالكود: {$license->code}",
+                );
+            }
         $this->activityLogger->log(
             'تم إضافة طلب رخصة جديدة',
             ['code' => $license->code],

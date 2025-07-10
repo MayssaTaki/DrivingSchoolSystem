@@ -39,19 +39,7 @@ class SendTrainerExceptionCreatedNotification implements ShouldQueue
 
             $user->notify(new TrainerExceptionCreatedNotification($trainer, $count, $reason));
 
-            if ($user->fcm_token) {
-                logger('🚀 إرسال FCM إشعار تسجيل إجازة...', [
-                    'to_user_id' => $user->id,
-                    'trainer_id' => $trainer->id,
-                ]);
-
-                app(FirebaseService::class)->sendNotification(
-                    $user->fcm_token,
-                    '📆 طلب إجازة جديد',
-                    "{$trainer->first_name} {$trainer->last_name} طلب إجازة لعدد {$count} يوم" . ($reason ? "، السبب: {$reason}" : ''),
-                    ['trainer_id' => $trainer->id, 'count' => $count, 'reason' => $reason]
-                );
-            }
+         
         }
     }
 }

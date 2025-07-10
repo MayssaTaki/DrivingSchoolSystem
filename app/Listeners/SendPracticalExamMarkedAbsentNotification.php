@@ -41,22 +41,6 @@ class SendPracticalExamMarkedAbsentNotification implements ShouldQueue
         $user->notify(new PracticalExamMarkedAbsentNotification($schedule));
 
         
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار غياب الامتحان...', [
-                'to_user_id' => $user->id,
-                'schedule_id' => $schedule->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '⚠️ تم تسجيل غيابك عن الامتحان العملي',
-                "لقد تم تسجيل غيابك عن الامتحان العملي بتاريخ {$schedule->exam_date} في الساعة {$schedule->exam_time}.",
-                [
-                    'schedule_id' => $schedule->id,
-                    'exam_date' => $schedule->exam_date,
-                    'exam_time' => $schedule->exam_time
-                ]
-            );
-        }
+       
     }
 }

@@ -38,18 +38,6 @@ class SendFeedbackGivenNotification implements ShouldQueue
 
         $user->notify(new FeedbackGivenNotification($feedback));
 
-        if ($user->fcm_token) {
-            logger('🚀 إرسال FCM إشعار تقييم جديد...', [
-                'to_user_id' => $user->id,
-                'feedback_id' => $feedback->id,
-            ]);
-
-            app(FirebaseService::class)->sendNotification(
-                $user->fcm_token,
-                '📝 تقييم جديد من المدرب',
-                "تمت إضافة تقييم جديد لك بعد الجلسة. المستوى: {$feedback->level}" . ($feedback->notes ? "، ملاحظات: {$feedback->notes}" : ''),
-                ['feedback_id' => $feedback->id, 'level' => $feedback->level]
-            );
-        }
+       
     }
 }
