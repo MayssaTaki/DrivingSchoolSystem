@@ -43,6 +43,8 @@ class TrainerService  implements TrainerServiceInterface
     protected ActivityLoggerServiceInterface $activityLogger;
     protected LogServiceInterface $logService;
 protected EmailVerificationServiceInterface $emailservice;
+protected FirebaseServiceInterface $firebaseservice;
+
 protected   $userRepository;
 protected   $transactionService;
 protected   $trainerRepository;
@@ -56,8 +58,8 @@ protected   $userService;
         UserRepositoryInterface $userRepository,
         ActivityLoggerServiceInterface $activityLogger,
         LogServiceInterface $logService,
-        EmailVerificationServiceInterface $emailService
-
+        EmailVerificationServiceInterface $emailService,
+FirebaseService $firebaseService
 
         
     ) {
@@ -68,7 +70,7 @@ protected   $userService;
         $this->activityLogger = $activityLogger;
         $this->logService = $logService;
         $this->emailService=$emailService;
-
+$this->firebaseService = $firebaseService;
 
     }
 
@@ -264,14 +266,24 @@ public function clearTrainerCache(): void
   public function approveTrainer($id): Trainer
 {
     $trainer = $this->trainerRepository->find($id);
-    
+
     try {
         if (Gate::denies('approve', $trainer)) {
             throw new AuthorizationException('ليس لديك صلاحية الموافقة على المدرب.');
         }
 
         $approvedTrainer = $this->trainerRepository->approve($trainer);
-event(new TrainerApproved($trainer));
+
+        $user = $trainer->user;
+        if ($user && $user->fcm_token) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                '  ✅ تهانينا!  تمت الموافقة عليك كمدرب ',
+                'مبروك! تم قبولك كمدرب: {$this->trainer->first_name} {$this->trainer->last_name}.'
+            );
+        }
+
+        event(new TrainerApproved($trainer));
 
         $this->activityLogger->log(
             'تمت الموافقة على المدرب',

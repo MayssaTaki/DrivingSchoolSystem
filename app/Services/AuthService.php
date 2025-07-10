@@ -44,7 +44,6 @@ class AuthService implements AuthServiceInterface
     auth()->factory()->setTTL($remember ? 60 * 24 * 15 : 60);
 
     try {
-        // ✅ فقط email و password
         $authCredentials = [
             'email' => $credentials['email'],
             'password' => $credentials['password'],

@@ -55,6 +55,7 @@ Route::post('/save-fcm-token', function (Request $request) {
 Route::middleware('auth:api')->prefix('notifications')->controller(\App\Http\Controllers\NotificationController::class)->group(function () {
     Route::get('/', 'index');
     Route::post('{id}/mark-read', 'markAsRead');
+     Route::post('send', 'sendFakeNotification');
 });
 
 
