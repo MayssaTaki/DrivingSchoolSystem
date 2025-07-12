@@ -62,7 +62,6 @@ public function sendMessageWithAttachment(int $senderId, int $receiverId, ?strin
                 'content' => $content,
                 'type' => $type,
             ]);
-  event(new SendMessage($message));
   
             $receiver = User::find($receiverId);
             if ($receiver && $receiver->fcm_token) {
@@ -83,7 +82,8 @@ public function sendMessageWithAttachment(int $senderId, int $receiverId, ?strin
             );
 
             event(new MessageSent($message));
-          
+            event(new SendMessage($message));
+
 
             return $message;
 

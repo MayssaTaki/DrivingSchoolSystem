@@ -19,6 +19,7 @@ class MessageNotification extends Notification
             'title' => '📩 رسالة جديدة',
              'body'  => "لقد استلمت رسالة جديدة من :{$this->message->sender->name}",
             'sender_id' => $this->message->sender->name,
+             'message_id' => $this->message->id,
         ];
     }
 }
