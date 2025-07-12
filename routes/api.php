@@ -8,7 +8,7 @@ use App\Http\Controllers\TrainingSchedulesController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ChatController;
-
+use App\Http\Controllers\RouteController;
 use App\Http\Controllers\PracticalExamController;
 
 use App\Http\Controllers\ActivityLogController;
@@ -67,6 +67,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/messages/read', [ChatController::class, 'markMessageAsRead']);
 
 });
+
+Route::post('bookings/{booking}/route', [RouteController::class, 'defineRoute'])->middleware('auth:api'); 
 
 
 

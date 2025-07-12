@@ -30,7 +30,10 @@ class Trainer extends Model
 {
     return $this->hasMany(Booking::class);
 }
-
+public function routes()
+{
+    return $this->hasManyThrough(Route::class, Booking::class);
+} 
 public function exams()
 {
     return $this->hasMany(Exam::class, 'trainer_id');

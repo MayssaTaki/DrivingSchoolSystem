@@ -5,8 +5,10 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Firebase\JWT\JWT;
 use App\Services\Interfaces\LogServiceInterface;
+use App\Services\Interfaces\FirebaseServiceInterface;
 
-class FirebaseService
+
+class FirebaseService implements FirebaseServiceInterface
 {
     protected array $serviceAccount;
     protected string $projectId;

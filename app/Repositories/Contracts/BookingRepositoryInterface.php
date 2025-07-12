@@ -7,6 +7,7 @@ interface BookingRepositoryInterface
   public function getBySessionIdWithLock(int $sessionId): ?Booking;      
     public function getBookedSessionsByTrainer(int $trainerId);
  public function isSessionBook(int $sessionId): bool;
+ public function findById(int $id);
       public function getBookedSessionsByStudent(int $studentId);
            public function updateStatus(int $bookId, string $status): bool;
         public function findWithRelations(int $id, array $relations = []);

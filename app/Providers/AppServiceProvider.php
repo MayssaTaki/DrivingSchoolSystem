@@ -36,6 +36,8 @@ use App\Repositories\PostRepository;
 use App\Repositories\LikeRepository;
 use App\Repositories\PracticalExamRepository;
 use App\Repositories\ChatRepository;
+use App\Repositories\RouteRepository;
+
 
 // Repository Interfaces
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -65,6 +67,7 @@ use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Repositories\Contracts\LikeRepositoryInterface;
 use App\Repositories\Contracts\PracticalExamRepositoryInterface;
 use App\Repositories\Contracts\ChatRepositoryInterface;
+use App\Repositories\Contracts\RouteRepositoryInterface;
 
 // Services & Interfaces
 use App\Services\ExamService;
@@ -97,6 +100,7 @@ use App\Services\LikeService;
 use App\Services\PracticalExamService;
 use App\Services\FirebaseService;
 use App\Services\ChatService;
+use App\Services\RouteService;
 
 
 use App\Services\Interfaces\ExamServiceInterface;
@@ -129,6 +133,8 @@ use App\Services\Interfaces\LikeServiceInterface;
 use App\Services\Interfaces\PracticalExamServiceInterface;
 use App\Services\Interfaces\FirebaseServiceInterface;
 use App\Services\Interfaces\ChatServiceInterface;
+use App\Services\Interfaces\RouteServiceInterface;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -165,6 +171,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(LikeRepositoryInterface::class, LikeRepository::class);
         $this->app->bind(PracticalExamRepositoryInterface::class, PracticalExamRepository::class);
         $this->app->bind(ChatRepositoryInterface::class, ChatRepository::class);
+        $this->app->bind(RouteRepositoryInterface::class, RouteRepository::class);
 
 
         $this->app->bind(LogServiceInterface::class, LogService::class);
@@ -197,6 +204,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PracticalExamServiceInterface::class, PracticalExamService::class);
         $this->app->bind(FirebaseServiceInterface::class, FirebaseService::class);
         $this->app->bind(ChatServiceInterface::class, ChatService::class);
+        $this->app->bind(RouteServiceInterface::class, RouteService::class);
 
 
     }

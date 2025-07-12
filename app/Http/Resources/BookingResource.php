@@ -31,7 +31,8 @@ class BookingResource extends JsonResource
             ],
             'created_at' => $this->created_at->toDateTimeString(),
             'is_rated' => $this->feedback !== null,
+           //'route'=>$this->booking->route,
 
-        ];
+  ];
     }
 }
