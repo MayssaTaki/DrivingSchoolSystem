@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\TrainingSchedulesController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\ChatController;
+
 use App\Http\Controllers\PracticalExamController;
 
 use App\Http\Controllers\ActivityLogController;
@@ -58,6 +60,13 @@ Route::middleware('auth:api')->prefix('notifications')->controller(\App\Http\Con
      Route::post('send', 'sendFakeNotification');
 });
 
+Route::middleware('auth:api')->group(function () {
+    Route::post('chat/send', [ChatController::class, 'sendMessage']);
+    Route::get('chat/messages/{conversationId}', [ChatController::class, 'getMessages']);
+    Route::get('chat/conversations',[ChatController::class,'getUserConversations']);
+    Route::post('/messages/read', [ChatController::class, 'markMessageAsRead']);
+
+});
 
 
 
@@ -154,7 +163,6 @@ Route::middleware('auth:api','adminOnly')->group(function () {
     Route::get('/admin/logs', [LogController::class, 'index']);
     Route::get('/activity-log', [ActivityLogController::class, 'getAllActivityLogs']);
     Route::post('/employee/register', [EmployeeController::class, 'register']);
-Route::get('/employees', [EmployeeController::class, 'getAllEmployes']);
 Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
 Route::put('/employees/{employee}', [EmployeeController::class, 'update']);
 Route::get('/employees/count', [EmployeeController::class, 'countEmployees']);
@@ -162,6 +170,7 @@ Route::get('/exam/{trainerId}/type/{type}', [ExamController::class, 'showByTrain
     Route::get('/exam/{trainerId}', [ExamController::class, 'indexByTrainer']);
 });
 
+Route::get('/employees', [EmployeeController::class, 'getAllEmployes'])->middleware('auth:api');
 
 
 
