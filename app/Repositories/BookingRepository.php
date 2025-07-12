@@ -23,7 +23,7 @@ class BookingRepository implements BookingRepositoryInterface
     {
         return $this->booking
             ->where('trainer_id', $trainerId)
-            ->with(['session', 'student', 'car']) 
+            ->with(['session', 'student', 'car',]) 
              ->orderBy('created_at', 'desc') 
             ->paginate(10);
     }
@@ -63,6 +63,11 @@ public function updateStatus(int $bookId, string $status): bool
   public function getBySessionIdWithLock(int $sessionId): ?Booking
 {
     return Booking::where('session_id', $sessionId)->lockForUpdate()->first();
+}
+
+public function findById(int $id)
+{
+    return Booking::findOrFail($id);
 }
 
 }

@@ -27,7 +27,10 @@ public function start(User $user, Booking $booking): bool
         && $user->trainer->id === $booking->trainer_id;
 }
 
-
+  public function defineRoute(User $user, Booking $booking)
+    {
+        return $user->id === $booking->trainer->user_id;
+    }
     /**
      * Determine whether the user can view the model.
      */

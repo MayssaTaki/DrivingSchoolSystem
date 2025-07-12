@@ -119,6 +119,9 @@ class EventServiceProvider extends ServiceProvider
        \App\Events\SendMessage::class => [
         \App\Listeners\SendMessageNotification::class,
     ],
+      \App\Events\RouteDefined::class => [
+        \App\Listeners\SendRouteDefinedNotification::class,
+    ],
     ];
 
     public function boot(): void

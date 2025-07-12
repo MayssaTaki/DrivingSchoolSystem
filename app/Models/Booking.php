@@ -14,6 +14,12 @@ class Booking extends Model
         'status',
         
     ];
+
+    public function route()
+{
+    return $this->hasOne(Route::class);
+}
+
     public function student()
 {
     return $this->belongsTo(Student::class);
