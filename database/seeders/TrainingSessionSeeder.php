@@ -19,7 +19,7 @@ class TrainingSessionSeeder extends Seeder
             return;
         }
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 20; $i++) {
             TrainingSession::create([
                 'trainer_id' => $trainer->id,
                 'schedule_id' => $schedule->id,

@@ -1,68 +1,43 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\Car;
 use Illuminate\Database\Seeder;
+use Faker\Factory as Faker;
 
 class CarSeeder extends Seeder
 {
     public function run()
     {
-        $cars = [
-            [
-                'license_plate' => 'ABC123',
-                'make' => 'Toyota',
-                'model' => 'Corolla',
-                'color' => 'Red',
-                'year' => 2020,
-                'transmission'=>'manual',
-            ],
-            [
-                'license_plate' => 'XYZ789',
-                'make' => 'Honda',
-                'model' => 'Civic',
-                'color' => 'Blue',
-                'year' => 2021,
-                'transmission'=>'manual',
+        $faker = Faker::create('ar_SA');
 
-            ],
-            [
-                'license_plate' => 'DEF456',
-                'make' => 'Ford',
-                'model' => 'Focus',
-                'color' => 'Black',
-                'year' => 2019,
-                'transmission'=>'manual',
-
-            ],
-             [
-                'license_plate' => 'DNF456',
-                'make' => 'Ford',
-                'model' => 'Focus',
-                'color' => 'Black',
-                'year' => 2019,
-                'transmission'=>'automatic',
-    'is_for_special_needs' => true,
-
-            ],
-                   [
-                'license_plate' => 'DHF456',
-                'make' => 'Ford',
-                'model' => 'Focus',
-                'color' => 'Black',
-                'year' => 2019,
-                'transmission'=>'automatic',
-    'is_for_special_needs' => true,
-
-            ],
+        $sampleCars = [
+            ['make' => 'تويوتا', 'model' => 'كورولا'],
+            ['make' => 'هيونداي', 'model' => 'النترا'],
+            ['make' => 'كيا', 'model' => 'سيراتو'],
+            ['make' => 'نيسان', 'model' => 'صني'],
+            ['make' => 'فورد', 'model' => 'فييستا'],
+            ['make' => 'هوندا', 'model' => 'سيفيك'],
+            ['make' => 'شيفروليه', 'model' => 'ماليبو'],
+            ['make' => 'مازدا', 'model' => '3'],
+            ['make' => 'جيلي', 'model' => 'امجراند'],
+            ['make' => 'ميتسوبيشي', 'model' => 'لانسر'],
         ];
 
-        foreach ($cars as $car) {
-            Car::create($car);
-        }
-    
+        for ($i = 0; $i < 15; $i++) {
+            $carData = $faker->randomElement($sampleCars);
+            $specialNeeds = $faker->boolean(30); 
 
-       
+            Car::create([
+              'license_plate' => strtoupper($faker->unique()->bothify('??####?')),
+                'make' => $carData['make'],
+                'model' => $carData['model'],
+                'color' => $faker->safeColorName,
+                'year' => $faker->numberBetween(2015, 2023),
+                'transmission' => $specialNeeds ? 'automatic' : $faker->randomElement(['automatic', 'manual']),
+                'is_for_special_needs' => $specialNeeds,
+                'status' => 'available',
+            ]);
+        }
     }
 }

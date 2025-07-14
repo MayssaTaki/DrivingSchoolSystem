@@ -15,7 +15,7 @@ class TrainerReviewSeeder extends Seeder
         $trainers = Trainer::pluck('id')->toArray();
 
         if (empty($students) || empty($trainers)) {
-            $this->command->warn('⚠️ لا يوجد طلاب أو مدربين لإنشاء التقييمات');
+            $this->command->warn('⚠️ لا يوجد طلاب أو مدربين لإنشاء التقييمات.');
             return;
         }
 
@@ -23,13 +23,14 @@ class TrainerReviewSeeder extends Seeder
             TrainerReview::create([
                 'student_id' => $students[array_rand($students)],
                 'trainer_id' => $trainers[array_rand($trainers)],
-                'rating' => rand(1, 5),
-                'comment' => fake()->optional()->sentence(),
-                'status' => collect(['pending', 'approved', 'rejected'])->random(),
-                'created_at' => now()->subDays(rand(1, 60)),
+                'rating' => rand(1, 5), 
+                'comment' => fake('ar_SA')->optional()->sentence(), 
+           'status' => collect(['pending', 'approved', 'rejected'])->random(),
+             'created_at' => now()->subDays(rand(1, 60)),
                 'updated_at' => now(),
             ]);
         }
 
+        $this->command->info('✅ تم إنشاء تقييمات المدربين بنجاح!');
     }
 }
