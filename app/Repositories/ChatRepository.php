@@ -18,11 +18,34 @@ class ChatRepository implements ChatRepositoryInterface {
             ->get();
     }
 
-    public function findOrCreateConversation(int $senderId, int $receiverId) {
-        return Conversation::firstOrCreate(
-            ['sender_id' => $senderId, 'receiver_id' => $receiverId]
-        );
+    public function findOrCreateConversation(int $userId1, int $userId2)
+{
+    $conversation = Conversation::where(function ($query) use ($userId1, $userId2) {
+        $query->where('sender_id', $userId1)
+              ->where('receiver_id', $userId2);
+    })->orWhere(function ($query) use ($userId1, $userId2) {
+        $query->where('sender_id', $userId2)
+              ->where('receiver_id', $userId1);
+    })->first();
+
+    if (!$conversation) {
+        if ($userId1 < $userId2) {
+            $sender = $userId1;
+            $receiver = $userId2;
+        } else {
+            $sender = $userId2;
+            $receiver = $userId1;
+        }
+
+        $conversation = Conversation::create([
+            'sender_id' => $sender,
+            'receiver_id' => $receiver,
+        ]);
     }
+
+    return $conversation;
+}
+
 
     public function getUserConversations(int $userId) {
     return Conversation::where('sender_id', $userId)

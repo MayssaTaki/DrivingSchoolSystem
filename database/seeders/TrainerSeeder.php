@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\Trainer;
@@ -11,29 +10,28 @@ class TrainerSeeder extends Seeder
 {
     public function run()
     {
-        $faker = Faker::create();
+        $faker = Faker::create('ar_SA'); 
 
-        $users = User::where('role', 'trainer')->get(); 
+        $users = User::where('role', 'trainer')->get();
 
         foreach ($users as $user) {
-
             do {
-                $licenseNumber = $faker->unique()->numerify('#######'); // 7 أرقام
+                $licenseNumber = $faker->unique()->numerify('########');
             } while (Trainer::where('license_number', $licenseNumber)->exists());
 
             Trainer::create([
                 'user_id' => $user->id,
                 'first_name' => $faker->firstName,
                 'last_name' => $faker->lastName,
-                'phone_number' => $faker->unique()->phoneNumber,
-                'address' => $faker->address,
+                'phone_number' => '05' . $faker->numerify('########'), 
+                'address' => $faker->city . '، ' . $faker->streetName,
                 'gender' => $faker->randomElement(['male', 'female']),
-                'date_of_birth' => '1995-11-05',
-                'license_expiry_date' => '2026-11-05',
-                'training_type' => 'normal',
+                'date_of_birth' => $faker->date('Y-m-d', '2000-01-01'),
+                'license_expiry_date' => $faker->date('Y-m-d', '2026-12-31'),
+                'training_type' => $faker->randomElement(['normal', 'special_needs']),
                 'license_number' => $licenseNumber,
-                'experience' => '2 years in driving school',
-                'status' => 'pending',
+                'experience' => $faker->numberBetween(1, 10) . ' سنوات خبرة في تعليم القيادة',
+                'status' => $faker->randomElement(['pending', 'approved','rejected']),
             ]);
         }
     }

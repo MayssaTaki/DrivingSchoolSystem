@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\Employee;
@@ -11,7 +10,7 @@ class EmployeeSeeder extends Seeder
 {
     public function run()
     {
-        $faker = Faker::create();
+        $faker = Faker::create('ar_SA'); 
 
         $users = User::where('role', 'employee')->get(); 
 
@@ -21,9 +20,9 @@ class EmployeeSeeder extends Seeder
                 'first_name' => $faker->firstName,
                 'last_name' => $faker->lastName,
                 'hire_date' => now(),
-                'phone_number' => $faker->phoneNumber,
-                'address' => $faker->address,
-                'gender' => 'male', 
+                'phone_number' => '05' . $faker->numerify('########'), 
+                'address' => $faker->city . '، ' . $faker->streetName,
+                'gender' => $faker->randomElement(['male', 'female']),
             ]);
         }
     }

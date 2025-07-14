@@ -16,6 +16,7 @@ return new class extends Migration
              $table->unsignedBigInteger('sender_id');  
             $table->unsignedBigInteger('receiver_id'); 
 
+    $table->unique(['sender_id', 'receiver_id']);
             $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

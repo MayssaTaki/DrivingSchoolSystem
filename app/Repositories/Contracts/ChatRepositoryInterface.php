@@ -6,5 +6,4 @@ interface ChatRepositoryInterface {
     public function getUserConversations(int $userId);
     public function getMessagesByConversationId(int $conversationId);
         public function markMessageAsRead(int $messageId): bool;
-    public function findOrCreateConversation(int $senderId, int $receiverId);
-}
+    public function findOrCreateConversation(int $userId1, int $userId2);}
