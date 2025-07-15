@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
         \Database\Seeders\PostSeeder::class,
 \Database\Seeders\LicenseRequestSeeder::class,
 \Database\Seeders\CarFaultSeeder::class,
-
+ \Database\Seeders\ScheduleExceptionSeeder::class,
+\Database\Seeders\BookingSeeder::class,
 
 
 
