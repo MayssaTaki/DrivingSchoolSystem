@@ -28,13 +28,18 @@ class CarFaultSeeder extends Seeder
         foreach ($cars as $index => $car) {
             $trainer = $trainers->random();
             $booking = Booking::inRandomOrder()->first(); 
+            $faultStatus = $faker->randomElement($statuses);
 
             CarFault::create([
                 'car_id' => $car->id,
                 'trainer_id' => $trainer->id,
                 'booking_id' => $faker->boolean(70) ? optional($booking)->id : null,
                 'comment' => $comments[$index],
-                'status' => $faker->randomElement($statuses),
+                'status' => $faultStatus,
+            ]);
+
+            $car->update([
+                'status' => $faultStatus === 'in_progress' ? 'in_repair' : 'available',
             ]);
         }
     }

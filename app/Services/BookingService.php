@@ -325,7 +325,7 @@ $users= User::where('role', 'employee')
                     throw new \Exception('لا يمكن بدء جلسة غير محجوزة أو مكتملة.');
                 }
 
-                $this->bookingRepo->updateStatus($booking->id, 'started'); // أو حالة خاصة لو تريدها مثل "started"
+                $this->bookingRepo->updateStatus($booking->id, 'started'); 
 $booking->load('session'); 
 event(new SessionStarted($booking));
 $users= User::where('role', 'employee')
