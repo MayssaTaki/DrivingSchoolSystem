@@ -112,4 +112,13 @@ public function sendMessageWithAttachment(int $senderId, int $receiverId, ?strin
      public function markMessageAsRead(int $messageId): bool {
         return $this->chatRepo->markMessageAsRead($messageId);
     }
+
+    public function countUnreadMessagesForUser(int $userId): int {
+    return $this->chatRepo->countUnreadMessagesForUser($userId);
+}
+
+public function getUnreadCountsGroupedByConversation(int $userId): \Illuminate\Support\Collection {
+    return $this->chatRepo->getUnreadCountsGroupedByConversation($userId);
+}
+
 }

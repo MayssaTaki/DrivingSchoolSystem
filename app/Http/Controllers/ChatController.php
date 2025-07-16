@@ -60,4 +60,25 @@ class ChatController extends Controller {
             'message' => '❌ فشل تعيين الرسالة كمقروءة'
         ], 400);
     }
+
+    public function countUnreadMessages() {
+    $userId = auth()->id();
+    $count = $this->chatService->countUnreadMessagesForUser($userId);
+
+    return response()->json([
+        'unread_count' => $count,
+        'message' => '✅ عدد الرسائل غير المقروءة الكلي'
+    ]);
+}
+
+public function countUnreadByConversation() {
+    $userId = auth()->id();
+    $counts = $this->chatService->getUnreadCountsGroupedByConversation($userId);
+
+    return response()->json([
+        'conversations' => $counts,
+        'message' => '✅ عدد الرسائل غير المقروءة لكل محادثة'
+    ]);
+}
+
 }
