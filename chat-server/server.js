@@ -16,7 +16,9 @@ const io = new Server(server, {
     cors: {
         origin: '*', // في الإنتاج، حدّد نطاق الفرونت فقط
         methods: ['GET', 'POST']
-    }
+    },
+        transports: ["polling", "websocket"],
+
 });
 
 const redisClient = redis.createClient();
@@ -68,6 +70,7 @@ app.post('/broadcast', async (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('🔌 User connected:', socket.id, '| User:', socket.user);
+    console.log('🔌 Connected transport:', socket.conn.transport.name);
 
     socket.on('join_room', (room) => {
         socket.join(room);

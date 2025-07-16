@@ -12,6 +12,11 @@ class Route extends Model
         'start_lng',
         'end_lat',
         'end_lng',
+        'polyline',
+        'distance_in_meters',
+        'duration_in_seconds',
+        'start_address',
+        'end_address'
     ];
 
     

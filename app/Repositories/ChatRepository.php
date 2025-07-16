@@ -4,6 +4,7 @@ namespace App\Repositories;
 use App\Repositories\Contracts\ChatRepositoryInterface ;
 use App\Models\Conversation;
 use App\Models\Message;
+use DB;
 
 class ChatRepository implements ChatRepositoryInterface {
    
@@ -61,4 +62,29 @@ class ChatRepository implements ChatRepositoryInterface {
         return Message::where('id', $messageId)
             ->update(['is_read' => true]);
     }
+
+
+  public function countUnreadMessagesForUser(int $userId): int {
+    return Message::whereHas('conversation', function ($q) use ($userId) {
+        $q->where('sender_id', $userId)->orWhere('receiver_id', $userId);
+    })
+    ->where('sender_id', '!=', $userId) 
+    ->where('is_read', false)
+    ->count();
+}
+
+
+public function getUnreadCountsGroupedByConversation(int $userId): \Illuminate\Support\Collection {
+    return Message::select('conversation_id', \DB::raw('COUNT(*) as unread_count'))
+        ->whereHas('conversation', function ($q) use ($userId) {
+            $q->where('sender_id', $userId)
+              ->orWhere('receiver_id', $userId);
+        })
+        ->where('sender_id', '!=', $userId) 
+        ->where('is_read', false)
+        ->groupBy('conversation_id')
+        ->get();
+}
+
+
 }

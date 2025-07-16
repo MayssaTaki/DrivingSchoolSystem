@@ -65,8 +65,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('chat/messages/{conversationId}', [ChatController::class, 'getMessages']);
     Route::get('chat/conversations',[ChatController::class,'getUserConversations']);
     Route::post('/messages/read', [ChatController::class, 'markMessageAsRead']);
-
+    Route::get('unread-count', [ChatController::class, 'countUnreadMessages']);
+    Route::get('unread-count-by-conversation', [ChatController::class, 'countUnreadByConversation']);
 });
+
 
 Route::post('bookings/{booking}/route', [RouteController::class, 'defineRoute'])->middleware('auth:api'); 
 

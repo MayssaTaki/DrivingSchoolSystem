@@ -18,6 +18,11 @@ return new class extends Migration
             $table->decimal('start_lng', 10, 7);
             $table->decimal('end_lat', 10, 7);
             $table->decimal('end_lng', 10, 7);
+            $table->text('polyline')->nullable();
+$table->integer('distance_in_meters')->nullable();
+$table->integer('duration_in_seconds')->nullable();
+$table->string('start_address')->nullable();
+$table->string('end_address')->nullable();
             $table->timestamps();
         });
     }
