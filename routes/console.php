@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Broadcast;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -35,3 +36,8 @@ Schedule::command('training:dispatch-monthly-jobs')
     ->onFailure(function () {
         Log::channel('scheduler')->error('Failed to dispatch monthly training jobs');
     });
+Broadcast::channel('chat.{conversationId}', function ($user, $conversationId) {
+    
+    return true; 
+});
+
