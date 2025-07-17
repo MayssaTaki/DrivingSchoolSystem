@@ -113,9 +113,7 @@ class EventServiceProvider extends ServiceProvider
      \App\Events\PostLiked::class => [
         \App\Listeners\SendPostLikedNotification::class,
     ],
-       \App\Events\MessageSent::class => [
-        \App\Listeners\BroadcastMessageToSocket::class,
-    ],
+   
        \App\Events\SendMessage::class => [
         \App\Listeners\SendMessageNotification::class,
     ],

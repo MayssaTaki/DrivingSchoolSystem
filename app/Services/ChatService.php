@@ -81,10 +81,9 @@ public function sendMessageWithAttachment(int $senderId, int $receiverId, ?strin
                 'send_message'
             );
 
-            event(new MessageSent($message));
             event(new SendMessage($message));
 
-
+ event(new MessageSent($message));
             return $message;
 
         }, function (\Throwable $e) use ($senderId, $receiverId, $content) {
