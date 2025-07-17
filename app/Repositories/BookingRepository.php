@@ -23,7 +23,7 @@ class BookingRepository implements BookingRepositoryInterface
     {
         return $this->booking
             ->where('trainer_id', $trainerId)
-            ->with(['session', 'student', 'car',]) 
+            ->with(['session', 'student', 'car','route']) 
              ->orderBy('created_at', 'desc') 
             ->paginate(10);
     }
@@ -31,7 +31,7 @@ class BookingRepository implements BookingRepositoryInterface
     {
         return $this->booking
             ->where('student_id', $studentId)
-            ->with(['session', 'trainer', 'car'])  
+            ->with(['session', 'trainer', 'car','route'])  
              ->orderBy('created_at', 'desc')
             ->paginate(10);
     }

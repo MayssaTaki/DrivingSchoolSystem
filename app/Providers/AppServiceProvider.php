@@ -101,6 +101,7 @@ use App\Services\PracticalExamService;
 use App\Services\FirebaseService;
 use App\Services\ChatService;
 use App\Services\RouteService;
+use App\Services\MapService;
 
 
 use App\Services\Interfaces\ExamServiceInterface;
@@ -134,6 +135,7 @@ use App\Services\Interfaces\PracticalExamServiceInterface;
 use App\Services\Interfaces\FirebaseServiceInterface;
 use App\Services\Interfaces\ChatServiceInterface;
 use App\Services\Interfaces\RouteServiceInterface;
+use App\Services\Interfaces\MapServiceInterface;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -205,6 +207,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FirebaseServiceInterface::class, FirebaseService::class);
         $this->app->bind(ChatServiceInterface::class, ChatService::class);
         $this->app->bind(RouteServiceInterface::class, RouteService::class);
+        $this->app->bind(MapServiceInterface::class, MapService::class);
 
 
     }
