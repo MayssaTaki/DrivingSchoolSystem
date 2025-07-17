@@ -94,4 +94,15 @@ class TrainerReviewRepository implements TrainerReviewRepositoryInterface
         ->take($limit)
         ->get();
 }
+
+public function getAllTrainersByRating(): \Illuminate\Support\Collection
+{
+    return TrainerReview::select('trainer_id')
+        ->selectRaw('AVG(rating) as avg_rating')
+        ->where('status', 'approved')
+        ->groupBy('trainer_id')
+        ->orderByDesc('avg_rating') 
+        ->with('trainer') 
+        ->get();
+}
 }

@@ -175,4 +175,17 @@ public function submitAnswers(SubmitExamRequest $request)
         $result = $this->examService->evaluateStudent($studentId);
         return response()->json($result);
     }
+
+     public function evaluateStudentById(Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required|exists:students,id'
+        ]);
+
+        $studentId = $request->input('student_id');
+
+        $result = $this->examService->evaluateStudent($studentId);
+
+        return response()->json($result);
+    }
 }

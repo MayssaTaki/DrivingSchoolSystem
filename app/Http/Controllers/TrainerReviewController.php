@@ -126,4 +126,13 @@ class TrainerReviewController extends Controller
             'worst_trainers' => $worst,
         ]);
     }
+
+    public function ranked(): JsonResponse
+{
+    $ranked = $this->service->getTrainersRanked();
+
+    return response()->json([
+        'trainers' => $ranked
+    ]);
+}
 }
