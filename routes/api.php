@@ -192,6 +192,7 @@ Route::post('/generate', [ExamController::class, 'showRandomQuestions'])->middle
 Route::get('/student/evaluation', [ExamController::class, 'evaluate'])->middleware('auth:api');
 Route::get('/certificate/generate/{studentId}', [CertificateController::class, 'generate']);
 Route::get('/certificate/download', [CertificateController::class, 'download']);
+Route::get('/admin/evaluation', [ExamController::class, 'evaluateStudentById'])->middleware('auth:api');
 
 
 
@@ -251,6 +252,7 @@ Route::get('/trainer/{trainerId}/reviews', [TrainerReviewController::class, 'ind
     Route::get('/rejected/reviews', [TrainerReviewController::class, 'getRejected'])->middleware('auth:api');
     Route::post('trainer-reviews', [TrainerReviewController::class, 'store'])->middleware('auth:api');
     Route::get('/trainers/stats', [TrainerReviewController::class, 'topAndWorst'])->middleware('auth:api');
+Route::get('/trainers/ranked', [TrainerReviewController::class, 'ranked'])->middleware('auth:api');
 
   Route::get('trainer-reviews/pending', [TrainerReviewController::class, 'pending']);
         Route::post('trainer-reviews/{id}/approve', [TrainerReviewController::class, 'approve'])->middleware('auth:api');

@@ -11,6 +11,7 @@ interface TrainerReviewServiceInterface
     public function listPending();
 
     public function approveReview($id);
+public function getTrainersRanked(): \Illuminate\Support\Collection;
 
     public function rejectReview($id);
 

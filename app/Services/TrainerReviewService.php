@@ -235,6 +235,21 @@ public function getWorst5Trainers(array $excludedTrainerIds = [])
     });
 }
 
+public function getTrainersRanked(): \Illuminate\Support\Collection
+{
+    $trainers = $this->repo->getAllTrainersByRating();
+
+    return $trainers->map(function ($item) {
+        $avg = round($item->avg_rating, 1);
+
+        return [
+            'trainer_id'      => $item->trainer_id,
+            'average_rating'  => number_format($avg, 1),
+            'trainer_name'    => $item->trainer->first_name . ' ' . $item->trainer->last_name,
+            'rating_text'     => $this->getRatingText($avg),
+        ];
+    });
+}
 
 private function getRatingText(float $rating): string
 {
