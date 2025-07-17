@@ -21,9 +21,10 @@ class CarFaultResource extends JsonResource
 
             ],
 
-            'trainer' => [
-                'trainer_name' => $this->trainer->first_name . ' ' . $this->trainer->last_name,
-            ],
+           'trainer' => $this->trainer ? [
+    'trainer_name' => $this->trainer->first_name . ' ' . $this->trainer->last_name,
+] : null,
+
 
            'booking' => $this->booking ? [
                 'session_date' => optional($this->booking->session)->session_date,
