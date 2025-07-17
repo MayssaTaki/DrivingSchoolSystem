@@ -10,6 +10,7 @@ use App\Services\Interfaces\LogServiceInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Services\Interfaces\RouteServiceInterface;
+use App\Services\Interfaces\MapServiceInterface;
 
 class RouteService implements RouteServiceInterface
 {
@@ -20,9 +21,12 @@ class RouteService implements RouteServiceInterface
         protected ActivityLoggerServiceInterface $activityLogger,
         protected LogServiceInterface $logService,
         protected FirebaseServiceInterface $firebaseService,
+            protected MapServiceInterface $mapService,
+
 
     ) {
                 $this->firebaseService = $firebaseService;
+                 $this->mapService = $mapService;
 
     }
 
@@ -45,13 +49,21 @@ class RouteService implements RouteServiceInterface
             if ($routeExists) {
                 throw new \Exception('تم تحديد المسار من قبل لهذا الحجز.');
             }
-
+$response = $this->mapService->getRouteData(
+    $data['start_lat'], $data['start_lng'],
+    $data['end_lat'], $data['end_lng']
+);
             $route = $this->routeRepo->create([
                 'booking_id' => $booking->id,
                 'start_lat' => $data['start_lat'],
                 'start_lng' => $data['start_lng'],
                 'end_lat' => $data['end_lat'],
                 'end_lng' => $data['end_lng'],
+                'polyline' => $response['polyline'],
+    'distance_in_meters' => $response['distance'],
+    'duration_in_seconds' => $response['duration'],
+    'start_address' => $response['start_address'],
+    'end_address' => $response['end_address'],
             ]);
 $route->load('booking.session');
 
