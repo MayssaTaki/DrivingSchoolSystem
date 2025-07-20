@@ -6,6 +6,7 @@ use App\Services\Interfaces\PracticalExamServiceInterface;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\PracticalExamScheduleStoreRequest;
 use Illuminate\Http\Request;
+use App\Http\Resources\PracticalExamResource;
 
 
 
@@ -25,12 +26,12 @@ class PracticalExamController extends Controller
         return response()->json(['success'=>true,'data'=>$schedule], 201);
     }
 
-      public function index(Request $request): JsonResponse
+      public function index(Request $request)
     {
         $schedules = $this->practical->listAll(10);
-        return response()->json([
+        return PracticalExamResource::collection( $schedules)->additional([
             'success' => true,
-            'data' => $schedules
+            
         ]);
     }
 

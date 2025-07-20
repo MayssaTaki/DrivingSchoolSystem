@@ -93,6 +93,45 @@ public function getAllTrainers(Request $request)
             'data' => TrainerResource::collection($trainers),
         ]);
     }
+    
+     public function getAllTrainersReject(Request $request)
+    {
+        $name = $request->get('first_name');
+        $trainers = $this->trainerService->getAllTrainersReject($name);
+
+        if ($trainers->total() === 0) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'لم يتم العثور على مدربين',
+                'data' => [],
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم استرجاع المدربين بنجاح',
+            'data' => TrainerResource::collection($trainers),
+        ]);
+    }
+     public function getAllTrainersPending(Request $request)
+    {
+        $name = $request->get('first_name');
+        $trainers = $this->trainerService->getAllTrainersPended($name);
+
+        if ($trainers->total() === 0) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'لم يتم العثور على مدربين',
+                'data' => [],
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم استرجاع المدربين بنجاح',
+            'data' => TrainerResource::collection($trainers),
+        ]);
+    }
 
     public function destroy($id): JsonResponse
     {
@@ -205,7 +244,7 @@ $count = $trainers->count();
 
 if ($count > 0) {
     return response()->json([
-        'message' => 'تم العثور على اللمدربين المقبولين.',
+        'message' => 'تم العثور على المدربين المقبولين.',
         'count' => $count,
     ], 200);
 } else {

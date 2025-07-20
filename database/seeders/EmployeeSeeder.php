@@ -14,11 +14,14 @@ class EmployeeSeeder extends Seeder
 
         $users = User::where('role', 'employee')->get(); 
 
-        foreach ($users as $user) {
+          foreach ($users as $user) {
+    $nameParts = explode(' ', $user->name);
+    $firstName = $nameParts[0];
+    $lastName = $nameParts[1] ?? '';  
             Employee::create([
                 'user_id' => $user->id,
-                'first_name' => $faker->firstName,
-                'last_name' => $faker->lastName,
+                'first_name' =>$firstName,
+                'last_name' => $lastName,
                 'hire_date' => now(),
                 'phone_number' => '05' . $faker->numerify('########'), 
                 'address' => $faker->city . '، ' . $faker->streetName,

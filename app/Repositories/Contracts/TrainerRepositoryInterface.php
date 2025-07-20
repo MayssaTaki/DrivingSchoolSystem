@@ -17,7 +17,10 @@ interface TrainerRepositoryInterface
     public function getRejectedTrainers();
     public function getPendingTrainers();
     public function find($id): Trainer;
-
+  public function getAllTrainersPending(?string $name, int $perPage = 10);
+  public function getAllTrainersRejected(?string $name, int $perPage = 10);
+  public function getAllTrainersApprove(?string $name, int $perPage = 10);
+  
 
 
 }

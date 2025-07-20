@@ -15,10 +15,13 @@ class StudentSeeder extends Seeder
         $users = User::where('role', 'student')->get();
 
         foreach ($users as $user) {
+    $nameParts = explode(' ', $user->name);
+    $firstName = $nameParts[0];
+    $lastName = $nameParts[1] ?? '';  
             Student::create([
                 'user_id' => $user->id,
-                'first_name' => $faker->firstName,
-                'last_name' => $faker->lastName,
+                'first_name' =>$firstName,
+                'last_name' => $lastName,
                 'date_of_birth' => $faker->date('Y-m-d', '1990-01-01'), 
                 'phone_number' => '05' . $faker->numerify('########'),
                 'address' => $faker->city . '، ' . $faker->streetName,

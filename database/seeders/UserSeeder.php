@@ -4,115 +4,48 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Faker\Factory as Faker;
 
 class UserSeeder extends Seeder
 {
     public function run()
     {
-        $admin = User::create([
-            'name'=>'admin',
+        $faker = Faker::create('ar_SA');
+
+        User::create([
+            'name' => 'admin',
             'email' => 'qyadaschool@gmail.com',
             'password' => bcrypt('qyadaschool@**'),
             'role' => 'admin',
         ]);
 
-        User::create([
-            'name' => 'User 1',
-            'email' => 'user1@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'employee',
-        ]);
+        foreach (range(1, 5) as $i) {
+            User::create([
+                'name' => $faker->name,
+                'email' => "user{$i}@example.com",
+                'password' => bcrypt('Password123'),
+                'role' => 'employee',
+            ]);
+        }
 
-        User::create([
-            'name' => 'User 2',
-            'email' => 'user2@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'employee',
-        ]);
+        foreach (range(6, 10) as $i) {
+            User::create([
+                'name' => $faker->name,
+                'email' => "user{$i}@example.com",
+                'password' => bcrypt('Password123'),
+                'role' => 'student',
+            ]);
+        }
 
-        User::create([
-            'name' => 'User 3',
-            'email' => 'user3@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'employee',
-        ]);
-
-        User::create([
-            'name' => 'User 4',
-            'email' => 'user4@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'employee',
-        ]);
-
-        User::create([
-            'name' => 'User 5',
-            'email' => 'user5@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'employee',
-        ]);
-        User::create([
-            'name' => 'User 6',
-            'email' => 'user6@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'student',
-        ]);
-        User::create([
-            'name' => 'User 7',
-            'email' => 'user7@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'student',
-        ]);
-        User::create([
-            'name' => 'User 8',
-            'email' => 'user8@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'student',
-        ]);
-        User::create([
-            'name' => 'User 9',
-            'email' => 'user9@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'student',
-        ]);
-        User::create([
-            'name' => 'User 10',
-            'email' => 'user10@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'student',
-        ]);
-           User::create([
-            'name' => 'User 11',
-            'email' => 'user11@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'trainer',
-        ]);
-           User::create([
-            'name' => 'User 12',
-            'email' => 'user12@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'trainer',
-        ]);
-           User::create([
-            'name' => 'User 13',
-            'email' => 'user13@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'trainer',
-        ]);
-           User::create([
-            'name' => 'User 14',
-            'email' => 'user14@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'trainer',
-        ]);
-           User::create([
-            'name' => 'User 15',
-            'email' => 'user15@example.com',
-            'password' => bcrypt('Password123'),
-            'role' => 'trainer',
-        ]);
-    
-        
-
-       
+      
+        foreach (range(11, 15) as $i) {
+            $fullName = $faker->firstName . ' ' . $faker->lastName;
+            User::create([
+                'name' => $fullName,
+                'email' => "user{$i}@example.com",
+                'password' => bcrypt('Password123'),
+                'role' => 'trainer',
+            ]);
+        }
     }
 }
