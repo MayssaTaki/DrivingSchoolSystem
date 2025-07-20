@@ -31,4 +31,14 @@ public function getAllWithPagination(int $perPage = 10)
         ->paginate($perPage);
 }
 
+public function getFeedbackByStudentIdWithPagination(int $studentId, int $perPage = 10)
+{
+    return Feedback_student::whereHas('booking.student', function ($query) use ($studentId) {
+            $query->where('id', $studentId);
+        })
+        ->with(['booking.student.user', 'booking.trainer.user', 'booking.session'])
+        ->latest()
+        ->paginate($perPage);
+}
+
 }

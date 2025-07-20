@@ -53,19 +53,27 @@ public function countByStatus(string $from, string $to): array
     }
 
     public function failedOrAbsentStudents(string $from, string $to): array
-    {
-        return PracticalExamSchedule::select('license_request_id', DB::raw('count(*) as occurrences'))
-            ->with(['licenseRequest.student'])
-            ->whereBetween('exam_date', [$from, $to])
-            ->whereIn('status', ['failed', 'absent'])
-            ->groupBy('license_request_id')
-            ->get()
-            ->map(fn($row) => [
-                'student_id' => $row->licenseRequest->student->id,
-                'student_name' => $row->licenseRequest->student->first_name . ' ' . $row->licenseRequest->student->last_name,
-                'occurrences' => $row->occurrences,
-            ])->toArray();
-    }
+{
+    return PracticalExamSchedule::select(
+            'license_request_id',
+            DB::raw("SUM(CASE WHEN status = 'absent' THEN 1 ELSE 0 END) as absent_count"),
+            DB::raw("SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_count")
+        )
+        ->with(['licenseRequest.student'])
+        ->whereBetween('exam_date', [$from, $to])
+        ->whereIn('status', ['failed', 'absent'])
+        ->groupBy('license_request_id')
+        ->get()
+        ->map(fn($row) => [
+            'student_id' => $row->licenseRequest->student->id,
+            'student_name' => $row->licenseRequest->student->first_name . ' ' . $row->licenseRequest->student->last_name,
+            'absent_count' => $row->absent_count,
+            'failed_count' => $row->failed_count,
+            'occurrences' => $row->absent_count + $row->failed_count,
+        ])
+        ->toArray();
+}
+
 
     public function successRatio(string $from, string $to): float
     {

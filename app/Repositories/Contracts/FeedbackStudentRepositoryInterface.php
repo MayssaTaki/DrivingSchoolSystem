@@ -9,4 +9,6 @@ interface FeedbackStudentRepositoryInterface
         public function getFeedbacksByTrainerId(int $trainerId);
         public function getAllWithPagination(int $perPage = 10);
        public function getFeedbacksByStudentId(int $studentId);
+       public function getFeedbackByStudentIdWithPagination(int $studentId, int $perPage = 10);
+       
 }
