@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
 \Database\Seeders\CarFaultSeeder::class,
  \Database\Seeders\ScheduleExceptionSeeder::class,
 \Database\Seeders\BookingSeeder::class,
+\Database\Seeders\PracticalExamScheduleSeeder::class,
+\Database\Seeders\FeedbackStudentsSeeder::class,
 
 
 

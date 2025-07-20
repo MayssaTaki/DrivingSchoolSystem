@@ -55,4 +55,17 @@ public function getAllFeedbacks(Request $request): AnonymousResourceCollection
        
         'message' => 'تم جلب جميع التقييمات بنجاح.',
     ]);}
+
+ public function getAllFeedbacksByStudentId(Request $request, int $studentId)
+{
+    $perPage = $request->get('per_page', 10); 
+
+    $feedbacks = $this->service->getFeedbackByStudentId($studentId, $perPage);
+
+    return response()->json([
+        'data' => $feedbacks,
+        'message' => 'تم جلب جميع التقييمات بنجاح.',
+    ]);
+}
+
 }

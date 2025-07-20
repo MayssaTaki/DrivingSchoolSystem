@@ -13,6 +13,7 @@ interface FeedbackStudentServiceInterface
      * @return Feedback_student
      */
     public function giveFeedback(array $data): Feedback_student;
+public function getFeedbackByStudentId(int $studentId, int $perPage = 10);
 
     /**
      * Get all feedbacks for a specific student.

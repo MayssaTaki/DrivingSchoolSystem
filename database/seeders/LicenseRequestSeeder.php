@@ -1,5 +1,7 @@
 <?php
+
 namespace Database\Seeders;
+
 use App\Models\LicenseRequest;
 use App\Models\License;
 use App\Models\Student;
@@ -23,12 +25,17 @@ class LicenseRequestSeeder extends Seeder
             'بانتظار موافقة الإدارة.',
         ];
 
-        $students = Student::with('user')->get(); 
-
+        $students = Student::with('user')->get();
         $licenses = License::all();
 
-        foreach ($students as $student) {
-            if ($licenses->isEmpty()) continue;
+        if ($students->isEmpty() || $licenses->isEmpty()) {
+            $this->command->warn("لا يوجد طلاب أو رخص في قاعدة البيانات.");
+            return;
+        }
+
+        for ($i = 0; $i < 15; $i++) {
+            $student = $students->random();
+            $license = $licenses->random();
 
             $status = Arr::random($statuses);
             $type = Arr::random($types);
@@ -38,8 +45,8 @@ class LicenseRequestSeeder extends Seeder
             $expiresAt = $issuedAt ? $issuedAt->copy()->addYear() : null;
 
             LicenseRequest::create([
-                'student_id' => $student->id, 
-                'license_id' => $licenses->random()->id,
+                'student_id' => $student->id,
+                'license_id' => $license->id,
                 'status' => $status,
                 'notes' => $notes,
                 'type' => $type,

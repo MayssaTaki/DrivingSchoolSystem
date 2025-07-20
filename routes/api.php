@@ -266,6 +266,7 @@ Route::get('/trainers/ranked', [TrainerReviewController::class, 'ranked'])->midd
 Route::get('/feedback-students', [FeedbackStudentController::class, 'index'])->middleware('auth:api');
 Route::get('/trainer/feedbacks', [FeedbackStudentController::class, 'getTrainerFeedbacks'])->middleware('auth:api');
 Route::get('/feedbacks/all', [FeedbackStudentController::class, 'getAllFeedbacks'])->middleware('auth:api');
+Route::get('/feedbacks/student/{studentId}', [FeedbackStudentController::class, 'getAllFeedbacksByStudentId'])->middleware('auth:api');
 
 
 

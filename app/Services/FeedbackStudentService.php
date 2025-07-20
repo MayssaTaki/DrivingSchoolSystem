@@ -104,5 +104,10 @@ public function getAllFeedbacksPaginated(int $perPage = 10)
     return $this->feedbackRepo->getAllWithPagination($perPage);
 }
 
+public function getFeedbackByStudentId(int $studentId, int $perPage = 10)
+{
+    return $this->feedbackRepo->getFeedbackByStudentIdWithPagination($studentId, $perPage);
+}
+
 }
 
