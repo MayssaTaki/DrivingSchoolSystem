@@ -15,24 +15,30 @@ class TrainerSeeder extends Seeder
         $users = User::where('role', 'trainer')->get();
 
         foreach ($users as $user) {
-            do {
-                $licenseNumber = $faker->unique()->numerify('########');
-            } while (Trainer::where('license_number', $licenseNumber)->exists());
+    $nameParts = explode(' ', $user->name);
+    $firstName = $nameParts[0];
+    $lastName = $nameParts[1] ?? ''; 
 
-            Trainer::create([
-                'user_id' => $user->id,
-                'first_name' => $faker->firstName,
-                'last_name' => $faker->lastName,
-                'phone_number' => '05' . $faker->numerify('########'), 
-                'address' => $faker->city . '، ' . $faker->streetName,
-                'gender' => $faker->randomElement(['male', 'female']),
-                'date_of_birth' => $faker->date('Y-m-d', '2000-01-01'),
-                'license_expiry_date' => $faker->date('Y-m-d', '2026-12-31'),
-                'training_type' => $faker->randomElement(['normal', 'special_needs']),
-                'license_number' => $licenseNumber,
-                'experience' => $faker->numberBetween(1, 10) . ' سنوات خبرة في تعليم القيادة',
-                'status' => $faker->randomElement(['pending', 'approved','rejected']),
-            ]);
+    do {
+        $licenseNumber = $faker->unique()->numerify('########');
+    } while (Trainer::where('license_number', $licenseNumber)->exists());
+
+    Trainer::create([
+        'user_id' => $user->id,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
+        'phone_number' => '05' . $faker->numerify('########'),
+        'address' => $faker->city . '، ' . $faker->streetName,
+        'gender' => $faker->randomElement(['male', 'female']),
+        'date_of_birth' => $faker->date('Y-m-d', '2000-01-01'),
+        'license_expiry_date' => $faker->date('Y-m-d', '2026-12-31'),
+        'training_type' => $faker->randomElement(['normal', 'special_needs']),
+        'license_number' => $licenseNumber,
+        'experience' => $faker->numberBetween(1, 10) . ' سنوات خبرة في تعليم القيادة',
+        'status' => $faker->randomElement(['pending', 'approved','rejected']),
+    ]);
+}
+
         }
     }
-}
+

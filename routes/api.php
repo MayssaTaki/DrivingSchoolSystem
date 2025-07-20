@@ -203,6 +203,10 @@ Route::delete('/trainers/{id}', [TrainerController::class, 'destroy'])->middlewa
 Route::put('/trainers/{trainer}', [TrainerController::class, 'update'])->middleware('auth:api');
 Route::get('/trainers/count', [TrainerController::class, 'countTrainers'])->middleware('auth:api');
 Route::get('/trainersApprove', [TrainerController::class, 'getAllTrainersApprove'])->middleware('auth:api');
+Route::get('/trainersReject', [TrainerController::class, 'getAllTrainersReject'])->middleware('auth:api');
+
+Route::get('/trainersPended', [TrainerController::class, 'getAllTrainersPending'])->middleware('auth:api');
+
 Route::post('/trainers/{id}/approve', [TrainerController::class, 'approve'])->middleware('auth:api');
 Route::post('/trainers/{id}/reject', [TrainerController::class, 'reject'])->middleware('auth:api');
 Route::get('/count/approved', [TrainerController::class, 'approved'])->middleware('auth:api');

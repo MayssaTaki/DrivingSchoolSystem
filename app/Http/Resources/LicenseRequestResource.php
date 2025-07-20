@@ -16,7 +16,6 @@ class LicenseRequestResource extends JsonResource
             'expires_at' => $this->expires_at,
             'created_at' => $this->created_at->toDateTimeString(),
 
-            // المستندات كمصفوفة URL
            'document_files' => collect($this->document_files)->map(function ($path) {
     $fullUrl = asset('storage/' . $path);
     $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
@@ -29,14 +28,12 @@ class LicenseRequestResource extends JsonResource
     ];
 }),
 
-            // معلومات الطالب
             'student' => [
                 'id' => $this->student->id,
                 'name' => $this->student->first_name . ' ' . $this->student->last_name,
                 'email' => $this->student->user->email,
             ],
 
-            // معلومات الرخصة
             'license' => [
                 'code' => $this->license->code,
                 'name' => $this->license->name,

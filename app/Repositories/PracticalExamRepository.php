@@ -19,7 +19,8 @@ public function create(array $data): PracticalExamSchedule
 
  public function paginateLatest(int $perPage = 10): LengthAwarePaginator
     {
-        return PracticalExamSchedule::latest()
+        return PracticalExamSchedule::with('licenseRequest')->latest()
+        
             ->paginate($perPage);
     }
 

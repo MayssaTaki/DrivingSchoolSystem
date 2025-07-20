@@ -166,6 +166,23 @@ $this->firebaseService = $firebaseService;
 
         return $result;
     }
+
+    public function getAllTrainersReject(?string $name)
+    {
+        $result = $this->trainerRepository->getAllTrainersRejected($name);
+
+     
+
+        return $result;
+    }
+    public function getAllTrainersPended(?string $name)
+    {
+        $result = $this->trainerRepository->getAllTrainersPending($name);
+
+     
+
+        return $result;
+    }
     public function delete(int $id): void
 {
     try {

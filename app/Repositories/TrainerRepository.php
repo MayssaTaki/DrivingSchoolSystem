@@ -127,8 +127,43 @@ public function getAllTrainersApprove(?string $name, int $perPage = 10)
   }
 
 
+public function getAllTrainersRejected(?string $name, int $perPage = 10)
+  {
+      $page = request()->get('page', 1);
+      $cacheKey = "trainersReject_page_{$page}_name_" . ($name ?? 'all');
+
+      return Cache::tags(['trainers'])->remember($cacheKey, now()->addMinutes(10), function () use ($name, $perPage) {
+          $query = Trainer::with('user')
+              ->whereHas('user', fn($q) => $q->where('role', 'trainer'))
+              ->where('status', 'rejected');
+
+              
+          if ($name) {
+              $query->where('first_name', 'like', "%{$name}%");
+          }
+
+          return $query->paginate($perPage);
+      });
+  }
 
 
-  
+  public function getAllTrainersPending(?string $name, int $perPage = 10)
+  {
+      $page = request()->get('page', 1);
+      $cacheKey = "trainersPended_page_{$page}_name_" . ($name ?? 'all');
+
+      return Cache::tags(['trainers'])->remember($cacheKey, now()->addMinutes(10), function () use ($name, $perPage) {
+          $query = Trainer::with('user')
+              ->whereHas('user', fn($q) => $q->where('role', 'trainer'))
+              ->where('status', 'pending');
+
+              
+          if ($name) {
+              $query->where('first_name', 'like', "%{$name}%");
+          }
+
+          return $query->paginate($perPage);
+      });
+  }
 
 }

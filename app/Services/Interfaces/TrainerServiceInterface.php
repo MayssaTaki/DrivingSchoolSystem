@@ -11,6 +11,10 @@ interface TrainerServiceInterface
     public function getAllTrainers(?string $name);
 
     public function getAllTrainersApprove(?string $name);
+   public function getAllTrainersReject(?string $name);
+
+     public function getAllTrainersPended(?string $name);
+
 
     public function delete(int $id): void;
 
