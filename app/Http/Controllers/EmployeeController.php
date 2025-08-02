@@ -31,6 +31,7 @@ class EmployeeController extends Controller
 {
     try {
         $data = $request->validated();
+    
         $employee = $this->employeeService->register($data);
 
         return response()->json([

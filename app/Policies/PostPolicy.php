@@ -23,7 +23,7 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === 'employee';
+        return $user->role === 'employee'|| $user->role === 'admin';
     }
 
     /**
@@ -31,7 +31,7 @@ class PostPolicy
      */
     public function update(User $user): bool
     {
-        return $user->role === 'employee';
+        return $user->role === 'employee'|| $user->role === 'admin';
     }
 
     /**

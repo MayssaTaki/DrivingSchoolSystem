@@ -32,7 +32,7 @@ class PostRepository implements PostRepositoryInterface
     foreach ($storedFiles as $file) {
         PostFile::create([
             'post_id' => $post->id,
-            'path' => $file['path'],
+              'path'          => $file['public_id'],
             'original_name' => $file['original_name'],
             'type' => $file['type'],
         ]);

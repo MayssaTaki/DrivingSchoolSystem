@@ -4,14 +4,14 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Log;
+use Illuminate\Support\Facades\Log;
 class GzipResponse
 {
     public function handle(Request $request, Closure $next)
     { 
      
         $response = $next($request);
-       \Log::info('Gzip Middleware triggered', [
+       Log::info('Gzip Middleware triggered', [
     'accept-encoding' => $request->header('Accept-Encoding'),
     'content-type' => $response->headers->get('Content-Type'),
     'content-length' => strlen($response->getContent())

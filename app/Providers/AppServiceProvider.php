@@ -7,7 +7,8 @@ use Illuminate\Support\ServiceProvider;
 // Models & Observers
 use App\Models\Booking;
 use App\Observers\BookingObserver;
-
+use App\Models\CarReservation;
+use App\Observers\CarReservationObserver;
 // Repositories
 use App\Repositories\UserRepository;
 use App\Repositories\EmployeeRepository;
@@ -37,6 +38,10 @@ use App\Repositories\LikeRepository;
 use App\Repositories\PracticalExamRepository;
 use App\Repositories\ChatRepository;
 use App\Repositories\RouteRepository;
+use App\Repositories\CarReservationRepository;
+use App\Repositories\CarReservationReportRepository;
+use App\Repositories\CarLocationRepository;
+
 
 
 // Repository Interfaces
@@ -68,6 +73,9 @@ use App\Repositories\Contracts\LikeRepositoryInterface;
 use App\Repositories\Contracts\PracticalExamRepositoryInterface;
 use App\Repositories\Contracts\ChatRepositoryInterface;
 use App\Repositories\Contracts\RouteRepositoryInterface;
+use App\Repositories\Contracts\CarReservationRepositoryInterface;
+use App\Repositories\Contracts\CarReservationReportRepositoryInterface;
+use App\Repositories\Contracts\CarLocationRepositoryInterface;
 
 // Services & Interfaces
 use App\Services\ExamService;
@@ -102,6 +110,10 @@ use App\Services\FirebaseService;
 use App\Services\ChatService;
 use App\Services\RouteService;
 use App\Services\MapService;
+use App\Services\ImageService;
+use App\Services\CarReservationService;
+use App\Services\CarReservationReportService;
+use App\Services\CarLocationService;
 
 
 use App\Services\Interfaces\ExamServiceInterface;
@@ -136,6 +148,10 @@ use App\Services\Interfaces\FirebaseServiceInterface;
 use App\Services\Interfaces\ChatServiceInterface;
 use App\Services\Interfaces\RouteServiceInterface;
 use App\Services\Interfaces\MapServiceInterface;
+use App\Services\Interfaces\ImageServiceInterface;
+use App\Services\Interfaces\CarReservationServiceInterface;
+use App\Services\Interfaces\CarReservationReportServiceInterface;
+use App\Services\Interfaces\CarLocationServiceInterface;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -174,6 +190,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PracticalExamRepositoryInterface::class, PracticalExamRepository::class);
         $this->app->bind(ChatRepositoryInterface::class, ChatRepository::class);
         $this->app->bind(RouteRepositoryInterface::class, RouteRepository::class);
+        $this->app->bind(CarReservationRepositoryInterface::class, CarReservationRepository::class);
+        $this->app->bind(CarReservationReportRepositoryInterface::class, CarReservationReportRepository::class);
+        $this->app->bind(CarLocationRepositoryInterface::class, CarLocationRepository::class);
 
 
         $this->app->bind(LogServiceInterface::class, LogService::class);
@@ -208,6 +227,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ChatServiceInterface::class, ChatService::class);
         $this->app->bind(RouteServiceInterface::class, RouteService::class);
         $this->app->bind(MapServiceInterface::class, MapService::class);
+        $this->app->bind(ImageServiceInterface::class, ImageService::class);
+        $this->app->bind(CarReservationServiceInterface::class, CarReservationService::class);
+        $this->app->bind(CarReservationReportServiceInterface::class, CarReservationReportService::class);
+        $this->app->bind(CarLocationServiceInterface::class, CarLocationService::class);
 
 
     }
@@ -218,5 +241,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Booking::observe(BookingObserver::class);
+        CarReservation::observe(CarReservationObserver::class);
+
     }
 }

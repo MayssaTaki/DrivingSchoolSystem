@@ -38,23 +38,23 @@ class TrainerPolicy
      */
     public function update(User $user, Trainer $trainer): bool
     {
-        return $user->id === $trainer->user_id ;
+        return $user->id === $trainer->user_id || $user->role === 'admin' ;
     }
 
     public function approve(User $user, Trainer $trainer): bool
     {
-        return  $user->role === 'employee' ;
+        return  $user->role === 'employee'|| $user->role === 'admin' ;
     }
     public function reject(User $user, Trainer $trainer): bool
     {
-        return  $user->role === 'employee' ;
+        return  $user->role === 'employee'|| $user->role === 'admin' ;
     }
     /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Trainer $trainer): bool
     {
-        return $user->id === $trainer->user_id || $user->role === 'employee';
+        return $user->id === $trainer->user_id || $user->role === 'employee'|| $user->role === 'admin';
     }
     
 

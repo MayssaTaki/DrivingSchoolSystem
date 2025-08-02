@@ -39,7 +39,7 @@ class TrainerController extends Controller
        return response()->json([
     'status' => 'success',
     'message' => 'تم تسجيل المدرب. تم إرسال رمز التحقق إلى بريدك الإلكتروني.',
-    'data' => $trainer
+    'data' =>  new TrainerResource ($trainer)
 ], 201);
 
     } catch (TrainerRegistrationException | UserRegistrationException $e) {

@@ -15,6 +15,9 @@ use App\Events\LicenseRequested;
 use App\Events\LicenseRequestApproved;
 use App\Events\LicenseRequestRejected;
 use App\Models\User;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Str;
+
 class LicenseRequestService implements LicenseRequestServiceInterface
 {
 protected LicenseRequestRepositoryInterface $licenseRepository;
@@ -50,32 +53,41 @@ public function requestLicense(array $data)
         $storedDocs = [];
 
         foreach ($data['required_documents'] as $file) {
-            $path = $file->store('license_docs', 'public');
-            $storedDocs[] = $path;
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $uniqueName = $originalName . '_' . Str::random(8);
 
-            $ext = strtolower($file->getClientOriginalExtension());
-            $fullPath = storage_path('app/public/' . $path);
+            $uploaded = Cloudinary::uploadApi()->upload(
+                $file->getRealPath(),
+                [
+                    'public_id' => 'license_docs/' . $uniqueName,
+                    'quality' => 'auto:good',
+                    'type' => 'authenticated'
+                ]
+            );
 
-            if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-                event(new ImageUploaded($fullPath));
-            } 
+            $storedDocs[] = $uploaded['public_id'];
+
+            
         }
 
-       
+        $data['required_documents'] = $storedDocs;
 
         $licenseRequest = $this->licenseRepository->create($data);
-event(new LicenseRequested($student, $license));
-$users = User::whereIn('role', ['employee', 'admin'])
-                ->whereNotNull('fcm_token')
-                ->get();
 
-            foreach ($users as $user) {
-                $this->firebaseService->sendNotification(
-                    $user->fcm_token,
-                  '📄 تم إضافة طلب  رخصة جديدة',
-                    "تمت إضافة طلب  رخصة جديدة بالكود: {$license->code}",
-                );
-            }
+        event(new LicenseRequested($student, $license));
+
+        $users = User::whereIn('role', ['employee', 'admin'])
+            ->whereNotNull('fcm_token')
+            ->get();
+
+        foreach ($users as $user) {
+            $this->firebaseService->sendNotification(
+                $user->fcm_token,
+                '📄 تم إضافة طلب رخصة جديدة',
+                "تمت إضافة طلب رخصة جديدة بالكود: {$license->code}"
+            );
+        }
+
         $this->activityLogger->log(
             'تم إضافة طلب رخصة جديدة',
             ['code' => $license->code],

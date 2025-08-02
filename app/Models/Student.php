@@ -3,6 +3,7 @@
 namespace App\Models;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -34,23 +35,52 @@ class Student extends Model
     }
     public function getImageAttribute($value)
 {
-    if ($value) {
+    if (!$value) {
+        return asset('images/default-user-image.webp');
+    }
+
+    if (Str::startsWith($value, 'http')) {
+        return $value;
+    }
+
+    if (Storage::disk('public')->exists($value)) {
         return asset('storage/' . $value);
     }
 
-    return asset('images/default-user-image.webp');
+    return app(\App\Services\Interfaces\ImageServiceInterface::class)->getSignedUrl($value);
 }
+
+public function getImageUrl(): string
+{
+    $original = $this->getRawOriginal('image');
+
+    if (!$original) {
+        return asset('images/default-user-image.webp'); 
+    }
+
+    if (Str::startsWith($original, 'http')) {
+        return $original;
+    }
+
+    return app(\App\Services\Interfaces\ImageServiceInterface::class)
+        ->getSignedUrl($original) ?? asset('images/default-user-image.webp'); // fallback
+}
+
+
+
 public function setImageAttribute($value)
 {
     if (is_string($value) && str_starts_with($value, asset('storage'))) {
         $value = str_replace(asset('storage') . '/', '', $value);
     }
+
     $defaultImage = 'images/default-user-image.webp';
 
     if (
-        $this->attributes['image'] ?? false &&
+        ($this->attributes['image'] ?? false) &&
         $this->attributes['image'] !== $value &&
         !str_contains($this->attributes['image'], 'default-user-image') &&
+        !Str::startsWith($this->attributes['image'], 'trainers/') && // ← صور Cloudinary
         Storage::disk('public')->exists($this->attributes['image'])
     ) {
         Storage::disk('public')->delete($this->attributes['image']);
@@ -58,6 +88,7 @@ public function setImageAttribute($value)
 
     $this->attributes['image'] = $value;
 }
+
 
 public function reviews()
 {

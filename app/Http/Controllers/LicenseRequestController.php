@@ -4,6 +4,7 @@ use App\Http\Requests\LicenseRequestStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\LicenseRequestResource;
+use Illuminate\Support\Facades\Log;
 
 
 use App\Services\Interfaces\LicenseRequestServiceInterface;
@@ -26,22 +27,37 @@ protected LicenseRequestServiceInterface $licenseService;
         return response()->json([
             'success' => true,
             'message' => 'تم تقديم الطلب بنجاح.',
-            'data' => $licenseRequest
+            'data' => new LicenseRequestResource($licenseRequest)
         ], 201);
 
     } catch (\Exception $e) {
+        Log::error('خطأ في store (Exception)', [
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'input' => $request->all()
+        ]);
+
         return response()->json([
             'success' => false,
             'message' => $e->getMessage(),
         ], 422);
 
     } catch (\Throwable $e) {
+        Log::error('خطأ في store (Throwable)', [
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'input' => $request->all()
+        ]);
+
         return response()->json([
             'success' => false,
             'message' => 'حدث خطأ غير متوقع أثناء تنفيذ العملية. يرجى المحاولة لاحقًا.',
         ], 500);
     }
 }
+
 
 public function index()
 {

@@ -28,23 +28,23 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        foreach (range(6, 10) as $i) {
+        foreach (range(6, 36) as $i) {
             User::create([
                 'name' => $faker->name,
                 'email' => "user{$i}@example.com",
                 'password' => bcrypt('Password123'),
-                'role' => 'student',
+                'role' => 'trainer',
             ]);
         }
 
       
-        foreach (range(11, 15) as $i) {
+        foreach (range(37, 137) as $i) {
             $fullName = $faker->firstName . ' ' . $faker->lastName;
             User::create([
                 'name' => $fullName,
                 'email' => "user{$i}@example.com",
                 'password' => bcrypt('Password123'),
-                'role' => 'trainer',
+                'role' => 'student',
             ]);
         }
     }

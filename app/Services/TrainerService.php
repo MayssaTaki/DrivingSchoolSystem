@@ -16,6 +16,8 @@ use App\Services\Interfaces\TransactionServiceInterface;
 use App\Services\Interfaces\EmailVerificationServiceInterface;
 use App\Services\Interfaces\UserServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Str;
 
 
 
@@ -30,6 +32,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Events\ImageUploaded;
+use App\Events\TrainerRegistered;
+
 use App\Models\User;
 
 
@@ -74,7 +78,7 @@ $this->firebaseService = $firebaseService;
 
     }
 
-    public function register(array $data): Trainer
+   public function register(array $data): Trainer
 {
     try {
         return $this->transactionService->run(function () use ($data) {
@@ -84,10 +88,20 @@ $this->firebaseService = $firebaseService;
             $data['user_id'] = $user->id;
 
             if (isset($data['image'])) {
-                $data['image'] = $data['image']->store('ImageTrainers', 'public');
+                $originalName = pathinfo($data['image']->getClientOriginalName(), PATHINFO_FILENAME);
+                $uniqueName = $originalName . '_' . Str::random(8);
 
-                $fullPath = storage_path("app/public/{$data['image']}");
-                event(new ImageUploaded($fullPath));
+                $uploaded = Cloudinary::uploadApi()->upload(
+                    $data['image']->getRealPath(),
+                    [
+                        'public_id' => 'trainers/' . $uniqueName,
+                        'quality' => 'auto:good',
+                        'type' => 'authenticated'
+                    ]
+                );
+
+                $data['image'] = $uploaded['public_id'];
+
             }
 
             $trainerData = [
@@ -109,8 +123,7 @@ $this->firebaseService = $firebaseService;
 
             $this->emailService->sendVerificationCode($user);
 
-            logger('📣 سيتم إطلاق الحدث TrainerRegistered للمدرب:', ['id' => $trainer->id]);
-            event(new \App\Events\TrainerRegistered($trainer));
+            event(new TrainerRegistered($trainer));
 
             $users = User::whereIn('role', ['employee', 'admin'])
                 ->whereNotNull('fcm_token')
@@ -128,7 +141,7 @@ $this->firebaseService = $firebaseService;
                 'تم تسجيل موظف جديد',
                 ['name' => $trainer->first_name . ' ' . $trainer->last_name],
                 'trainers',
-                $trainer, 
+                $trainer,
                 auth()->user(),
                 'created'
             );
@@ -144,10 +157,9 @@ $this->firebaseService = $firebaseService;
             'trace' => $e->getTraceAsString()
         ], 'trainer');
 
-        throw new TrainerRegistrationException('فشل تسجيل الأستاذ والمدرب: ' . $e->getMessage());
+        throw  new TrainerRegistrationException('فشل تسجيل الأستاذ والمدرب: ' . $e->getMessage());
     }
 }
-
 
     public function getAllTrainers(?string $name)
     {
@@ -236,12 +248,22 @@ public function update(Trainer $trainer, array $data): Trainer
             $user = $trainer->user;
             $userModifications = $this->userService->update($user, $data);
             
-                       if (isset($data['image'])) {
-    $data['image'] = $data['image']->store('ImageTrainers', 'public');
+ if (isset($data['image'])) {
+    $originalName = pathinfo($data['image']->getClientOriginalName(), PATHINFO_FILENAME);
+    $uniqueName = $originalName . '_' . Str::random(8);
 
-    $fullPath = storage_path("app/public/{$data['image']}");
-    event(new ImageUploaded($fullPath));
+    $uploaded = Cloudinary::uploadApi()->upload(
+        $data['image']->getRealPath(),
+        [
+            'public_id' => 'trainers/' . $uniqueName,
+            'quality' => 'auto:good',
+            'type' => 'authenticated'
+        ]
+    );
+
+    $data['image'] = $uploaded['public_id']; 
 }
+
             $trainerData = [
                 'first_name' => $data['first_name'] ?? $trainer->first_name,
                 'last_name' => $data['last_name'] ?? $trainer->last_name,

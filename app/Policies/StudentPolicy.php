@@ -50,7 +50,7 @@ class StudentPolicy
      */
     public function delete(User $user, Student $student): bool
     {
-        return $user->id === $student->user_id || $user->role === 'employee';
+        return $user->id === $student->user_id || $user->role === 'employee'|| $user->role === 'admin';
 
     }
     

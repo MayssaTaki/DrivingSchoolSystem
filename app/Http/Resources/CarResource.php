@@ -21,11 +21,15 @@ class CarResource extends JsonResource
             'year' => $this->year,
         'make'=>$this->make,
         'color'=>$this->color,
-            'image'=>$this->image,
+'image' => app(\App\Services\Interfaces\ImageServiceInterface::class)->getSignedUrl($this->image),
             'transmission'=>$this->transmission,
            'is_for_special_needs' => (bool) $this->is_for_special_needs,     
           'display_type' => $this->car_type, 
 'status' => $this->status ?? 'available',
 
         ];}
+
+
+
+
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\PracticalExamController;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrainingSessionController;
@@ -33,7 +34,9 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\ScheduleExceptionController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CarReservationReportController;
 
+use App\Http\Controllers\CarLocationController;
 
 
 
@@ -41,6 +44,16 @@ use Illuminate\Support\Facades\Http;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+
+
+Route::get('/cloud-test', function () {
+    return [
+        'cloud_name' => config('cloudinary.cloud_url') ? parse_url(config('cloudinary.cloud_url'), PHP_URL_HOST) : null,
+        'api_key' => config('cloudinary.cloud_url') ? parse_url(config('cloudinary.cloud_url'), PHP_URL_USER) : null,
+        'api_secret' => config('cloudinary.cloud_url') ? parse_url(config('cloudinary.cloud_url'), PHP_URL_PASS) : null,
+        'url' => config('cloudinary.cloud_url'),
+    ];
+});
 
 
 
@@ -51,7 +64,10 @@ Route::post('/save-fcm-token', function (Request $request) {
     $user->save();
     return response()->json(['message' => 'Token saved']);
 });
-
+Route::get('/cloud-upload-test', function () {
+    $path = public_path('images/image.png'); // تأكد أن الصورة موجودة
+$result = Cloudinary::uploadApi()->upload($path);
+    return $result['secure_url'];});
 
 
 Route::middleware('auth:api')->prefix('notifications')->controller(\App\Http\Controllers\NotificationController::class)->group(function () {
@@ -72,28 +88,15 @@ Route::middleware('auth:api')->group(function () {
 
 Route::post('bookings/{booking}/route', [RouteController::class, 'defineRoute'])->middleware('auth:api'); 
 
+Route::get('/reports/car/{carId}', [CarReservationReportController::class, 'reportByCar'])->middleware('auth:api'); 
+Route::get('/reports/date-range', [CarReservationReportController::class, 'reportByDateRange'])->middleware('auth:api'); 
+
+Route::post('/car-locations', [CarLocationController::class, 'store'])->middleware('auth:api'); 
+Route::get('/car-locations/last/{carId}', [CarLocationController::class, 'showLastLocation'])->middleware('auth:api'); 
+Route::get('{car}/locations', [CarLocationController::class, 'showCarTrack'])->middleware('auth:api'); 
+Route::get('active-locations', [CarLocationController::class, 'showActiveCars'])->middleware('auth:api'); 
 
 
-
-Route::get('/test-email', function () {
-    $response = Http::withHeaders([
-        'api-key' => env('BREVO_API_KEY'),
-        'Content-Type' => 'application/json',
-        'Accept' => 'application/json',
-    ])->post('https://api.brevo.com/v3/smtp/email', [
-        'sender' => [
-            'name' => 'Qyada School',
-            'email' => 'qyadaschool@gmail.com' // بريد مُفعّل في Brevo
-        ],
-        'to' => [
-            ['email' => 'maessataki@gmail.com']
-        ],
-        'subject' => '📨 حظا سعيد في الحياة معلم حمزة',
-        'htmlContent' => '<p>✅</p>',
-    ]);
-
-    return $response->json(); // يعرض نتيجة الإرسال
-});
 
 
 Route::post('exam-schedules', [PracticalExamController::class, 'store'])

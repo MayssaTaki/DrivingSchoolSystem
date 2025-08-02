@@ -81,7 +81,7 @@ class EmployeeService implements EmployeeServiceInterface
                 'trace' => $e->getTraceAsString()
             ], 'employee');
 
-            throw new EmployeeRegistrationException('فشل تسجيل الأستاذ والموظف: ' . $e->getMessage());
+            throw new EmployeeRegistrationException('فشل تسجيل الموظف: ' . $e->getMessage());
         }
     }
 

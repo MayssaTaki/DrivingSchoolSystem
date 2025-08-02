@@ -33,7 +33,7 @@ class LicenseRequestSeeder extends Seeder
             return;
         }
 
-        for ($i = 0; $i < 15; $i++) {
+        for ($i = 0; $i < 60; $i++) {
             $student = $students->random();
             $license = $licenses->random();
 

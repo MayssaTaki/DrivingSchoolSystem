@@ -17,12 +17,16 @@ class TrainingSession extends Model
 
         public function bookings()
 {
-    return $this->hasMany(Booking::class);
+    return $this->hasMany(Booking::class,'session_id');
 }
 
     public function trainer()
     {
         return $this->belongsTo(Trainer::class);
     }
-    
+    public function carReservations()
+{
+    return $this->hasMany(CarReservation::class, 'session_id');
+}
+
 }

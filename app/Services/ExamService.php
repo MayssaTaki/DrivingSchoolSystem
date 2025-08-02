@@ -46,18 +46,37 @@ class ExamService implements ExamServiceInterface
 
 
 public function createExamWithQuestions(array $data)
-{ 
+{
     $trainer = auth()->user()->trainer;
+
     try {
         return $this->transactionService->run(function () use ($data, $trainer) {
-                        $this->checkTrainerApproval($trainer);
-            $exam = $this->examRepo->createExamWithQuestions($data);
-     foreach ($exam->questions as $question) {
-                if ($question->image_path) {
-                    $fullPath = storage_path('app/public/' . $question->image_path);
-                    event(new ImageUploaded($fullPath));
+            $this->checkTrainerApproval($trainer);
+
+            if (isset($data['questions']) && is_array($data['questions'])) {
+                foreach ($data['questions'] as $index => $question) {
+                    if (isset($question['image']) && $question['image'] instanceof \Illuminate\Http\UploadedFile) {
+                        $originalName = pathinfo($question['image']->getClientOriginalName(), PATHINFO_FILENAME);
+                        $uniqueName = $originalName . '_' . \Illuminate\Support\Str::random(8);
+
+                        $uploaded = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::uploadApi()->upload(
+                            $question['image']->getRealPath(),
+                            [
+                                'public_id' => 'exam_questions/' . $uniqueName,
+                                'quality' => 'auto:good',
+                                'type' => 'authenticated'
+                            ]
+                        );
+
+                        $data['questions'][$index]['image_path'] = $uploaded['public_id'];
+                    }
+                    unset($data['questions'][$index]['image']);
+
                 }
             }
+
+            $exam = $this->examRepo->createExamWithQuestions($data);
+
             $this->activityLogger->log(
                 'تم إنشاء امتحان جديد',
                 [

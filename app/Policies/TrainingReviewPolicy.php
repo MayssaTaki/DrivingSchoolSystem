@@ -42,11 +42,11 @@ class TrainingReviewPolicy
 
   public function approve(User $user, int $reviewId): bool
 {
-    return $user->role === 'employee';
+    return $user->role === 'employee'|| $user->role === 'admin';
 }
     public function reject(User $user, Trainer $trainer): bool
     {
-        return  $user->role === 'employee' ;
+        return  $user->role === 'employee'|| $user->role === 'admin' ;
     }
     /**
      * Determine whether the user can delete the model.

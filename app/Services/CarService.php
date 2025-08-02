@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Services;
-
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Str;
 use App\Models\Car;
 use App\Repositories\Contracts\CarRepositoryInterface;
 use Illuminate\Support\Facades\Gate;
@@ -61,11 +62,22 @@ protected FirebaseServiceInterface $firebaseservice;
             if (Gate::denies('create', Car::class)) {
                 throw new AuthorizationException('ليس لديك صلاحية اضافة سيارة.');
             }
-            if (isset($data['image'])) {
-                $data['image'] = $data['image']->store('ImageCars', 'public');
-                                  $fullPath = storage_path("app/public/{$data['image']}");
-    event(new ImageUploaded($fullPath));
-            }
+       if (isset($data['image'])) {
+            $originalName = pathinfo($data['image']->getClientOriginalName(), PATHINFO_FILENAME);
+            $uniqueName = $originalName . '_' . Str::random(8);
+
+            $uploaded = Cloudinary::uploadApi()->upload(
+                $data['image']->getRealPath(),
+                ['public_id' => 'cars/' . $uniqueName,
+                'quality' => 'auto:good',
+                'type' => 'authenticated'
+                ]
+            );
+
+            
+$data['image'] = $uploaded['public_id'];
+        }
+
                 $car = $this->carRepository->create([
                     'make' => $data['make'],
                     'model' => $data['model'],
@@ -155,45 +167,56 @@ event(new CarAdded($car));
 }
 
  public function update(Car $car, array $data): Car
-    {
-        try {
-             if (Gate::denies('update', Car::class)) {
-                throw new AuthorizationException('ليس لديك صلاحية تعديل سيارة.');
-            }
-             if (isset($data['image'])) {
-                $data['image'] = $data['image']->store('ImageCars', 'public');
-                                 $fullPath = storage_path("app/public/{$data['image']}");
-    event(new ImageUploaded($fullPath));
-            }
-            $updateData = [];
-    
-            if (isset($data['license_plate']) && $data['license_plate'] !== $car->license_plate) {
-                $updateData['license_plate'] = $data['license_plate'];
-            }
-      if (isset($data['make']) && $data['make'] !== $car->make) {
-                $updateData['make'] = $data['make'];
-            }
-              if (isset($data['model']) && $data['model'] !== $car->model) {
-                $updateData['model'] = $data['model'];
-            }
-              if (isset($data['color']) && $data['color'] !== $car->color) {
-                $updateData['color'] = $data['color'];
-            }
-              if (isset($data['year']) && $data['year'] !== $car->year) {
-                $updateData['year'] = $data['year'];
-            }
-               if (isset($data['transmission']) && $data['transmission'] !== $car->transmission) {
-                $updateData['transmission'] = $data['transmission'];
-            }
-               if (isset($data['is_for_special_needs']) && $data['is_for_special_needs'] !== $car->is_for_special_needs) {
-                $updateData['is_for_special_needs'] = $data['is_for_special_needs'];
-            }
-            if (isset($data['image']) && $data['image'] !== $car->getRawOriginal('image')) {
-    $updateData['image'] = $data['image'];
-}
+{
+    try {
+        if (Gate::denies('update', Car::class)) {
+            throw new AuthorizationException('ليس لديك صلاحية تعديل سيارة.');
+        }
 
-    
-              $this->activityLogger->log(
+        if (isset($data['image'])) {
+            $originalName = pathinfo($data['image']->getClientOriginalName(), PATHINFO_FILENAME);
+            $uniqueName = $originalName . '_' . Str::random(8);
+
+            $uploaded = Cloudinary::uploadApi()->upload(
+                $data['image']->getRealPath(),
+                [
+                    'public_id' => 'cars/' . $uniqueName,
+                    'quality' => 'auto:good',
+                    'type' => 'authenticated'
+                ]
+            );
+
+            $data['image'] = $uploaded['public_id'];
+        }
+
+        $updateData = [];
+
+        if (isset($data['license_plate']) && $data['license_plate'] !== $car->license_plate) {
+            $updateData['license_plate'] = $data['license_plate'];
+        }
+        if (isset($data['make']) && $data['make'] !== $car->make) {
+            $updateData['make'] = $data['make'];
+        }
+        if (isset($data['model']) && $data['model'] !== $car->model) {
+            $updateData['model'] = $data['model'];
+        }
+        if (isset($data['color']) && $data['color'] !== $car->color) {
+            $updateData['color'] = $data['color'];
+        }
+        if (isset($data['year']) && $data['year'] !== $car->year) {
+            $updateData['year'] = $data['year'];
+        }
+        if (isset($data['transmission']) && $data['transmission'] !== $car->transmission) {
+            $updateData['transmission'] = $data['transmission'];
+        }
+        if (isset($data['is_for_special_needs']) && $data['is_for_special_needs'] !== $car->is_for_special_needs) {
+            $updateData['is_for_special_needs'] = $data['is_for_special_needs'];
+        }
+        if (isset($data['image']) && $data['image'] !== $car->getRawOriginal('image')) {
+            $updateData['image'] = $data['image'];
+        }
+
+        $this->activityLogger->log(
             'تم تعديل سيارة',
             ['make' => $car->make],
             'cars',
@@ -201,17 +224,21 @@ event(new CarAdded($car));
             auth()->user(),
             'updated'
         );
-     $this->clearCarCache();
-            $this->carRepository->update($car, $updateData);
-    
-            return $car->fresh();  
-        } catch (\Exception $e) {
-            $this->logService->log('error', 'فشل تحديث بيانات السيارة', [
-                'message' => $e->getMessage(),
-                'data' => $data,
-                'trace' => $e->getTraceAsString()
-            ], 'car');
-            throw $e; 
-        }
+
+        $this->clearCarCache();
+
+        $this->carRepository->update($car, $updateData);
+
+        return $car->fresh();  
+
+    } catch (\Exception $e) {
+        $this->logService->log('error', 'فشل تحديث بيانات السيارة', [
+            'message' => $e->getMessage(),
+            'data' => $data,
+            'trace' => $e->getTraceAsString()
+        ], 'car');
+        throw $e; 
     }
+}
+
 }
