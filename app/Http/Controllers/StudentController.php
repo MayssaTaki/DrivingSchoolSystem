@@ -34,7 +34,7 @@ class StudentController extends Controller
           return response()->json([
     'status' => 'success',
     'message' => 'تم تسجيل الطالب. تم إرسال رمز التحقق إلى بريدك الإلكتروني.',
-    'data' => $student
+    'data' => new StudentResource ($student)
 ], 201);
     } catch (StudentRegistrationException | UserRegistrationException $e) {
         return response()->json([

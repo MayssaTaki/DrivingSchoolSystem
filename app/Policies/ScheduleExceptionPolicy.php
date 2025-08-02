@@ -22,12 +22,12 @@ class ScheduleExceptionPolicy
 }
  public function approve(User $user, ScheduleException $exception): bool
 {
-    return $user->role === 'employee';
+    return $user->role === 'employee'|| $user->role === 'admin';
 }
 
 public function reject(User $user, ScheduleException $exception): bool
 {
-    return $user->role === 'employee';
+    return $user->role === 'employee'|| $user->role === 'admin';
 }
 
     public function viewAny(User $user): bool

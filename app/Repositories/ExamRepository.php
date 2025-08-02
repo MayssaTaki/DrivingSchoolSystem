@@ -15,7 +15,6 @@ class ExamRepository implements ExamRepositoryInterface
 {
 
 
-
 public function createExamWithQuestions(array $data): Exam
 {
     $exam = Exam::create([
@@ -28,24 +27,16 @@ public function createExamWithQuestions(array $data): Exam
     $choicesData = [];
 
     foreach ($data['questions'] as $qIndex => $q) {
-        $imagePath = null;
-
-        if (isset($q['image'])) {
-            $image = $q['image'];
-            $imagePath = $image->store('questions', 'public');
-        }
-
         $questionsData[] = [
             'exam_id' => $exam->id,
             'question_text' => $q['question_text'],
-            'image_path' => $imagePath,
+            'image_path' => $q['image_path'] ?? null, // فقط استقبال public_id من السيرفيس
             'created_at' => now(),
             'updated_at' => now(),
         ];
     }
 
     $exam->questions()->insert($questionsData);
-
     $questions = $exam->questions()->get();
 
     foreach ($questions as $index => $question) {
@@ -66,6 +57,7 @@ public function createExamWithQuestions(array $data): Exam
 
     return $exam->load('questions.choices');
 }
+
 
 
 

@@ -21,7 +21,6 @@ interface CarRepositoryInterface
   public function findWithLock(int $id);
          public function find(int $id);
 public function getAvailableCars();
-public function getFirstAvailableForSession(string $date, string $time, string $transmission, bool $isForSpecialNeeds);
-
+public function getFirstAvailableForSession(string $date, string $startTime, string $endTime, string $transmission, bool $isForSpecialNeeds);
 
 }

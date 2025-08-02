@@ -46,4 +46,12 @@ if (is_string($value) && str_starts_with($value, asset('storage'))) {
     {
         return $this->hasMany(CarFault::class);
     }
+    public function reservations()
+{
+    return $this->hasMany(CarReservation::class);
+}
+public function locations()
+{
+    return $this->hasMany(CarLocation::class);
+}
 }

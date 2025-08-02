@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -6,7 +7,6 @@ use App\Models\TrainerReview;
 use App\Models\TrainingSession;
 use Faker\Factory as Faker;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 
 class TrainerReviewSeeder extends Seeder
 {
@@ -15,55 +15,63 @@ class TrainerReviewSeeder extends Seeder
         $faker = Faker::create('ar_SA');
 
         $sessions = TrainingSession::where('status', 'completed')
-            ->with('trainer', 'booking.student')
+            ->whereHas('bookings') 
+            ->with('bookings.student', 'trainer.user')
             ->get()
-            ->filter(function ($session) {
-                return optional($session->booking)->student_id !== null;
-            });
+->filter(function ($session) {
+    return $session->bookings->isNotEmpty() && $session->bookings->first()->student_id;
+});
 
         if ($sessions->isEmpty()) {
-            $this->command->warn('⚠️ لا توجد جلسات محجوزة بها طلاب لتوليد التقييمات.');
+            $this->command->warn('⚠️ لا توجد جلسات مكتملة بحجوزات طلاب.');
             return;
         }
 
-        $reviewsCount = 20;
-        $comments = [
-            'مدرب ممتاز وشرح واضح.',
-            'التجربة كانت جيدة جدًا.',
-            'يحتاج لتحسين طريقة الشرح.',
-            'تعامل احترافي وصبور.',
-            'غير ملتزم بالمواعيد أحيانًا.',
-            'أفضل مدرب تعاملت معه.',
-            'الشرح بسيط وسهل الفهم.',
-            'لا يجيب على كل الأسئلة بوضوح.',
-            'ينصح به للمبتدئين.',
-            'تجربة متوسطة.',
-        ];
+        $created = 0;
 
-        $reviewed = [];
+    foreach ($sessions as $session) {
+    $booking = $session->bookings->first();
 
-        foreach (range(1, $reviewsCount) as $i) {
-            $session = $sessions->random();
-            $studentId = optional($session->booking)->student_id;
-            $trainerId = $session->trainer_id;
+    if (!$booking || !$booking->student_id) continue;
 
-            $key = $studentId . '_' . $trainerId;
-            if (in_array($key, $reviewed)) {
-                continue;
-            }
-            $reviewed[] = $key;
+    $studentId = $booking->student_id;
+    $trainerId = $session->trainer_id;
+
+            $alreadyReviewed = TrainerReview::where('student_id', $studentId)
+                ->where('trainer_id', $trainerId)
+                ->exists();
+
+            if ($alreadyReviewed) continue;
+
+            $rating = rand(1, 5); 
+
+            $status = match (true) {
+                $rating >= 4 => 'approved',
+                $rating <= 2 => 'rejected',
+                default      => 'pending',
+            };
+
+            $comment = match ($rating) {
+                5 => 'أفضل مدرب! أنصح به بشدة.',
+                4 => 'مدرب جيد جدًا وشرح واضح.',
+                3 => 'جيد نوعًا ما لكن يمكن تحسين بعض الأمور.',
+                2 => 'ضعيف في إيصال المعلومة ويحتاج تحسين.',
+                1 => 'تجربة سيئة جدًا، لا أنصح به.',
+            };
 
             TrainerReview::create([
                 'student_id' => $studentId,
                 'trainer_id' => $trainerId,
-                'rating'     => rand(1, 5),
-                'comment'    => Arr::random($comments),
-                'status'     => Arr::random(['approved', 'pending', 'rejected']),
-                'created_at' => now()->subDays(rand(1, 60)),
+                'rating'     => $rating,
+                'comment'    => $comment,
+                'status'     => $status,
+                'created_at' => now()->subDays(rand(1, 30)),
                 'updated_at' => now(),
             ]);
+
+            $created++;
         }
 
-        $this->command->info('✅ تم إنشاء تقييمات عربية لمدربين فقط مع طلاب لديهم جلسات محجوزة.');
+        $this->command->info("✅ تم إنشاء {$created} تقييم شامل (مقبول + مرفوض + معلق) لكل طالب ومدرب.");
     }
 }

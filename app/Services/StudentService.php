@@ -25,7 +25,8 @@ use App\Services\Interfaces\TransactionServiceInterface;
 use App\Services\Interfaces\EmailVerificationServiceInterface;
 use App\Services\Interfaces\UserServiceInterface;
 use App\Models\User;
-
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Str;
 
 
 
@@ -76,12 +77,22 @@ protected  $emailService;
                 $data['role'] = 'student';
                 $user = $this->userService->register($data);
                 $data['user_id'] = $user->id;
-                if (isset($data['image'])) {
-                    $data['image'] = $data['image']->store('ImageStudents', 'public');
-                            $fullPath = storage_path("app/public/{$data['image']}");
-    event(new ImageUploaded($fullPath));
-                }
-   
+              if (isset($data['image'])) {
+                $originalName = pathinfo($data['image']->getClientOriginalName(), PATHINFO_FILENAME);
+                $uniqueName = $originalName . '_' . Str::random(8);
+
+                $uploaded = Cloudinary::uploadApi()->upload(
+                    $data['image']->getRealPath(),
+                    [
+                        'public_id' => 'students/' . $uniqueName,
+                        'quality' => 'auto:good',
+                        'type' => 'authenticated'
+                    ]
+                );
+
+                $data['image'] = $uploaded['public_id'];
+
+            }
                 $studentData = [
                     'user_id' => $user->id,
                     'first_name' => $data['first_name'],
@@ -193,11 +204,22 @@ event(new \App\Events\StudentRegistered($student));
             $user = $student->user;
             $userModifications = $this->userService->update($user, $data);
             
-            if (isset($data['image'])) {
-                $data['image'] = $data['image']->store('ImageStudents', 'public');
-           $fullPath = storage_path("app/public/{$data['image']}");
-    event(new ImageUploaded($fullPath));
-            }
+          if (isset($data['image'])) {
+    $originalName = pathinfo($data['image']->getClientOriginalName(), PATHINFO_FILENAME);
+    $uniqueName = $originalName . '_' . Str::random(8);
+
+    $uploaded = Cloudinary::uploadApi()->upload(
+        $data['image']->getRealPath(),
+        [
+            'public_id' => 'students/' . $uniqueName,
+            'quality' => 'auto:good',
+            'type' => 'authenticated'
+        ]
+    );
+
+    $data['image'] = $uploaded['public_id']; 
+}
+
 
             $studentData = [
                 'first_name' => $data['first_name'] ?? $student->first_name,

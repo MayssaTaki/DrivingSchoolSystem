@@ -33,6 +33,7 @@ protected FirebaseServiceInterface $firebaseservice;
 
 public function getUserConversations(int $userId) {
     return $this->chatRepo->getUserConversations($userId);
+    
 }
 
 public function sendMessageWithAttachment(int $senderId, int $receiverId, ?string $content, $file = null)
@@ -43,9 +44,20 @@ public function sendMessageWithAttachment(int $senderId, int $receiverId, ?strin
 
             if ($file) {
                 $extension = strtolower($file->getClientOriginalExtension());
-                $filename = Str::uuid() . '.' . $extension;
-                $path = $file->storeAs('chat_files', $filename, 'public');
-                $content = $path;
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $uniqueName = $originalName . '_' . Str::random(8);
+
+                $uploaded = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::uploadApi()->upload(
+                    $file->getRealPath(),
+                    [
+                        'public_id' => 'chat_files/' . $uniqueName,
+                        'quality' => 'auto:good',
+                        'type' => 'authenticated',
+                        'resource_type' => in_array($extension, ['pdf', 'docx', 'zip']) ? 'raw' : 'image'
+                    ]
+                );
+
+                $content = $uploaded['public_id'];
 
                 if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
                     $type = 'image';
@@ -105,9 +117,20 @@ public function sendMessageWithAttachment(int $senderId, int $receiverId, ?strin
     }
 }
 
-    public function getMessages(int $conversationId) {
-        return $this->chatRepo->getMessagesByConversationId($conversationId);
+    public function getMessages(int $conversationId)
+{
+    $messages = $this->chatRepo->getMessagesByConversationId($conversationId);
+
+    foreach ($messages as $message) {
+        if (in_array($message->type, ['image', 'file'])) {
+            $message->content = app(\App\Services\Interfaces\ImageServiceInterface::class)
+                ->getSignedUrl($message->content);
+        }
     }
+
+    return $messages;
+}
+
      public function markMessageAsRead(int $messageId): bool {
         return $this->chatRepo->markMessageAsRead($messageId);
     }

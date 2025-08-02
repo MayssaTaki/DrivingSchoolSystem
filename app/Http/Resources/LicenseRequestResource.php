@@ -3,6 +3,9 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use Illuminate\Support\Str;
+use App\Services\Interfaces\ImageServiceInterface;
+
 class LicenseRequestResource extends JsonResource
 {
     public function toArray($request): array
@@ -16,17 +19,18 @@ class LicenseRequestResource extends JsonResource
             'expires_at' => $this->expires_at,
             'created_at' => $this->created_at->toDateTimeString(),
 
-           'document_files' => collect($this->document_files)->map(function ($path) {
-    $fullUrl = asset('storage/' . $path);
-    $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-    $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'document';
-
+'document_files' => collect($this->document_files ?? [])->map(function ($publicId) {
+    if (!$publicId) {
+        return null;
+    }
+    $url = app(ImageServiceInterface::class)->getSignedUrl($publicId) ?? asset('images/default-doc.webp');
+    $extension = strtolower(pathinfo($publicId, PATHINFO_EXTENSION));
     return [
-        'url' => $fullUrl,
-        'type' => $type,
-        'name' => basename($path)
+        'url' => $url,
+        'name' => basename($publicId)
     ];
-}),
+})->filter()->values(),
+
 
             'student' => [
                 'id' => $this->student->id,

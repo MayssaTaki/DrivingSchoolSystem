@@ -15,18 +15,14 @@ class LicenseRequestRepository implements LicenseRequestRepositoryInterface
 {
   public function create(array $data): LicenseRequest
 {
-    $storedDocs = [];
-
-    foreach ($data['required_documents'] as $file) {
-        $storedDocs[] = $file->store('license_docs', 'public');
-    }
+    
 
     return LicenseRequest::create([
         'student_id' => $data['student_id'],
         'license_id' => $data['license_id'],
         'type' => $data['type'],
         'status' => 'pending',
-        'document_files' => $storedDocs,
+        'document_files' => $data['required_documents'],
         'notes' => $data['notes'] ?? null,
     ]);
 }

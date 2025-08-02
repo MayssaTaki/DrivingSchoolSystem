@@ -57,13 +57,24 @@ public function store(array $data, array $files)
             $storedFiles = [];
 
             foreach ($files as $file) {
-                $extension = $file->getClientOriginalExtension();
-                $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'pdf';
-                $filename = Str::uuid() . '.' . $extension;
-                $path = $file->storeAs('post_files', $filename, 'public');
+                $extension = strtolower($file->getClientOriginalExtension());
+                $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'document';
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $uniqueName = $originalName . '_' . Str::random(8);
+
+                // رفع الملف إلى Cloudinary
+                $uploaded = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::uploadApi()->upload(
+                    $file->getRealPath(),
+                    [
+                        'public_id' => 'post_files/' . $uniqueName,
+                        'quality' => 'auto:good',
+                        'type' => 'authenticated',
+                        'resource_type' => $extension === 'pdf' ? 'raw' : 'image'
+                    ]
+                );
 
                 $storedFiles[] = [
-                    'path' => $path,
+                    'public_id' => $uploaded['public_id'],
                     'original_name' => $file->getClientOriginalName(),
                     'type' => $type,
                 ];
@@ -72,7 +83,8 @@ public function store(array $data, array $files)
             $post = $this->postRepo->createPost($data, $storedFiles);
 
             event(new PostCreated($post));
-$students = User::where('role', 'student')
+
+            $students = User::where('role', 'student')
                 ->whereNotNull('fcm_token')
                 ->get();
 
@@ -83,6 +95,7 @@ $students = User::where('role', 'student')
                     "تم نشر منشور جديد بعنوان: {$post->title}"
                 );
             }
+
             $this->activityLogger->log(
                 'تم إضافة بوست جديد',
                 ['title' => $post->title],
@@ -91,8 +104,6 @@ $students = User::where('role', 'student')
                 auth()->user(),
                 'create_post'
             );
-
-            
 
             return $post;
 
@@ -117,54 +128,68 @@ $students = User::where('role', 'student')
 }
 
 
-     public function update(int $id, array $data, array $files): Post
-    {
-        return $this->transactionService->run(function () use ($id, $data, $files) {
-            $post = $this->postRepo->findById($id);
 
-            if (Gate::denies('update', $post)) {
-                throw new AuthorizationException('ليس لديك صلاحية تعديل هذا البوست.');
-            }
+    public function update(int $id, array $data, array $files): Post
+{
+    return $this->transactionService->run(function () use ($id, $data, $files) {
+        $post = $this->postRepo->findById($id);
 
-            $post->update([
-                'title' => $data['title'] ?? $post->title,
-                'body' => $data['body'] ?? $post->body,
-            ]);
+        if (Gate::denies('update', $post)) {
+            throw new AuthorizationException('ليس لديك صلاحية تعديل هذا البوست.');
+        }
 
-            foreach ($files as $file) {
-                $extension = $file->getClientOriginalExtension();
-                $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'pdf';
-                $filename = Str::uuid() . '.' . $extension;
+        // تحديث بيانات البوست
+        $post->update([
+            'title' => $data['title'] ?? $post->title,
+            'body' => $data['body'] ?? $post->body,
+        ]);
 
-                $path = $file->storeAs('post_files', $filename, 'public');
+        // رفع الملفات الجديدة إلى Cloudinary
+        foreach ($files as $file) {
+            $extension = strtolower($file->getClientOriginalExtension());
+            $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'document';
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $uniqueName = $originalName . '_' . Str::random(8);
 
-                PostFile::create([
-                    'post_id' => $post->id,
-                    'path' => $path,
-                    'original_name' => $file->getClientOriginalName(),
-                    'type' => $type,
-                ]);
-            }
-
-            $this->activityLogger->log(
-                'تم تعديل بوست',
-                ['post_id' => $post->id],
-                'posts',
-                $post,
-                auth()->user(),
-                'update_post'
+            $uploaded = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::uploadApi()->upload(
+                $file->getRealPath(),
+                [
+                    'public_id' => 'post_files/' . $uniqueName,
+                    'quality' => 'auto:good',
+                    'type' => 'authenticated',
+                    'resource_type' => $extension === 'pdf' ? 'raw' : 'image'
+                ]
             );
 
-            return $post;
-        }, function (\Throwable $e) use ($id) {
-            $this->logService->log('error', 'فشل تعديل بوست', [
-                'post_id' => $id,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ], 'posts');
-            throw $e;
-        });
-    }
+            PostFile::create([
+                'post_id' => $post->id,
+                'path' => $uploaded['public_id'],
+                'original_name' => $file->getClientOriginalName(),
+                'type' => $type,
+            ]);
+        }
+
+        $this->activityLogger->log(
+            'تم تعديل بوست',
+            ['post_id' => $post->id],
+            'posts',
+            $post,
+            auth()->user(),
+            'update_post'
+        );
+
+        return $post;
+
+    }, function (\Throwable $e) use ($id) {
+        $this->logService->log('error', 'فشل تعديل بوست', [
+            'post_id' => $id,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 'posts');
+
+        throw $e;
+    });
+}
 
     public function destroy(int $id): bool
     {

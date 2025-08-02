@@ -10,8 +10,8 @@ class QuestionResource extends JsonResource
         return [
             'question_id' => $this->id,
             'text' => $this->question_text,
-            'image_url' => $this->image_path ? asset('storage/' . $this->image_path) : null,
-            'choices' => ChoiceResource::collection($this->whenLoaded('choices')),
+            'image_url' => $this->image_url,
+             'choices' => ChoiceResource::collection($this->whenLoaded('choices')),
         ];
     }
 }

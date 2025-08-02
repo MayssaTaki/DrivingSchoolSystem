@@ -24,7 +24,7 @@ class ChatController extends Controller {
 
     return response()->json([
         'message' => '✅ تم إرسال الرسالة بنجاح',
-        'data' => $message
+        'data' => new \App\Http\Resources\MessageResource($message)
     ]);
 }
 

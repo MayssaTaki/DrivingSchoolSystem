@@ -23,7 +23,7 @@ class CarPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === 'employee';
+        return $user->role === 'employee'|| $user->role === 'admin';
     }
 
     /**
@@ -31,7 +31,7 @@ class CarPolicy
      */
     public function update(User $user): bool
     {
-        return $user->role === 'employee';
+        return $user->role === 'employee'|| $user->role === 'admin';
     }
 
     /**
@@ -39,7 +39,7 @@ class CarPolicy
      */
     public function delete(User $user): bool
     {
-        return  $user->role === 'employee';
+        return  $user->role === 'employee'|| $user->role === 'admin';
 
     }
     

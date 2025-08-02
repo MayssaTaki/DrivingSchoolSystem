@@ -8,12 +8,12 @@ class LicensePolicy
 {
     public function create(User $user)
     {
-        return $user->role === 'employee';
+        return $user->role === 'employee'|| $user->role === 'admin';
     }
 
     public function update(User $user, License $license)
     {
-        return $user->role === 'employee';
+        return $user->role === 'employee'|| $user->role === 'admin';
     }
 
    

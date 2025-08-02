@@ -16,12 +16,12 @@ class TrainingSchedulePolicy
      */
  public function active(User $user, TrainingSchedule $training): bool
 {
-    return $user->role === 'employee';
+    return $user->role === 'employee'|| $user->role === 'admin';
 }
 
 public function diactive(User $user, TrainingSchedule $training): bool
 {
-    return $user->role === 'employee';
+    return $user->role === 'employee'|| $user->role === 'admin';
 }
 
 

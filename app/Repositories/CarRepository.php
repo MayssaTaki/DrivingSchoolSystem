@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Car;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\Contracts\CarRepositoryInterface;
@@ -56,13 +57,22 @@ class CarRepository implements CarRepositoryInterface
     }
 
 
-public function getFirstAvailableForSession(string $date, string $time, string $transmission, bool $isForSpecialNeeds)
+public function getFirstAvailableForSession(string $date, string $startTime, string $endTime, string $transmission, bool $isForSpecialNeeds)
 {
-    return Car::where('status', 'available')
-        ->where('transmission', $transmission)
+    $start = Carbon::parse("$date $startTime");
+    $end = Carbon::parse("$date $endTime");
+
+    return Car::where('transmission', $transmission)
         ->where('is_for_special_needs', $isForSpecialNeeds)
+        ->whereDoesntHave('reservations', function ($query) use ($start, $end) {
+            $query->where(function ($q) use ($start, $end) {
+                $q->where('start_time', '<', $end)
+                  ->where('end_time', '>', $start);
+            });
+        })
         ->first();
 }
+
 
 
    public function filterByTransmission(Builder $query, string $transmission): Builder

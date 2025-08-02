@@ -17,7 +17,7 @@ class PracticalExamScheduleSeeder extends Seeder
 
         $statuses = ['scheduled', 'absent', 'failed', 'passed'];
 
-        $licenseRequests = LicenseRequest::all();
+$licenseRequests = LicenseRequest::where('status', 'approved')->get();
         $employees = Employee::all();
 
         if ($licenseRequests->isEmpty() || $employees->isEmpty()) {
@@ -25,7 +25,7 @@ class PracticalExamScheduleSeeder extends Seeder
             return;
         }
 
-        for ($i = 0; $i < 15; $i++) {
+        for ($i = 0; $i < 60; $i++) {
         $request = $licenseRequests->random();
         $status = Arr::random($statuses);
 

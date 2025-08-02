@@ -3,6 +3,7 @@ namespace App\Services;
 
 use App\Repositories\Contracts\BookingRepositoryInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
+use App\Repositories\Contracts\CarReservationRepositoryInterface;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -13,6 +14,8 @@ use App\Services\Interfaces\TransactionServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\EmailVerificationServiceInterface;
+use App\Services\Interfaces\CarReservationServiceInterface;
+
 use App\Events\SessionBooked;
 use App\Events\SessionAutoBooked;
 use App\Events\SessionStarted;
@@ -21,6 +24,7 @@ use App\Events\SessionCancelled;
 use App\Models\User;
 use App\Repositories\Contracts\TrainingSessionRepositoryInterface;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Carbon;
 
 class BookingService implements BookingServiceInterface
 { protected ActivityLoggerServiceInterface $activityLogger;
@@ -30,6 +34,8 @@ class BookingService implements BookingServiceInterface
         protected TransactionService $transactionService;
         protected EmailVerificationServiceInterface $emailservice;
 protected FirebaseServiceInterface $firebaseservice;
+ protected   CarReservationServiceInterface $carReservationService;
+ protected   CarReservationRepositoryInterface $carReservationRepo;
 
 
 
@@ -41,7 +47,8 @@ protected FirebaseServiceInterface $firebaseservice;
         ActivityLoggerServiceInterface $activityLogger,
         LogServiceInterface $logService,
                 StudentRepositoryInterface $studentRepo,
-
+    CarReservationServiceInterface $carReservationService,
+  CarReservationRepositoryInterface $carReservationRepo,
         protected TrainingSessionRepositoryInterface $sessionRepo,
                 FirebaseService $firebaseService
 
@@ -53,6 +60,8 @@ protected FirebaseServiceInterface $firebaseservice;
 
         $this->logService = $logService;
                 $this->emailService=$emailService;
+    $this->carReservationService = $carReservationService;
+    $this->carReservationRepo = $carReservationRepo;
 
 
     }
@@ -99,10 +108,20 @@ protected function ensureCarIsAvailable(int $carId)
     try {
         return $this->transactionService->run(function () use ($studentId, $sessionId, $carId) {
             $this->ensureSessionIsAvailable($sessionId);
-            $this->ensureCarIsAvailable($carId);
 
             $session = $this->sessionRepo->findWithLock($sessionId);
             $car = $this->carRepo->findWithLock($carId);
+
+            $isAvailable = $this->carReservationService->checkAvailability(
+                $carId,
+                $session->session_date,
+                $session->start_time,
+                $session->end_time
+            );
+
+            if (!$isAvailable) {
+                throw new \Exception('السيارة غير متاحة في هذا الوقت');
+            }
 
             $booking = $this->bookingRepo->create([
                 'student_id' => $studentId,
@@ -113,7 +132,13 @@ protected function ensureCarIsAvailable(int $carId)
             ]);
 
             $this->sessionRepo->updateStatus($session->id, 'booked');
-            $this->carRepo->updateStatus($car->id, 'booked');
+
+            $this->carReservationService->createReservation([
+                'car_id' => $carId,
+                'session_id' => $session->id,
+                'start_time' => Carbon::parse("{$session->session_date} {$session->start_time}"),
+                'end_time' => Carbon::parse("{$session->session_date} {$session->end_time}"),
+            ]);
 
             $booking->load('session.trainer.user');
 
@@ -171,6 +196,7 @@ public function autoBookSession(int $studentId, int $sessionId, string $transmis
             $availableCar = $this->carRepo->getFirstAvailableForSession(
                 $session->session_date,
                 $session->start_time,
+                 $session->end_time,
                 $transmission,
                 $isForSpecialNeeds
             );
@@ -188,8 +214,12 @@ public function autoBookSession(int $studentId, int $sessionId, string $transmis
             ]);
 
             $this->sessionRepo->updateStatus($session->id, 'booked');
-            $this->carRepo->updateStatus($availableCar->id, 'booked');
-
+$this->carReservationService->createReservation([
+    'car_id' => $availableCar->id,
+    'session_id' => $session->id,
+    'start_time' => Carbon::parse("{$session->session_date} {$session->start_time}"),
+    'end_time' => Carbon::parse("{$session->session_date} {$session->end_time}"),
+]);
             $booking->load('session.trainer.user');
 
             event(new SessionAutoBooked($booking));
@@ -264,7 +294,6 @@ public function completeSession(int $bookingId)
            $this->ensureBookingIsStarted($booking);
             $this->bookingRepo->updateStatus($booking->id, 'completed');
             $this->sessionRepo->updateStatus($booking->session_id, 'completed');
-            $this->carRepo->updateStatus($booking->car_id, 'available');
 
 $booking->load('session');
 event(new SessionCompleted($booking));
@@ -392,7 +421,7 @@ $users= User::where('role', 'employee')
 
             $this->bookingRepo->updateStatus($booking->id, 'cancelled');
             $this->sessionRepo->updateStatus($session->id, 'cancelled');
-            $this->carRepo->updateStatus($car->id, 'available');
+$this->carReservationRepo->deleteBySessionId($session->id);
 
             $this->activityLogger->log(
                 'الغاء جلسة تدريب',

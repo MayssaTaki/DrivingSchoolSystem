@@ -11,11 +11,11 @@ class PracticalExamSchedulePolicy
 {
      public function create(User $user): bool
     {
-        return $user->role === 'employee';
+        return $user->role === 'employee'|| $user->role === 'admin';
     }
   public function update(User $user, PracticalExamSchedule $exam): bool
 {
-    return $user->role === 'employee';
+    return $user->role === 'employee'|| $user->role === 'admin';
 }
 
 }

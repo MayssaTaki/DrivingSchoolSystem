@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Repositories;
-use DB;
-use Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Repositories\Contracts\EmailVerificationRepositoryInterface;
 class EmailVerificationRepository implements EmailVerificationRepositoryInterface
 {
