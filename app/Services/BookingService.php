@@ -402,6 +402,11 @@ $users= User::where('role', 'employee')
     {
         return $this->bookingRepo->getBookedSessionsByTrainer($trainerId);
     }
+    public function getTrainerBookedSessionsForAdmin(int $trainerId)
+{
+    return $this->bookingRepo->getBookedSessionsByTrainer($trainerId);
+}
+
  public function getStudentBookedSessions(int $studentId)
     {
         return $this->bookingRepo->getBookedSessionsByStudent($studentId);

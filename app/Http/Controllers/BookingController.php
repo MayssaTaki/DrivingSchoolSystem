@@ -126,6 +126,15 @@ public function cancell($bookingId)
 
         return BookingResource::collection($bookings);
     }
+
+    public function getTrainerBookedSessionsForAdmin( int $trainerId)
+{
+
+    $bookings = $this->bookingService->getTrainerBookedSessionsForAdmin($trainerId);
+
+    return BookingResource::collection($bookings);
+}
+
       public function getStudentBookedSessions(Request $request)
     {
         $studentId = $request->user()->student->id; 

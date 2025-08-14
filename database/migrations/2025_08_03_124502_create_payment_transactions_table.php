@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('car_Locations', function (Blueprint $table) {
+        Schema::create('payment_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('car_id')->constrained()->onDelete('cascade');
-            $table->foreignId('session_id')->constrained('training_sessions')->onDelete('cascade');
-    $table->decimal('latitude', 10, 7);
-    $table->decimal('longitude', 10, 7);
-    $table->timestamp('recorded_at')->nullable();
+             $table->string('invoice_id')->unique();
+    $table->unsignedBigInteger('amount');
+    $table->string('status');
+    $table->text('raw_response')->nullable();
+    $table->string('guid')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('car__location');
+        Schema::dropIfExists('payment_transactions');
     }
 };

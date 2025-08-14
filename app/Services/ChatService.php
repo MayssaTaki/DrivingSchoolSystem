@@ -31,10 +31,22 @@ protected FirebaseServiceInterface $firebaseservice;
     }
 
 
-public function getUserConversations(int $userId) {
-    return $this->chatRepo->getUserConversations($userId);
-    
+public function getUserConversations(int $userId)
+{
+    $conversations = $this->chatRepo->getUserConversations($userId);
+
+    foreach ($conversations as $conversation) {
+        foreach ($conversation->messages as $message) {
+            if (in_array($message->type, ['image', 'file'])) {
+                $message->content = app(\App\Services\Interfaces\ImageServiceInterface::class)
+                    ->getSignedUrl($message->content);
+            }
+        }
+    }
+
+    return $conversations;
 }
+
 
 public function sendMessageWithAttachment(int $senderId, int $receiverId, ?string $content, $file = null)
 {

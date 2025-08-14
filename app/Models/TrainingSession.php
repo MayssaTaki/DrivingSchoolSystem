@@ -19,6 +19,10 @@ class TrainingSession extends Model
 {
     return $this->hasMany(Booking::class,'session_id');
 }
+public function carLocations()
+{
+    return $this->hasMany(CarLocation::class, 'session_id');
+}
 
     public function trainer()
     {

@@ -7,7 +7,7 @@ class SendMessageRequest extends FormRequest {
    public function rules() {
     return [
         'receiver_id' => 'required|exists:users,id',
-        'content'     => 'required_without:file|string|max:1000',
+        'content'     => 'nullable|required_without:file|string|max:1000',
         'file'        => 'nullable|file|max:2048|mimes:jpg,jpeg,png,pdf',
     ];
 }
