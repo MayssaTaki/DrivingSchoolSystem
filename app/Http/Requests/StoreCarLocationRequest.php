@@ -9,6 +9,7 @@ class StoreCarLocationRequest extends FormRequest
     {
         return [
             'car_id'      => 'required|exists:cars,id',
+            'session_id'      => 'required|exists:training_sessions,id',
             'latitude'    => 'required|numeric|between:-90,90',
             'longitude'   => 'required|numeric|between:-180,180',
             'recorded_at' => 'nullable|date',

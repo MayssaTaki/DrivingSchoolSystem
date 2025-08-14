@@ -15,11 +15,11 @@ class MapService implements MapServiceInterface
 
     public function getRouteData(float $startLat, float $startLng, float $endLat, float $endLng): array
     {
-        // 1. Directions API
         $response = Http::withHeaders([
             'Authorization' => $this->apiKey,
             'Content-Type' => 'application/json',
-        ])->post('https://api.openrouteservice.org/v2/directions/driving-car', [
+        ])->timeout(120) 
+        ->post('https://api.openrouteservice.org/v2/directions/driving-car', [
             'coordinates' => [
                 [$startLng, $startLat],
                 [$endLng, $endLat]
@@ -37,7 +37,6 @@ class MapService implements MapServiceInterface
         $duration = $route['summary']['duration'];
         $polyline = $route['geometry'];
 
-        // 2. Reverse geocode
         $startAddress = $this->reverseGeocode($startLat, $startLng);
         $endAddress = $this->reverseGeocode($endLat, $endLng);
 
@@ -54,7 +53,8 @@ class MapService implements MapServiceInterface
     {
         $res = Http::withHeaders([
             'Authorization' => $this->apiKey,
-        ])->get('https://api.openrouteservice.org/geocode/reverse', [
+        ])->timeout(120) 
+        ->get('https://api.openrouteservice.org/geocode/reverse', [
             'point.lat' => $lat,
             'point.lon' => $lng,
         ]);

@@ -10,6 +10,8 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\PracticalExamController;
+use App\Http\Controllers\PaymentController;
+
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 use App\Http\Controllers\ActivityLogController;
@@ -96,6 +98,12 @@ Route::get('/car-locations/last/{carId}', [CarLocationController::class, 'showLa
 Route::get('{car}/locations', [CarLocationController::class, 'showCarTrack'])->middleware('auth:api'); 
 Route::get('active-locations', [CarLocationController::class, 'showActiveCars'])->middleware('auth:api'); 
 
+Route::post('/payment/activate', [PaymentController::class,'activate'])->middleware('auth:api'); 
+Route::post('/payment/invoice', [PaymentController::class,'invoice'])->middleware('auth:api'); 
+Route::post('/payment/pay', [PaymentController::class,'pay'])->middleware('auth:api'); 
+Route::post('/payment/confirm', [PaymentController::class,'confirm'])->middleware('auth:api'); 
+Route::post('/payment/refund', [PaymentController::class,'refund'])->middleware('auth:api'); 
+Route::post('/payment/confirm-refund', [PaymentController::class,'confirmRefund'])->middleware('auth:api'); 
 
 
 
@@ -240,6 +248,7 @@ Route::post('/bookings/{id}/complete', [BookingController::class, 'complete'])->
 Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancell'])->middleware('auth:api');
 Route::post('/auto-book-session', [BookingController::class, 'autoBook'])->middleware('auth:api');
 Route::post('/booking/{id}/start', [BookingController::class, 'startSession']);
+Route::get('/trainers/{trainerId}/booked-sessions', [BookingController::class, 'getTrainerBookedSessionsForAdmin']);
 
     Route::get('/bookings/status-logs', [BookingStatusLogController::class, 'index'])->middleware('auth:api');
 Route::get('/bookings/status-logs/export', [BookingStatusLogController::class, 'export'])->middleware('auth:api');

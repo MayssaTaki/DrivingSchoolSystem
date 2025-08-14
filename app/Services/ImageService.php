@@ -18,7 +18,7 @@ class ImageService implements ImageServiceInterface
         ]);
     }
 
-   public function getSignedUrl(?string $publicId ,int $expiryMinutes = 10): ?string
+   public function getSignedUrl(?string $publicId ,int $expiryMinutes = 30): ?string
 {
     if (!$publicId) return null;
 
