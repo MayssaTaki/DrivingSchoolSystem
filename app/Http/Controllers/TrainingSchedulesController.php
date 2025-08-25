@@ -64,12 +64,23 @@ return response()->json([
 
 public function activate($id)
 {
-    $schedule = $this->trainingService->activate($id);
-    return response()->json([
-        'message' => 'تم تفعيل الجدول بنجاح.',
-        
-    ]);
+    try {
+        $schedule = $this->trainingService->activate($id);
+        return response()->json([
+            'message' => 'تم تفعيل الجدول بنجاح.',
+            'data' => $schedule
+        ]);
+    } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+        return response()->json([
+            'message' => $e->getMessage()
+        ], $e->getStatusCode());
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.'
+        ], 500);
+    }
 }
+
 
 public function deactivate($id)
 {
@@ -79,6 +90,14 @@ public function deactivate($id)
        
     ]);
 }
+public function setFee(Request $request, int $id) {
+        $validated = $request->validate([
+            'registration_fee' => 'required|integer|min:0'
+        ]);
 
+        $schedule = $this->trainingService->updateFee($id, $validated['registration_fee']);
+
+        return response()->json($schedule);
+    }
 
 }

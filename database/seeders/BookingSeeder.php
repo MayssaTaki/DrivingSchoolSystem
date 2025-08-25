@@ -11,6 +11,7 @@ use App\Models\CarReservation;
 use App\Models\BookingStatusLog;
 use Carbon\Carbon;
 use App\Jobs\GenerateRouteForBooking;
+use App\Models\PaymentTransaction;
 
 class BookingSeeder extends Seeder
 {
@@ -71,12 +72,24 @@ class BookingSeeder extends Seeder
                 continue;
             }
 
+            if ($status === 'cancelled') {
+                $payment = PaymentTransaction::where('status', 'refund_confirmed')->inRandomOrder()->first();
+            } else {
+                $payment = PaymentTransaction::where('status', 'confirmed')->inRandomOrder()->first();
+            }
+
+            if (!$payment) {
+                $this->command->warn("🚫 لا توجد معاملات دفع مناسبة للحجز {$status}.");
+                continue;
+            }
+
             $booking = Booking::create([
                 'student_id' => $studentId,
                 'session_id' => $session->id,
                 'trainer_id' => $session->trainer_id,
                 'car_id'     => $availableCar,
                 'status'     => $status,
+                'payment_transaction_id' => $payment->id,
             ]);
 
             $session->update(['status' => $status]);
@@ -95,7 +108,6 @@ class BookingSeeder extends Seeder
                 'changed_by' => $session->trainer->user_id,
             ]);
 
-            // 🚀 إرسال Job بدلاً من الاتصال المباشر
             if (in_array($status, ['booked', 'completed'])) {
                 $startCoord = $damascusCoordinates[array_rand($damascusCoordinates)];
                 $endCoord = $damascusCoordinates[array_rand($damascusCoordinates)];
@@ -105,7 +117,7 @@ class BookingSeeder extends Seeder
                 }
 
                 GenerateRouteForBooking::dispatch($booking->id, $startCoord, $endCoord)
-                    ->delay(now()->addSeconds(rand(1, 20))); // تأخير عشوائي لتوزيع الضغط
+                    ->delay(now()->addSeconds(rand(1, 20)));
             }
         }
 

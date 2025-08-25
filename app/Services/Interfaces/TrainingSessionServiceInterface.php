@@ -15,7 +15,6 @@ interface TrainingSessionServiceInterface
         ?string $trainingType = null,
         int $limit = 10
     );
-
     public function getSessionCounts(int $trainerId, ?string $month = null): array;
 
     public function getTrainerSessionsGroupedByDate(int $trainerId);

@@ -22,6 +22,11 @@ return new class extends Migration
            $table->date('issued_at')->nullable();  
            $table->date('expires_at')->nullable();
            $table->json('document_files')->nullable();
+  $table->unsignedBigInteger('payment_transaction_id')->nullable();
+    $table->foreign('payment_transaction_id')
+          ->references('id')
+          ->on('payment_transactions')
+          ->onDelete('set null');
             $table->timestamps();
         });
     }

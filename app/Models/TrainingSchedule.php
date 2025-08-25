@@ -11,7 +11,7 @@ class TrainingSchedule extends Model
         'day_of_week',
         'start_time',
         'end_time',
-        
+        'registration_fee',
         'is_recurring',
         'valid_from',
         'valid_to',

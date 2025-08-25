@@ -15,6 +15,8 @@ class BookingRequest extends FormRequest
         return [
             'session_id' => 'required|exists:training_sessions,id',
             'car_id' => 'required|exists:cars,id',
+             'amount' => ['required', 'integer', 'min:1'], 
+            'ttl'    => ['nullable', 'integer', 'min:1'],
         ];
     }
 

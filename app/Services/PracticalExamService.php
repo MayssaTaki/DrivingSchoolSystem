@@ -139,7 +139,7 @@ public function listAll(int $perPage = 10): LengthAwarePaginator
         return $this->practRepo->getStudentSchedules($studentId, $perPage);
     }
 
-public function markAsPassed(int $id): bool
+public function markAsPassed(int $id):?PracticalExamSchedule
 {
     $result = $this->updateStatusWithLogging($id, 'passed');
 
@@ -158,9 +158,10 @@ public function markAsPassed(int $id): bool
                 "تم تسجيل نجاحك في الامتحان العملي بتاريخ {$schedule->exam_date} الساعة {$schedule->exam_time}."
             );
         }
+          return $schedule;
     }
 
-    return $result;
+    return null;
 }
 
 

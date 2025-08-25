@@ -4,7 +4,8 @@ namespace App\Repositories;
 use App\Repositories\Contracts\ChatRepositoryInterface ;
 use App\Models\Conversation;
 use App\Models\Message;
-use DB;
+use Illuminate\Support\Facades\DB;
+
 
 class ChatRepository implements ChatRepositoryInterface {
    

@@ -17,7 +17,11 @@ return new class extends Migration
             $table->foreignId('session_id')->constrained('training_sessions')->onDelete('cascade');
             $table->foreignId('trainer_id')->constrained('trainers')->onDelete('cascade');
             $table->foreignId('car_id')->constrained('cars')->onDelete('cascade');
-
+$table->unsignedBigInteger('payment_transaction_id')->nullable();
+    $table->foreign('payment_transaction_id')
+          ->references('id')
+          ->on('payment_transactions')
+          ->onDelete('set null');
             $table->enum('status', ['booked', 'cancelled', 'completed','started'])->default('booked');
             $table->timestamps();
         });

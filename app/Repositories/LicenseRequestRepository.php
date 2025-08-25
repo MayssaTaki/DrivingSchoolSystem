@@ -128,4 +128,11 @@ public function countByStatus(string $status)
         });
 }
 
+ public function updateDates(int $id, string $issuedAt, string $expiresAt): bool
+    {
+        $license = $this->findById($id);
+        $license->issued_at = $issuedAt;
+        $license->expires_at = $expiresAt;
+        return $license->save();
+    }
 }

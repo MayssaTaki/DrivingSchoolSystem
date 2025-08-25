@@ -10,7 +10,7 @@ enum LicenseType: string
     case TRUCK_D2 = 'truck_d2';
     case MOTOR_A = 'motor_a';
     case CONSTRUCTION_E = 'construction_e';
-
+ case TEST = 'test'; 
     public function label(): string
     {
         return match($this) {
@@ -21,6 +21,7 @@ enum LicenseType: string
             self::TRUCK_D2 => 'رخصة د2 (قاطرة ومقطورة)',
             self::MOTOR_A => 'رخصة أ (دراجة نارية)',
             self::CONSTRUCTION_E => 'رخصة أشغال (تريكسات)',
+                self::TEST => 'رخصة اختبارية', 
         };
     }
 }

@@ -11,10 +11,14 @@ class GzipResponse
     { 
      
         $response = $next($request);
+        if ($response instanceof \Symfony\Component\HttpFoundation\BinaryFileResponse) {
+        return $response; 
+    }
        Log::info('Gzip Middleware triggered', [
     'accept-encoding' => $request->header('Accept-Encoding'),
     'content-type' => $response->headers->get('Content-Type'),
     'content-length' => strlen($response->getContent())
+    
 ]);
         $excludedTypes = [
             'image/jpeg',

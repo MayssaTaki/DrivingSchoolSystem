@@ -14,6 +14,7 @@ class LicenseRequest extends Model
         'issued_at',
         'expires_at',
         'type',
+        'payment_transaction_id',
         'document_files'
     ];
 protected $casts = [
@@ -34,5 +35,9 @@ protected $casts = [
     return $this->hasMany(PracticalExamSchedule::class);
 }
 
+ public function paymentTransaction()
+    {
+        return $this->belongsTo(PaymentTransaction::class);
+    }
 
 }

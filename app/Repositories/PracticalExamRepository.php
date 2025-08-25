@@ -4,7 +4,7 @@ namespace App\Repositories;
 use App\Repositories\Contracts\PracticalExamRepositoryInterface;
 use App\Models\PracticalExamSchedule;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class PracticalExamRepository implements PracticalExamRepositoryInterface
 {

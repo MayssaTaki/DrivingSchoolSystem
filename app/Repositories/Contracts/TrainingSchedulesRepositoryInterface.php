@@ -11,6 +11,7 @@ interface TrainingSchedulesRepositoryInterface
 public function changeStatus(int $id, string $status);
     public function findById(int $id): ?TrainingSchedule;
    public function scheduleExists(array $criteria): bool;
+    public function setRegistrationFee(int $id, int $fee);
 
 
 }

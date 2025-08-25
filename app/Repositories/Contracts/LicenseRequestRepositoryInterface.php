@@ -14,6 +14,7 @@ public function updateStatus(int $requestId, string $status, ?string $notes = nu
 public function findById(int $id): LicenseRequest;
 public function findByStatus(string $status): LengthAwarePaginator;
 public function countByStatus(string $status);
+    public function updateDates(int $id, string $issuedAt, string $expiresAt): bool;
 public function monthlyCounts(int $year, ?string $licenseCode = null, ?string $status = null): Collection;
     public function typeStatistics(): Collection;
 public function mostRequestedLicenses(int $limit = 2): Collection;

@@ -16,7 +16,7 @@ return new class extends Migration
            $table->string('code')->unique(); 
     $table->string('name'); 
     $table->integer('min_age')->nullable();
-    $table->integer('registration_fee');
+    $table->unsignedInteger('registration_fee');
     $table->json('required_documents'); 
     $table->json('requirements')->nullable(); 
     $table->timestamps();

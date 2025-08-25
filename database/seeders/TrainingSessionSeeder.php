@@ -38,6 +38,7 @@ class TrainingSessionSeeder extends Seeder
                         'session_date' => $date->toDateString(),
                         'start_time'   => $schedule->start_time,
                         'end_time'     => $schedule->end_time,
+                         'registration_fee'=> $schedule->registration_fee,
                         'status'       => $statuses[array_rand($statuses)],
                     ]);
                 }
