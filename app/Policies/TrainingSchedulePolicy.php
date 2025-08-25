@@ -24,7 +24,10 @@ public function diactive(User $user, TrainingSchedule $training): bool
     return $user->role === 'employee'|| $user->role === 'admin';
 }
 
-
+public function Fee(User $user, TrainingSchedule $training): bool
+{
+    return $user->role === 'employee'|| $user->role === 'admin';
+}
     public function viewAny(User $user): bool
     {
         return false;

@@ -8,7 +8,7 @@ class TrainingSession extends Model
 {
      protected $fillable = [
         'schedule_id', 'trainer_id', 'session_date',
-        'start_time', 'end_time', 'status'
+        'start_time', 'end_time', 'status','registration_fee'
     ];
       public function schedule()
     {

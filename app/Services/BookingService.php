@@ -4,6 +4,8 @@ namespace App\Services;
 use App\Repositories\Contracts\BookingRepositoryInterface;
 use App\Repositories\Contracts\CarRepositoryInterface;
 use App\Repositories\Contracts\CarReservationRepositoryInterface;
+use App\Exceptions\CarUnavailableException;
+use App\Exceptions\InvalidAmountException;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -15,7 +17,8 @@ use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\EmailVerificationServiceInterface;
 use App\Services\Interfaces\CarReservationServiceInterface;
-
+use App\Services\Interfaces\MtnPaymentClientServiceInterface;
+use App\Repositories\Contracts\PaymentTransactionRepositoryInterface;
 use App\Events\SessionBooked;
 use App\Events\SessionAutoBooked;
 use App\Events\SessionStarted;
@@ -36,7 +39,8 @@ class BookingService implements BookingServiceInterface
 protected FirebaseServiceInterface $firebaseservice;
  protected   CarReservationServiceInterface $carReservationService;
  protected   CarReservationRepositoryInterface $carReservationRepo;
-
+protected MtnPaymentClientServiceInterface $paymentService;
+protected PaymentTransactionRepositoryInterface $paymentRepo;
 
 
     public function __construct(
@@ -50,7 +54,9 @@ protected FirebaseServiceInterface $firebaseservice;
     CarReservationServiceInterface $carReservationService,
   CarReservationRepositoryInterface $carReservationRepo,
         protected TrainingSessionRepositoryInterface $sessionRepo,
-                FirebaseService $firebaseService
+                FirebaseService $firebaseService,
+                    MtnPaymentClientServiceInterface $paymentService,
+PaymentTransactionRepositoryInterface $paymentRepo
 
     ) {
         $this->transactionService = $transactionService;
@@ -62,7 +68,8 @@ protected FirebaseServiceInterface $firebaseservice;
                 $this->emailService=$emailService;
     $this->carReservationService = $carReservationService;
     $this->carReservationRepo = $carReservationRepo;
-
+ $this->paymentService = $paymentService;
+        $this->paymentRepo = $paymentRepo;
 
     }
 
@@ -103,15 +110,17 @@ protected function ensureCarIsAvailable(int $carId)
 
  
 
- public function bookSession(int $studentId, int $sessionId, int $carId)
+ public function bookSession(int $studentId, int $sessionId, int $carId , int $amount)
 {
     try {
-        return $this->transactionService->run(function () use ($studentId, $sessionId, $carId) {
+        return $this->transactionService->run(function () use ($studentId, $sessionId, $carId ,$amount) {
             $this->ensureSessionIsAvailable($sessionId);
 
             $session = $this->sessionRepo->findWithLock($sessionId);
             $car = $this->carRepo->findWithLock($carId);
-
+   if ((int)$amount !== (int)$session->registration_fee) {
+                throw new InvalidAmountException("المبلغ المحدد لا يطابق سعر الجلسة: {$session->registration_fee}");
+            }
             $isAvailable = $this->carReservationService->checkAvailability(
                 $carId,
                 $session->session_date,
@@ -120,7 +129,7 @@ protected function ensureCarIsAvailable(int $carId)
             );
 
             if (!$isAvailable) {
-                throw new \Exception('السيارة غير متاحة في هذا الوقت');
+                 throw new CarUnavailableException();
             }
 
             $booking = $this->bookingRepo->create([
@@ -139,6 +148,11 @@ protected function ensureCarIsAvailable(int $carId)
                 'start_time' => Carbon::parse("{$session->session_date} {$session->start_time}"),
                 'end_time' => Carbon::parse("{$session->session_date} {$session->end_time}"),
             ]);
+            $payment = $this->paymentService->createInvoice($amount); 
+$transaction = $this->paymentRepo->findByInvoice($payment['invoiceId']);
+$booking->update([
+    'payment_transaction_id' => $transaction->id
+]);
 
             $booking->load('session.trainer.user');
 
@@ -169,7 +183,10 @@ protected function ensureCarIsAvailable(int $carId)
                 'book'
             );
 
-            return $booking;
+            return [
+        'booking' => $booking,
+        'payment' => $payment
+    ];
         });
     } catch (\Exception $e) {
         $this->logService->log('error', 'فشل في حجز الجلسة التدريبية', [
@@ -185,14 +202,16 @@ protected function ensureCarIsAvailable(int $carId)
 }
 
 
-public function autoBookSession(int $studentId, int $sessionId, string $transmission, bool $isForSpecialNeeds)
+public function autoBookSession(int $studentId, int $sessionId, string $transmission, bool $isForSpecialNeeds, int $amount)
 {
     try {
-        return $this->transactionService->run(function () use ($studentId, $sessionId, $transmission, $isForSpecialNeeds) {
+        return $this->transactionService->run(function () use ($studentId, $sessionId, $transmission, $isForSpecialNeeds, $amount) {
             $this->ensureSessionIsAvailable($sessionId);
 
             $session = $this->sessionRepo->findWithLock($sessionId);
-
+ if ((int)$amount !== (int)$session->registration_fee) {
+                throw new InvalidAmountException("المبلغ المحدد لا يطابق سعر الجلسة: {$session->registration_fee}");
+            }
             $availableCar = $this->carRepo->getFirstAvailableForSession(
                 $session->session_date,
                 $session->start_time,
@@ -202,8 +221,7 @@ public function autoBookSession(int $studentId, int $sessionId, string $transmis
             );
 
             if (!$availableCar) {
-                throw new \Exception('لا توجد سيارات متاحة بالمواصفات المطلوبة في هذا الوقت.');
-            }
+   throw new CarUnavailableException();            }
 
             $booking = $this->bookingRepo->create([
                 'student_id' => $studentId,
@@ -220,6 +238,12 @@ $this->carReservationService->createReservation([
     'start_time' => Carbon::parse("{$session->session_date} {$session->start_time}"),
     'end_time' => Carbon::parse("{$session->session_date} {$session->end_time}"),
 ]);
+       $payment = $this->paymentService->createInvoice($amount); 
+$transaction = $this->paymentRepo->findByInvoice($payment['invoiceId']);
+$booking ->update([
+    'payment_transaction_id' => $transaction->id
+]);
+
             $booking->load('session.trainer.user');
 
             event(new SessionAutoBooked($booking));
@@ -250,7 +274,10 @@ $this->carReservationService->createReservation([
                 'auto-book'
             );
 
-            return $booking;
+           return [
+        'booking' => $booking,
+        'payment' => $payment
+    ];
         });
     } catch (\Exception $e) {
         $this->logService->log('error', 'فشل الحجز التلقائي للجلسة التدريبية', [
@@ -422,12 +449,29 @@ $users= User::where('role', 'employee')
             $car = $this->carRepo->findWithLock($booking->car_id);
 
             $this->ensureSessionIsBook($session->id);
-            $this->ensureCarIsBook($car->id);
 
             $this->bookingRepo->updateStatus($booking->id, 'cancelled');
             $this->sessionRepo->updateStatus($session->id, 'cancelled');
 $this->carReservationRepo->deleteBySessionId($session->id);
 
+
+         $paymentTransaction = $booking->paymentTransaction;
+        if ($paymentTransaction) {
+            $invoiceId = (int) $paymentTransaction->invoice_id;
+
+            $refundInit = $this->paymentService->initiateRefund([
+                'invoiceId' => $invoiceId
+            ]);
+
+            $refundInvoice = $refundInit['apiResponse']['json']['RefundInvoice'] ?? null;
+
+            if ($refundInvoice) {
+                $this->paymentService->confirmRefund([
+                    'baseInvoice'   => $invoiceId,
+                    'refundInvoice' => (int) $refundInvoice
+                ]);
+            }
+        }
             $this->activityLogger->log(
                 'الغاء جلسة تدريب',
                 [

@@ -39,8 +39,8 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CarReservationReportController;
 
 use App\Http\Controllers\CarLocationController;
-
-
+use App\Http\Controllers\MtnTestController;
+use App\Http\Controllers\MtnPaymentFlowController;
 
 use Illuminate\Support\Facades\Http;
 
@@ -59,6 +59,37 @@ Route::get('/cloud-test', function () {
 
 
 
+
+Route::get('/mtn/activate', [MtnTestController::class, 'activate']);
+
+
+Route::post('/mtn/flow/create', [MtnPaymentFlowController::class, 'createInvoice']);
+Route::post('/mtn/flow/initiate', [MtnPaymentFlowController::class, 'initiatePayment'])->middleware('auth:api'); 
+Route::post('/mtn/flow/confirm', [MtnPaymentFlowController::class, 'confirmPayment'])->middleware('auth:api'); 
+Route::post('/payments/get-invoice', [MtnPaymentFlowController::class, 'getInvoice'])->middleware('auth:api'); 
+Route::post('/mtn/refund/initiate', [MtnPaymentFlowController::class, 'initiateRefund'])->middleware('auth:api'); 
+Route::post('/mtn/refund/confirm', [MtnPaymentFlowController::class, 'confirmRefund'])->middleware('auth:api'); 
+Route::get('/mtn/report/monthly', [MtnPaymentFlowController::class, 'monthlyReport'])->middleware('auth:api'); 
+Route::get('/mtn/report/daily', [MtnPaymentFlowController::class, 'DailyReport'])->middleware('auth:api'); 
+
+Route::get('/reports/monthly-payments/export', [MtnPaymentFlowController::class, 'exportReportMonthlyPayment'])->middleware('auth:api');
+Route::get('/reports/daily-payments/export', [MtnPaymentFlowController::class, 'exportReportdailyPayment'])->middleware('auth:api');
+
+Route::get('/mtn/report/monthly/license', [MtnPaymentFlowController::class, 'monthlyReportLicenseRequest'])->middleware('auth:api'); 
+Route::get('/mtn/report/daily/license', [MtnPaymentFlowController::class, 'dailyReportLicenseRequest'])->middleware('auth:api'); 
+
+Route::get('/reports/monthly-payments_license/export', [MtnPaymentFlowController::class, 'exportMonthlyPaymentLicenseRequest'])->middleware('auth:api');
+Route::get('/reports/daily-payments_license/export', [MtnPaymentFlowController::class, 'exportdailyPaymentLicenseRequest'])->middleware('auth:api');
+
+Route::get('/mtn/report/monthly/booking', [MtnPaymentFlowController::class, 'monthlyReportBooking'])->middleware('auth:api');
+Route::get('/mtn/report/daily/booking', [MtnPaymentFlowController::class, 'DailyReportReportBooking'])->middleware('auth:api'); 
+
+Route::get('/reports/monthly-payments_booking/export', [MtnPaymentFlowController::class, 'exportMonthlyPaymentBooking'])->middleware('auth:api');
+Route::get('/reports/daily-payments_booking/export', [MtnPaymentFlowController::class, 'exportdailyPaymentBooking'])->middleware('auth:api');
+
+
+
+
 Route::post('/save-fcm-token', function (Request $request) {
     $request->validate(['token' => 'required|string']);
     $user = $request->user();
@@ -67,7 +98,7 @@ Route::post('/save-fcm-token', function (Request $request) {
     return response()->json(['message' => 'Token saved']);
 });
 Route::get('/cloud-upload-test', function () {
-    $path = public_path('images/image.png'); // تأكد أن الصورة موجودة
+    $path = public_path('images/image.png'); 
 $result = Cloudinary::uploadApi()->upload($path);
     return $result['secure_url'];});
 
@@ -238,6 +269,7 @@ Route::post('/schedule-exceptions/{id}/reject', [ScheduleExceptionController::cl
    Route::get('/pending', [ScheduleExceptionController::class, 'getPending'])->middleware('auth:api');
     Route::get('/approved', [ScheduleExceptionController::class, 'getApproved'])->middleware('auth:api');
     Route::get('/rejected', [ScheduleExceptionController::class, 'getRejected'])->middleware('auth:api');
+    Route::put('/schedules/{id}/fee', [TrainingSchedulesController::class, 'setFee'])->middleware('auth:api');
 
 Route::get('/trainer-sessions/counts', [TrainingSessionController::class, 'getSessionCounts'])->middleware('auth:api');
 Route::get('/recommended-sessions', [TrainingSessionController::class, 'getRecommendedSessions'])->middleware('auth:api');

@@ -12,6 +12,7 @@ class Booking extends Model
         'trainer_id',
         'session_id',
         'status',
+       'payment_transaction_id'
         
     ];
 
@@ -52,4 +53,9 @@ public function feedback()
     {
         return $this->hasMany(CarFault::class);
     }
+   public function paymentTransaction()
+{
+    return $this->belongsTo(PaymentTransaction::class, 'payment_transaction_id');
+}
+
 }

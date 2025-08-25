@@ -61,6 +61,7 @@ public function generateSessionsForSchedule(TrainingSchedule $schedule): void
                         $date->toDateString(),
                         $currentSlot->format('H:i')
                     )) {
+
                         $sessionsToInsert[] = [
                             'schedule_id' => $schedule->id,
                             'trainer_id' => $schedule->trainer_id,
@@ -68,6 +69,7 @@ public function generateSessionsForSchedule(TrainingSchedule $schedule): void
                             'start_time' => $currentSlot->format('H:i'),
                             'end_time' => $slotEnd->format('H:i'),
                             'status' => 'available',
+                            'registration_fee' => $schedule->registration_fee,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];
@@ -197,6 +199,6 @@ public function getScheduleSessionsGroupedByDate(int $scheduleId)
 }
 
 
-
+ 
     
 }

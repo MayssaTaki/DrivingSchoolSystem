@@ -18,6 +18,7 @@ return new class extends Migration
     $table->string('status');
     $table->text('raw_response')->nullable();
     $table->string('guid')->nullable();
+     $table->string('operation_number')->nullable();
             $table->timestamps();
         });
     }

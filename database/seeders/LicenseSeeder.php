@@ -87,6 +87,15 @@ class LicenseSeeder extends Seeder
                     'exam_schedule_days' => 7,
                 ],
             ],
+              LicenseType::TEST->value => [ 
+        'min_age' => 18,
+        'registration_fee' => 1,
+        'requirements' => [
+            'nationality' => 'syrian',
+            'allowed_for_military' => true,
+            'exam_schedule_days' => 5,
+        ],
+    ],
         ];
 
         foreach (LicenseType::cases() as $licenseType) {

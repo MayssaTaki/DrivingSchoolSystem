@@ -16,6 +16,8 @@ class LicenseRequestStore extends FormRequest
             'license_code' => 'required|exists:licenses,code',
             'type' => 'required|in:new,renewal,replacement',
             'notes' => 'nullable|string',
+             'amount' => ['required', 'integer', 'min:1'], 
+            'ttl'    => ['nullable', 'integer', 'min:1'],  
             'required_documents' => 'required|array',
             'required_documents.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
         ];

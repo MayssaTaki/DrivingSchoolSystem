@@ -22,13 +22,15 @@ protected LicenseRequestServiceInterface $licenseService;
 {
     try {
         $data = $request->validated();
-        $licenseRequest = $this->licenseService->requestLicense($data);
+        $result = $this->licenseService->requestLicense($data);
 
         return response()->json([
             'success' => true,
             'message' => 'تم تقديم الطلب بنجاح.',
-            'data' => new LicenseRequestResource($licenseRequest)
-        ], 201);
+'data' => [
+                'license_request' => new LicenseRequestResource($result['licenseRequest']),
+                'payment' => $result['payment']
+            ]        ], 201);
 
     } catch (\Exception $e) {
         Log::error('خطأ في store (Exception)', [

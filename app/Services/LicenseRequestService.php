@@ -8,6 +8,10 @@ use App\Repositories\Contracts\LicenseRequestRepositoryInterface;
 use App\Services\Interfaces\LogServiceInterface;
 use App\Services\Interfaces\ActivityLoggerServiceInterface;
 use App\Services\Interfaces\TransactionServiceInterface;
+use App\Services\Interfaces\MtnPaymentClientServiceInterface;
+use App\Repositories\Contracts\PaymentTransactionRepositoryInterface;
+use App\Models\PracticalExamSchedule;
+
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use App\Events\ImageUploaded;
@@ -25,17 +29,24 @@ protected LogServiceInterface $logService;
 protected ActivityLoggerServiceInterface $activityLogger;
 protected  TransactionServiceInterface $transactionService;
 protected FirebaseServiceInterface $firebaseservice;
+protected MtnPaymentClientServiceInterface $paymentService;
+protected PaymentTransactionRepositoryInterface $paymentRepo;
 
     public function __construct(LicenseRequestRepositoryInterface $licenseRepository
      ,LogServiceInterface $logService
         ,ActivityLoggerServiceInterface $activityLogger,TransactionServiceInterface $transactionService,
-            FirebaseService $firebaseService
+            FirebaseService $firebaseService,
+                    MtnPaymentClientServiceInterface $paymentService,
+PaymentTransactionRepositoryInterface $paymentRepo
+            
 )
     {
         $this->licenseRepository = $licenseRepository;
            $this->logService = $logService;
         $this->activityLogger = $activityLogger;
                     $this->firebaseService = $firebaseService;
+        $this->paymentService = $paymentService;
+        $this->paymentRepo = $paymentRepo;
 
     }
 
@@ -44,7 +55,9 @@ public function requestLicense(array $data)
     try {
         $student = auth()->user()->student;
         $license = License::where('code', $data['license_code'])->firstOrFail();
-
+   if ((int)$data['amount'] !== (int)$license->registration_fee) {
+            throw new \Exception("المبلغ المحدد لا يطابق سعر الرخصة: {$license->registration_fee}");
+        }
         $this->checkConditions($student, $license, $data);
 
         $data['student_id'] = $student->id;
@@ -73,6 +86,11 @@ public function requestLicense(array $data)
         $data['required_documents'] = $storedDocs;
 
         $licenseRequest = $this->licenseRepository->create($data);
+        $payment = $this->paymentService->createInvoice((int)$data['amount']); 
+$transaction = $this->paymentRepo->findByInvoice($payment['invoiceId']);
+$licenseRequest->update([
+    'payment_transaction_id' => $transaction->id
+]);
 
         event(new LicenseRequested($student, $license));
 
@@ -96,8 +114,10 @@ public function requestLicense(array $data)
             auth()->user(),
             'request_license'
         );
-
-        return $licenseRequest;
+return [
+        'licenseRequest' => $licenseRequest,
+        'payment' => $payment
+    ];
 
     } catch (\Exception $e) {
         $this->logService->log('error', 'فشل إضافة طلب رخصة', [
@@ -201,6 +221,25 @@ public function rejectRequest(int $requestId, string $reason): bool
         }
 
         $this->licenseRepository->updateStatus($requestId, 'rejected', $reason);
+
+         $paymentTransaction = $licenseRequest->paymentTransaction;
+        if ($paymentTransaction) {
+            $invoiceId = (int) $paymentTransaction->invoice_id;
+
+            $refundInit = $this->paymentService->initiateRefund([
+                'invoiceId' => $invoiceId
+            ]);
+
+            $refundInvoice = $refundInit['apiResponse']['json']['RefundInvoice'] ?? null;
+
+            if ($refundInvoice) {
+                $this->paymentService->confirmRefund([
+                    'baseInvoice'   => $invoiceId,
+                    'refundInvoice' => (int) $refundInvoice
+                ]);
+            }
+        }
+
 event(new LicenseRequestRejected($licenseRequest, $reason));
   $student = $licenseRequest->student;
         $user = $student->user;
@@ -208,8 +247,8 @@ event(new LicenseRequestRejected($licenseRequest, $reason));
         if ($user && $user->fcm_token) {
             $this->firebaseService->sendNotification(
                 $user->fcm_token,
-               '❌ تم رفض طلب الرخصة',
-                "تمت رفض   طلبك للرخصة بالكود: {$licenseRequest->license->code}"
+                ' ❌ تم رفض طلب الرخصة و استرداد مبلغك بالكامل ',
+                "تم رفض   طلبك للرخصة بالكود: {$licenseRequest->license->code} و استرداد مبلغك بالكامل "
             );
         }
         $this->activityLogger->log(
@@ -276,5 +315,12 @@ public function getMonthlyReport(int $year, ?string $licenseCode, ?string $statu
 {
     return $this->licenseRepository->mostRequestedLicenses($limit);
 }
+
+public function issueLicenseAfterExam(PracticalExamSchedule $schedule, string $issuedAt, string $expiresAt): bool
+    {
+        $licenseRequest = $schedule->licenseRequest;
+
+        return $this->licenseRepository->updateDates($licenseRequest->id, $issuedAt, $expiresAt);
+    }
 
 }

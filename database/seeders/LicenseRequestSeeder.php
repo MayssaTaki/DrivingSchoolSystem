@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\LicenseRequest;
 use App\Models\License;
 use App\Models\Student;
+use App\Models\PaymentTransaction;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
 use Illuminate\Support\Arr;
@@ -29,7 +30,7 @@ class LicenseRequestSeeder extends Seeder
         $licenses = License::all();
 
         if ($students->isEmpty() || $licenses->isEmpty()) {
-            $this->command->warn("لا يوجد طلاب أو رخص في قاعدة البيانات.");
+            $this->command->warn("⚠️ لا يوجد طلاب أو رخص في قاعدة البيانات.");
             return;
         }
 
@@ -41,12 +42,28 @@ class LicenseRequestSeeder extends Seeder
             $type = Arr::random($types);
             $notes = Arr::random($notesList);
 
+            if ($status === 'rejected') {
+                $payment = PaymentTransaction::where('status', 'refund_confirmed')->inRandomOrder()->first();
+            } elseif ($status === 'approved') {
+                $payment = PaymentTransaction::where('status', 'confirmed')->inRandomOrder()->first();
+            } elseif ($status === 'pending') {
+                $payment = PaymentTransaction::whereIn('status', ['created', 'confirmed'])->inRandomOrder()->first();
+            } else {
+                $payment = PaymentTransaction::inRandomOrder()->first(); // fallback
+            }
+
+            if (!$payment) {
+                $this->command->warn("⚠️ لا يوجد معاملات دفع مناسبة للحالة: $status");
+                continue;
+            }
+
             $issuedAt = $status === 'approved' ? now()->subDays(rand(1, 30)) : null;
             $expiresAt = $issuedAt ? $issuedAt->copy()->addYear() : null;
 
             LicenseRequest::create([
                 'student_id' => $student->id,
                 'license_id' => $license->id,
+                'payment_transaction_id' => $payment->id,
                 'status' => $status,
                 'notes' => $notes,
                 'type' => $type,

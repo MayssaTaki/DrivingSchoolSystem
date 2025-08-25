@@ -51,5 +51,9 @@ class TrainingSchedulesRepository implements TrainingSchedulesRepositoryInterfac
 {
     return TrainingSchedule::findOrFail($id);
 }
-
+   public function setRegistrationFee(int $id, int $fee) {
+        $schedule = TrainingSchedule::findOrFail($id);
+        $schedule->update(['registration_fee' => $fee]);
+        return $schedule;
+    }
 }

@@ -16,6 +16,8 @@ class TrainerSessionDayResource extends JsonResource
                     'start_time' => $session->start_time,
                     'end_time' => $session->end_time,
                     'status' => $session->status,
+                    'registration_fee'=>$session->registration_fee,
+
                 ];
             }),
         ];

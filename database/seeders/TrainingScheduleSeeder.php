@@ -51,6 +51,7 @@ class TrainingScheduleSeeder extends Seeder
                     'valid_from' => Carbon::now()->addDays(rand(0, 5))->toDateString(),
                     'valid_to' => Carbon::now()->addMonths(rand(1, 3))->toDateString(),
                     'status' => 'active',
+                     'registration_fee' => rand(50, 200), 
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

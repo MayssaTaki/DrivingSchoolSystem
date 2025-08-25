@@ -10,6 +10,7 @@ use App\Events\ScheduleNeedsSessionGeneration;
 use App\Events\TrainingSchedulesCreated;
 use App\Events\TrainingScheduleActivated;
 use App\Events\TrainingScheduleDeactivated;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -151,7 +152,9 @@ public function activate(int $id)
             if (Gate::denies('active', $schedule)) {
                 throw new AuthorizationException('ليس لديك صلاحية تفعيل جدول التدريب.');
             }
-
+  if (is_null($schedule->registration_fee)) {
+    throw new HttpException(422, 'يجب تحديد سعر التسجيل للجدول قبل التفعيل.');
+}
             $updatedSchedule = $this->changeStatusWithCheck($id, 'active');
 
             event(new TrainingScheduleCreated($updatedSchedule));
@@ -259,4 +262,16 @@ $trainer = $updatedSchedule->trainer;
 
         return $updatedSchedule;
     }
+
+   public function updateFee(int $scheduleId, int $fee) 
+{
+    $schedule = $this->trainingRepository->findById($scheduleId);
+
+    if (Gate::denies('Fee', $schedule)) {
+        throw new AuthorizationException('ليس لديك صلاحية بتحديد السعر.');
+    }
+
+    return $this->trainingRepository->setRegistrationFee($scheduleId, $fee);
+}
+
 }

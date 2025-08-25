@@ -3,6 +3,8 @@
 namespace App\Services\Interfaces;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use App\Models\PracticalExamSchedule;
+
 interface LicenseRequestServiceInterface
 {
          public function requestLicense(array $data);
@@ -19,5 +21,6 @@ interface LicenseRequestServiceInterface
         public function getMonthlyReport(int $year, ?string $licenseCode, ?string $status): Collection;
     public function getTypeReport(): Collection;
 public function getMostRequestedLicenses(int $limit = 2): Collection;
+    public function issueLicenseAfterExam(PracticalExamSchedule $schedule, string $issuedAt, string $expiresAt): bool;
 
 }

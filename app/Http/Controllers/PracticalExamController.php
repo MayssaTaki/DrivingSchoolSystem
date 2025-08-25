@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Requests\PracticalExamScheduleStoreRequest;
 use Illuminate\Http\Request;
 use App\Http\Resources\PracticalExamResource;
+use App\Services\Interfaces\LicenseRequestServiceInterface;
 
 
 
@@ -14,10 +15,11 @@ class PracticalExamController extends Controller
 {
     protected PracticalExamServiceInterface $practical;
 
-    public function __construct(PracticalExamServiceInterface $practical)
+    public function __construct(PracticalExamServiceInterface $practical,LicenseRequestServiceInterface $licenseService)
     {
         $this->practical = $practical;
- 
+         $this->licenseService = $licenseService;
+
    }
 
    public function store(PracticalExamScheduleStoreRequest $req): JsonResponse
@@ -45,9 +47,22 @@ class PracticalExamController extends Controller
         ]);
     }
 
-    public function markAsPassed($id): JsonResponse
+    public function markAsPassed(Request $request,$id): JsonResponse
 {
-    $this->practical->markAsPassed($id);
+    $request->validate([
+            'issued_at' => 'required|date',
+            'expires_at' => 'required|date|after_or_equal:issued_at',
+        ]);
+
+        $issuedAt = $request->input('issued_at');
+        $expiresAt = $request->input('expires_at');
+   $schedule = $this->practical->markAsPassed($id);
+
+    if (!$schedule) {
+        return response()->json(['message' => 'تعذر تحديث حالة الامتحان'], 422);
+    }
+    $this->licenseService->issueLicenseAfterExam($schedule, $issuedAt, $expiresAt);
+
     return response()->json(['message' => 'تم تعيين الحالة: ناجح']);
 }
 

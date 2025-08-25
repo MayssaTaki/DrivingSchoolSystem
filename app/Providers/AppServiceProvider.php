@@ -42,6 +42,7 @@ use App\Repositories\CarReservationRepository;
 use App\Repositories\CarReservationReportRepository;
 use App\Repositories\CarLocationRepository;
 use App\Repositories\PaymentRepository;
+use App\Repositories\PaymentTransactionRepository;
 
 
 
@@ -78,6 +79,7 @@ use App\Repositories\Contracts\CarReservationRepositoryInterface;
 use App\Repositories\Contracts\CarReservationReportRepositoryInterface;
 use App\Repositories\Contracts\CarLocationRepositoryInterface;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
+use App\Repositories\Contracts\PaymentTransactionRepositoryInterface;
 
 // Services & Interfaces
 use App\Services\ExamService;
@@ -116,7 +118,7 @@ use App\Services\ImageService;
 use App\Services\CarReservationService;
 use App\Services\CarReservationReportService;
 use App\Services\CarLocationService;
-use App\Services\PaymentService;
+use App\Services\MtnPaymentClientService;
 
 
 use App\Services\Interfaces\ExamServiceInterface;
@@ -155,7 +157,7 @@ use App\Services\Interfaces\ImageServiceInterface;
 use App\Services\Interfaces\CarReservationServiceInterface;
 use App\Services\Interfaces\CarReservationReportServiceInterface;
 use App\Services\Interfaces\CarLocationServiceInterface;
-use App\Services\Interfaces\PaymentServiceInterface;
+use App\Services\Interfaces\MtnPaymentClientServiceInterface;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -197,7 +199,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CarReservationRepositoryInterface::class, CarReservationRepository::class);
         $this->app->bind(CarReservationReportRepositoryInterface::class, CarReservationReportRepository::class);
         $this->app->bind(CarLocationRepositoryInterface::class, CarLocationRepository::class);
-        $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
+        $this->app->bind(PaymentTransactionRepositoryInterface::class, PaymentTransactionRepository::class);
 
 
         $this->app->bind(LogServiceInterface::class, LogService::class);
@@ -236,7 +238,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CarReservationServiceInterface::class, CarReservationService::class);
         $this->app->bind(CarReservationReportServiceInterface::class, CarReservationReportService::class);
         $this->app->bind(CarLocationServiceInterface::class, CarLocationService::class);
-        $this->app->bind(PaymentServiceInterface::class, PaymentService::class);
+        $this->app->bind(MtnPaymentClientServiceInterface::class, MtnPaymentClientService::class);
 
 
     }

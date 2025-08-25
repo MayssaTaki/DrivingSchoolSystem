@@ -53,7 +53,7 @@ class TrainingSchedulesResource extends JsonResource
               'start_time' => substr($this->start_time, 0, 5),
             'end_time' => substr($this->end_time, 0, 5),
            'is_recurring' => (bool)$this->is_recurring,
-           
+           'registration_fee'=>$this->registration_fee,
             'status' => $this->status,
           
         ];

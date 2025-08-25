@@ -16,6 +16,8 @@ class AutoBookRequest extends FormRequest
         'session_id' => ['required', 'exists:training_sessions,id'],
         'transmission' => ['required', 'in:automatic,manual'],
         'is_for_special_needs' => ['required', 'boolean'],
+         'amount' => ['required', 'integer', 'min:1'], 
+            'ttl'    => ['nullable', 'integer', 'min:1'],
 
         ];
     }

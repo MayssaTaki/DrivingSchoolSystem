@@ -7,6 +7,7 @@ interface TrainingSchedulesServiceInterface
     public function getTrainerSchedules($trainerId);
 
     public function clearTrainingCache($trainerId): void;
+    public function updateFee(int $scheduleId, int $fee);
 
     public function createMany(array $schedules);
 

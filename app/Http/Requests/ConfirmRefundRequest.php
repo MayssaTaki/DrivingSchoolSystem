@@ -8,9 +8,8 @@ class ConfirmRefundRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'invoice_id' => 'required|string|exists:payment_transactions,invoice_id',
-            'guid'       => 'required|string',
-            'otp'        => 'required|string|min:4',
+          'baseInvoice'   => 'required|numeric|exists:payment_transactions,invoice_id',
+            'refundInvoice' => 'required|numeric',
         ];
     }
 

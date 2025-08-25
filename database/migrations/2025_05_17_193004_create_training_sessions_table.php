@@ -18,8 +18,8 @@ return new class extends Migration
     $table->date('session_date')->index();
     $table->time('start_time');
     $table->time('end_time');
+    $table->unsignedInteger('registration_fee');
         $table->unique(['trainer_id', 'session_date', 'start_time'], 'unique_trainer_session');
-
 $table->enum('status', ['available', 'vacation' ,'booked', 'cancelled','completed'])->default('available');
     $table->timestamps();
 });

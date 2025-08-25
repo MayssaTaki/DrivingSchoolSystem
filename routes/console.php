@@ -8,6 +8,17 @@ use Illuminate\Support\Facades\Broadcast;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+
+
+ Schedule::command('backup:run')
+        ->dailyAt('02:00');
+Schedule::command('backup:run')
+        ->weeklyOn(0, '03:00');
+         // ملاحظة: 0 = الأحد, 1 = الاثنين, ... 6 = السبت
+        Schedule::command('backup:run')
+        ->monthlyOn(1, '04:00');
+        
  Schedule::command('archive:exam-attempts')
         ->daily()
         ->before(function () {
